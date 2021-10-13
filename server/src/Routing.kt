@@ -4,6 +4,7 @@ import io.ktor.application.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import kotlinx.coroutines.launch
 
 fun Application.configureRouting() {
 
@@ -13,7 +14,7 @@ fun Application.configureRouting() {
         get("/newGame") {
             val game = gamesManager.createNewGame()
             call.respondText(game.id.toString() + '\n')
-            game.run()
+            launch {game.run()}
         }
 
         post("/gameState") {
