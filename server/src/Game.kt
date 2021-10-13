@@ -4,17 +4,16 @@ import kotlinx.coroutines.delay
 
 typealias GameId = Int
 
-data class Game(val id: GameId) {
+data class Game(val id: GameId, val player1Id: UserId, val player2Id: UserId) {
 
-    var ticks = 0
+    var state = 0
 
     suspend fun run() {
         while (true) {
             delay(1000)
-            ticks++
-            print("Ticked $id\n")
+            println(toString())
         }
     }
 
-    override fun toString() = "id: $id, ticks: $ticks\n"
+    override fun toString() = "id: $id, players: ($player1Id, $player2Id), state: $state"
 }

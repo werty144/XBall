@@ -32,4 +32,5 @@ dependencies {
     implementation "io.ktor:ktor-server-netty:$ktor_version"
     implementation "ch.qos.logback:logback-classic:$logback_version"
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
+    implementation 'com.google.code.gson:gson:2.8.5'
 }
