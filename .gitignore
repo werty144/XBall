@@ -5,3 +5,5 @@
 *.iml
 *.ipr
 *.iws
+client/cmake-build-debug
+client/.idea
