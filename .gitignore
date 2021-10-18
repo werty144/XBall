@@ -7,3 +7,6 @@
 *.iws
 client/cmake-build-debug
 client/.idea
+venv
+__pycache__/
+client-test/.idea

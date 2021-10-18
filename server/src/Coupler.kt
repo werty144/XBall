@@ -1,8 +1,11 @@
 package com.example
 
+import kotlinx.serialization.Serializable
+
 typealias UserId = Int
 typealias InviteId = Int
 
+@Serializable
 data class Invite(val inviteId: InviteId, val inviterId: UserId, val invitedId: UserId)
 
 class Coupler {
@@ -12,10 +15,18 @@ class Coupler {
 
     fun getNewUserId() = spareUserId++;
 
-    fun formNewInvite(inviterId: UserId, invitedId: UserId) {
-        if (invites.any {(it.inviterId == inviterId) and (it.invitedId == invitedId)}) return
+    fun formNewInvite(inviterId: UserId, invitedId: UserId): Invite? {
+        val invitePredicate = {it: Invite -> (it.inviterId == inviterId) and (it.invitedId == invitedId)}
 
-        invites.add(Invite(spareInviteId++, inviterId, invitedId))
+        if (invites.any { invitePredicate(it) }) return null
+
+        val newInvite = Invite(spareInviteId++, inviterId, invitedId)
+        invites.add(newInvite)
+        return newInvite
+    }
+
+    fun getInviteById(inviteId: InviteId): Invite {
+        return invites.first { it.inviteId == inviteId }
     }
 
     fun getInvitesForUser(userId: UserId): List<Invite> {

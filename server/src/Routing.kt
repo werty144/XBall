@@ -17,33 +17,55 @@ fun Application.configureRouting() {
 
     val gamesManager = GamesManager()
     val coupler = Coupler()
-    val apiHandler = APIHandler()
+    val apiHandler = APIHandler(this)
 
     routing {
         val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
-        webSocket("/chat") {
+//        webSocket("/chat") {
+//            val thisConnection = Connection(this)
+//            connections += thisConnection
+//            send("You've logged in as [${thisConnection.name}]")
+//            for (frame in incoming) {
+//                when (frame) {
+//                    is Frame.Text -> {
+//                        val receivedText = frame.readText()
+//                        val textWithUsername = "[${thisConnection.name}]: $receivedText"
+//                        connections.forEach {
+//                            it.session.send(textWithUsername)
+//                        }
+//                    }
+//                }
+//            }
+//        }
+
+        webSocket("/") {
             val thisConnection = Connection(this)
             connections += thisConnection
-            send("You've logged in as [${thisConnection.name}]")
+            send("You've logged in as [${thisConnection.id}]")
+            for (frame in incoming) {
+                apiHandler.handle(frame, thisConnection, connections)
+            }
+        }
+
+        webSocket ("/test1") {
             for (frame in incoming) {
                 when (frame) {
                     is Frame.Text -> {
-                        val receivedText = frame.readText()
-                        val textWithUsername = "[${thisConnection.name}]: $receivedText"
-                        connections.forEach {
-                            it.session.send(textWithUsername)
-                        }
+                        val text = frame.readText()
+                        this.send("Hello, $text 1")
                     }
                 }
             }
         }
 
-        webSocket("/") {
-            val thisConnection = Connection(this)
-            connections += thisConnection
-            send("You've logged in as [${thisConnection.name}]")
+        webSocket ("/test2") {
             for (frame in incoming) {
-                apiHandler.handle(frame, thisConnection, connections)
+                when (frame) {
+                    is Frame.Text -> {
+                        val text = frame.readText()
+                        this.send("Hello, $text 2")
+                    }
+                }
             }
         }
 
@@ -58,21 +80,21 @@ fun Application.configureRouting() {
 //            call.respond(Gson().toJson(invitesForUser))
 //        }
 
-        post("/acceptInvite") {
-            val requestParams = call.receiveParameters()
-            val userId = requestParams["user_id"]!!.toInt()
-            val inviteId = requestParams["invite_id"]!!.toInt()
-            val inviterId = coupler.getInviterId(userId, inviteId)
-
-            if (inviterId == null) {
-                call.respond(HttpStatusCode.BadRequest)
-                return@post
-            }
-
-            val game = gamesManager.createNewGame(inviterId, userId)
-            launch {game.run()}
-            call.respond(HttpStatusCode.OK)
-        }
+//        post("/acceptInvite") {
+//            val requestParams = call.receiveParameters()
+//            val userId = requestParams["user_id"]!!.toInt()
+//            val inviteId = requestParams["invite_id"]!!.toInt()
+//            val inviterId = coupler.getInviterId(userId, inviteId)
+//
+//            if (inviterId == null) {
+//                call.respond(HttpStatusCode.BadRequest)
+//                return@post
+//            }
+//
+//            val game = gamesManager.createNewGame(inviterId, userId)
+//            launch {game.run()}
+//            call.respond(HttpStatusCode.OK)
+//        }
 
 //        post("/checkGames") {
 //            val requestParams = call.receiveParameters()
@@ -103,5 +125,5 @@ class Connection(val session: DefaultWebSocketSession) {
         var lastId = AtomicInteger(0)
     }
 
-    val name = "user${lastId.getAndIncrement()}"
+    val id = lastId.getAndIncrement()
 }
