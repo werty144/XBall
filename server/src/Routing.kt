@@ -41,7 +41,7 @@ fun Application.configureRouting() {
         webSocket("/") {
             val thisConnection = Connection(this)
             connections += thisConnection
-            send("You've logged in as [${thisConnection.id}]")
+            send("${thisConnection.id}")
             for (frame in incoming) {
                 apiHandler.handle(frame, thisConnection, connections)
             }

@@ -1,0 +1,26 @@
+<MenuScreen>:
+    Label:
+        id: user_id_label
+        size_hint: (0.2, 0.1)
+        pos_hint: {"top": 1}
+        text: "huyara"
+
+    BoxLayout:
+        size_hint: (0.6, 0.4)
+        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+        orientation: "vertical"
+        BoxLayout:
+            Label:
+                size_hint_x: 0.5
+                text: "Invite user"
+            TextInput:
+                multiline: False
+                on_text_validate: root.send_invite(self.text)
+        BoxLayout:
+            Label:
+                size_hint_x: 0.5
+                text: "Invite from"
+            Button:
+                text: "Accept"
+                on_touch_down: root.accept_invite()
+

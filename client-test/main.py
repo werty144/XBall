@@ -1,26 +1,24 @@
 import asyncio
-import websockets
+
+from kivy.app import App
+
+from connection import hello
+from MenuScreen import MenuScreen
 
 
-async def hello():
-    uri = "ws://localhost:8080"
-    async with websockets.connect(uri + "/test1") as websocket:
-        name = input("What's your name? ")
+class XBallClientApp(App):
 
-        await websocket.send(name)
-        print(f"> {name}")
-
-        async with websockets.connect(uri + "/test2") as websocket2:
-            name = input("What's your name? ")
-
-            await websocket2.send(name)
-            print(f"> {name}")
-
-            greeting = await websocket2.recv()
-            print(f"< {greeting}")
-
-        greeting = await websocket.recv()
-        print(f"< {greeting}")
+    def build(self):
+        menu_screen = MenuScreen()
+        return menu_screen
 
 
-asyncio.get_event_loop().run_until_complete(hello())
+async def run_app_with_close(app, connection_task):
+    await app.async_run()
+    connection_task.cancel()
+
+
+if __name__ == '__main__':
+    app = XBallClientApp()
+    connection_task = asyncio.ensure_future(hello(app))
+    asyncio.get_event_loop().run_until_complete(asyncio.gather(run_app_with_close(app, connection_task), connection_task))
