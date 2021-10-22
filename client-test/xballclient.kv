@@ -15,12 +15,32 @@
                 text: "Invite user"
             TextInput:
                 multiline: False
+                text: ""
                 on_text_validate: root.send_invite(self.text)
         BoxLayout:
             Label:
+                id: invite_from_label
                 size_hint_x: 0.5
                 text: "Invite from"
             Button:
                 text: "Accept"
-                on_touch_down: root.accept_invite()
+                on_press: root.accept_invite()
 
+
+<GameScreen>:
+    BoxLayout:
+        size_hint: (0.6, 0.4)
+        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+        orientation: "horizontal"
+        BoxLayout:
+            orientation: "vertical"
+            Button:
+                text: "+"
+                on_press: root.make_move("inc")
+            Button:
+                text: "-"
+                on_press: root.make_move("dec")
+        Label:
+            id: game_state
+            font_size: "72dp"
+            text: "0"

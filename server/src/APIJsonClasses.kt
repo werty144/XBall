@@ -12,3 +12,5 @@ data class APIRequest(val path: String, val body: JsonElement)
 data class APIInvite(val invitedId: UserId): RequestBody()
 @Serializable
 data class APIAcceptInvite(val inviteId: InviteId): RequestBody()
+@Serializable
+data class APIMakeMove(val gameId: GameId, val move: String): RequestBody()

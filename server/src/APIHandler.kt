@@ -13,7 +13,8 @@ object BodySerializer: JsonContentPolymorphicSerializer<RequestBody>(RequestBody
     override fun selectDeserializer(element: JsonElement) = when {
         "invitedId" in element.jsonObject -> APIInvite.serializer()
         "inviteId" in element.jsonObject -> APIAcceptInvite.serializer()
-        else -> APIInvite.serializer()
+        "move" in element.jsonObject -> APIMakeMove.serializer()
+        else -> throw Exception("Unknown body")
     }
 }
 
@@ -46,6 +47,11 @@ class APIHandler(private val coroutineScope: CoroutineScope) {
                         val firstPlayerConnection = connections.first { it.id == invite.inviterId }
                         val secondPlayerConnection = connections.first { it.id == invite.invitedId }
                         coroutineScope.launch {game.run(firstPlayerConnection, secondPlayerConnection)}
+                    }
+                    "makeMove" -> {
+                        val gameId = (requestBody as APIMakeMove).gameId
+                        val move = requestBody.move
+                        gamesManager.makeMove(gameId, move)
                     }
                 }
             }

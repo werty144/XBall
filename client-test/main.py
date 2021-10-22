@@ -1,7 +1,9 @@
 import asyncio
 
 from kivy.app import App
+from kivy.uix.screenmanager import ScreenManager
 
+from GameScreen import GameScreen
 from connection import hello
 from MenuScreen import MenuScreen
 
@@ -9,8 +11,12 @@ from MenuScreen import MenuScreen
 class XBallClientApp(App):
 
     def build(self):
-        menu_screen = MenuScreen()
-        return menu_screen
+        sm = ScreenManager()
+        menu_screen = MenuScreen(name='menu')
+        game_screen = GameScreen(name='game')
+        sm.add_widget(menu_screen)
+        sm.add_widget(game_screen)
+        return sm
 
 
 async def run_app_with_close(app, connection_task):
