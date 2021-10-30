@@ -12,12 +12,12 @@ class GamesManager {
         return game
     }
 
-    fun gameById(gameId: GameId) = gamesList.first {it.gameId == gameId}
+    fun gameById(gameId: GameId) = gamesList.find {it.gameId == gameId}
 
-    fun getGamesForUser(userId: UserId): List<Game> = gamesList.filter { (it.player1Id == userId) or (it.player2Id == userId) }
+    fun getGameForUser(userId: UserId): Game? = gamesList.find { (it.player1Id == userId) or (it.player2Id == userId) }
 
-    fun makeMove(gameId: GameId, move: Move) {
+    fun makeMove(gameId: GameId, move: APIMove) {
         val game = gameById(gameId)
-        game.makeMove(move)
+        game?.makeMove(move)
     }
 }

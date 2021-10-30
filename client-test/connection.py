@@ -40,6 +40,7 @@ async def say(websocket):
 
 
 async def hello(app):
+    # return
     try:
         await asyncio.sleep(0.1)
         uri = "ws://localhost:8080"

@@ -8,16 +8,6 @@ import kotlinx.serialization.json.*
 import kotlinx.coroutines.launch
 
 
-
-object BodySerializer: JsonContentPolymorphicSerializer<RequestBody>(RequestBody::class) {
-    override fun selectDeserializer(element: JsonElement) = when {
-        "invitedId" in element.jsonObject -> APIInvite.serializer()
-        "inviteId" in element.jsonObject -> APIAcceptInvite.serializer()
-        "move" in element.jsonObject -> APIMakeMove.serializer()
-        else -> throw Exception("Unknown body")
-    }
-}
-
 class APIHandler(private val coroutineScope: CoroutineScope) {
 
     private val gamesManager = GamesManager()
@@ -28,20 +18,21 @@ class APIHandler(private val coroutineScope: CoroutineScope) {
             is Frame.Text -> {
                 val userId = connection.id
                 val requestString = frame.readText()
-                val request: APIRequest = Json.decodeFromString(requestString)
+                val request: APIRequest = Json.decodeFromString(APIRequest.serializer(), requestString)
                 val requestPath = request.path
-                val requestBody: RequestBody = Json.decodeFromJsonElement(BodySerializer, request.body)
 
                 when (requestPath) {
                     "invite" -> {
-                        val invitedId = (requestBody as APIInvite).invitedId
+                        val requestBody = Json.decodeFromJsonElement(APIInvite.serializer(), request.body)
+                        val invitedId = requestBody.invitedId
                         val newInvite = coupler.formNewInvite(userId, invitedId)
                         if  (newInvite != null) connections.find { it.id == invitedId }?.session?.send(
                             Json.encodeToString(APIRequest("invite", Json.encodeToJsonElement(newInvite)))
                         )
                     }
                     "acceptInvite" -> {
-                        val inviteId = (requestBody as APIAcceptInvite).inviteId
+                        val requestBody = Json.decodeFromJsonElement(APIAcceptInvite.serializer(), request.body)
+                        val inviteId = requestBody.inviteId
                         val invite = coupler.getInviteById(inviteId)
                         val game = gamesManager.createNewGame(invite.inviterId, invite.invitedId)
                         val firstPlayerConnection = connections.first { it.id == invite.inviterId }
@@ -49,9 +40,11 @@ class APIHandler(private val coroutineScope: CoroutineScope) {
                         coroutineScope.launch {game.run(firstPlayerConnection, secondPlayerConnection)}
                     }
                     "makeMove" -> {
-                        val gameId = (requestBody as APIMakeMove).gameId
-                        val move = requestBody.move
-                        gamesManager.makeMove(gameId, Move())
+                        val requestBody = Json.decodeFromJsonElement(APIMakeMove.serializer(), request.body)
+                        val gameId = gamesManager.getGameForUser(userId)?.gameId
+
+                        val move: APIMove = Json.decodeFromJsonElement(APIMove.serializer(), requestBody.move)
+                        if (gameId != null) gamesManager.makeMove(gameId, move)
                     }
                 }
             }
