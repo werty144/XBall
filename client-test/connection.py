@@ -25,8 +25,7 @@ async def listen(websocket):
         elif message["path"] == "gameState":
             if sm.current != "game":
                 sm.switch_to(game_screen)
-            game_screen.set_game_state(message["body"]["state"])
-            game_screen.game_id = message["body"]["gameId"]
+            game_screen.set_game_state(message["body"])
 
 
 async def say(websocket):

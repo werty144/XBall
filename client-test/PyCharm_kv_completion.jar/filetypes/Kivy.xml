@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<filetype binary="false" default_extension="" description="kv language file" name="Kivy">
+  <highlighting>
+    <options>
+      <option name="LINE_COMMENT" value="#" />
+      <option name="COMMENT_START" value="#" />
+      <option name="COMMENT_END" value="" />
+      <option name="HEX_PREFIX" value="" />
+      <option name="NUM_POSTFIXES" value="" />
+      <option name="HAS_BRACES" value="true" />
+      <option name="HAS_BRACKETS" value="true" />
+      <option name="HAS_PARENS" value="true" />
+      <option name="HAS_STRING_ESCAPES" value="true" />
+    </options>
+    <keywords keywords="Accordion;AnchorLayout;AsyncImage;BorderImage;BoxLayout;Bubble;BubbleButton;Button;PageLayout;Camera;Carousel;CheckBox;Checkbox;Codeinput;Colorpicker;Dropdown;Filechooser;FloatLayout;GridLayout;Image;Label;Layout;ListView;ModalView;Popup;ProgressBar;RelativeLayout;RecycleView; RecycleView;RecycleBoxLayout;RecycleGridLayout;RecycleLayout;Rst;RstDocument;Scatter;ScatterLayout;Screen;ScreenManager;ScrollView;ScrollView;SelectableView;Settings;Slider;Spinner;Splitter;StackLayout;StencilView;Switch;Tabbedpanel;TextInput;ToggleButton;TreeView;Treeview;Video;Videoplayer;Vkeyboard;Widget" ignore_case="false" />
+    <keywords2 keywords="Color;Line;Rectangle;Ellipse;active;anchor_x;anchor_y;app;background_color;background_down;background_normal;bar_color;bold;border;canvas;canvas.after;canvas.before;cap;center;center_x;center_y;col_default_width;col_force_default;color;cols;do_rotation;do_scale;do_scroll;do_translation;font_name;font_size;foreground_color;group;halign;height;id;left;max;min;multiline;on_active;opacity;orientation;padding;points;pos;pos_hint;readonly;rgb;rgba;row_default_height;row_force_default;rows;scroll_x;scroll_y;separator_color;separator_height;size;size_hint;size_hint_x;size_hint_y;source;spacing;state;text;text_size;texture;top;valign;value;width;right;allow_stretch;pos_hint_x;pos_hint_y;markup;do_scroll_x;do_scroll_y" />
+    <keywords3 keywords="on_color;on_focus;on_node_collapse;on_node_expand;on_pause;on_press;on_release;on_resume;on_size;on_text;on_texture_size;on_touch_down;on_touch_up;on_value;on_collapse;on_collapse_alpha;on_pos;on_background_image;on_background_color;on_orientation;on_arrow_image;on_arrow_pos;on_touch_move;on_tex;on_play;on_index;on_slides;on_offset;on_checkbox_active;on_group;on_lexer;on_foreground_color;on_origin;on_radius;on_hsv;on_hsv;on_select;on_entry_added;on_entries_cleared;on_subentry_to_entry;on_remove_subentry;on_submit;on_children;on_anim_delay;on_texture;on_nocache;on_ref_press;on_scroll_complete;on_anim_alpha;on_open;on_dismiss;on_content;on_container;on_source;on_transform;on_pre_enter;on_enter;on_pre_leave;on_leave;on_complete;on_progress;on_current;on_viewport;on_effect_x;on_effect_y;on_effect_cls;on_panel;on_config;on_menu;on_close;on_config_change;on_is_open;on_sizable_from;on_do_default_tab;on_default_tab_text;on_tab_width;on_tab_height;on_tab_pos;on_parent;on_text_validate;on_double_tap;on_triple_tap;on_quad_touch;on_readonly;on_cursor;on_hint_text;on_padding_x;on_padding_y;on_load_func;on_root_options;on_position_change;on_duration_change;on_state;on_volume;on_video;on_alpha;on_annotation;on_position;on_fullscreen;on_key_down;on_key_up;on_opacity" />
+    <keywords4 keywords="None;root;self;mipmap;PushMatrix;PopMatrix;Rotate;RoundedRectangle;Triangle;SmoothLine;angle;origin;dropdown_width;always_release;touch_deselect_last;text_entry_timeout;background_horizontal;background_disabled_horizontal;background_vertical;background_disabled_vertical;background_width;cursor_image;cursor_disabled_image;cursor_width;cursor_height;cursor_size;border_horizontal;border_vertical;value_track;value_track_color;value_track_width;size_hint_min_x;size_hint_min_y;size_hint_min;size_hint_max_x;size_hint_max_y;size_hint_max;show_hidden;dirselect;minimum_width;minimum_height;minimum_size;min_state_time;text_autoupdate;sync_height;underline;strikethrough;outline_width;outline_color;disabled_outline_color;font_hinting;font_kerning;font_blended;ignore_perpendicular_swipes;password_mask" />
+  </highlighting>
+  <extensionMap>
+    <mapping ext="kv" />
+  </extensionMap>
+</filetype>
+

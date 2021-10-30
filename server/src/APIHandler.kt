@@ -36,7 +36,7 @@ class APIHandler(private val coroutineScope: CoroutineScope) {
                     "invite" -> {
                         val invitedId = (requestBody as APIInvite).invitedId
                         val newInvite = coupler.formNewInvite(userId, invitedId)
-                        if  (newInvite != null) connections.find { it.id == invitedId }!!.session.send(
+                        if  (newInvite != null) connections.find { it.id == invitedId }?.session?.send(
                             Json.encodeToString(APIRequest("invite", Json.encodeToJsonElement(newInvite)))
                         )
                     }
@@ -51,7 +51,7 @@ class APIHandler(private val coroutineScope: CoroutineScope) {
                     "makeMove" -> {
                         val gameId = (requestBody as APIMakeMove).gameId
                         val move = requestBody.move
-                        gamesManager.makeMove(gameId, move)
+                        gamesManager.makeMove(gameId, Move())
                     }
                 }
             }

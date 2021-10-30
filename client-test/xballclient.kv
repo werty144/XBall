@@ -28,19 +28,9 @@
 
 
 <GameScreen>:
-    BoxLayout:
-        size_hint: (0.6, 0.4)
-        pos_hint: {"center_x": 0.5, "center_y": 0.5}
-        orientation: "horizontal"
-        BoxLayout:
-            orientation: "vertical"
-            Button:
-                text: "+"
-                on_press: root.make_move("inc")
-            Button:
-                text: "-"
-                on_press: root.make_move("dec")
-        Label:
-            id: game_state
-            font_size: "72dp"
-            text: "0"
+    canvas:
+        Color:
+            rgba: 1, 1, 1, 0.5
+        Rectangle:
+            size: 300, 150
+            pos: 150, 150
