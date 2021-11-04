@@ -37,7 +37,7 @@ class APIHandler(private val coroutineScope: CoroutineScope) {
                         val game = gamesManager.createNewGame(invite.inviterId, invite.invitedId)
                         val firstPlayerConnection = connections.first { it.id == invite.inviterId }
                         val secondPlayerConnection = connections.first { it.id == invite.invitedId }
-                        coroutineScope.launch {game.run(firstPlayerConnection, secondPlayerConnection)}
+                        coroutineScope.launch {gamesManager.runGame(game, firstPlayerConnection, secondPlayerConnection)}
                     }
                     "makeMove" -> {
                         val requestBody = Json.decodeFromJsonElement(APIMakeMove.serializer(), request.body)

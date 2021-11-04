@@ -1,7 +1,7 @@
 import json
+import math
 
-from kivy.core.window import Window
-from kivy.graphics import Rectangle, Color, Line
+from kivy.graphics import Rectangle, Color, Line, Rotate
 from kivy.uix.screenmanager import Screen
 
 
@@ -10,9 +10,9 @@ class GameScreen(Screen):
         self.requests = set()
         self.game_id = None
 
-        self.field_x = 100
-        self.field_y = 150
-        self.scale = 2
+        self.field_x = 50
+        self.field_y = 100
+        self.scale = 4
         self.field_height = 150 * self.scale
         self.field_width = self.field_height * 2
         self.player_width = 10 * self.scale
@@ -28,17 +28,9 @@ class GameScreen(Screen):
             Rectangle(pos=(self.field_x, self.field_y), size=(self.field_width, self.field_height))
 
         for player in state['players']:
-            player_state = player['state']
-            self.canvas.add(Color(rgba=(0, 0, 1, 1)))
-            screen_player_x, screen_player_y = self.field_to_screen_coordinates(player_state['x'], player_state['y'])
-            instruction = Rectangle(pos=(screen_player_x - self.player_width//2, screen_player_y - self.player_width//2),
-                                    size=(self.player_width, self.player_width))
-            self.canvas.add(instruction)
+            self.draw_player(player)
 
-        ball_state = state['ballState']
-        self.canvas.add(Color(rgba=(1, 0, 0, 1)))
-        instruction = Line(circle=(*self.field_to_screen_coordinates(ball_state['x'], ball_state['y']), self.scale * 3))
-        self.canvas.add(instruction)
+        self.draw_ball(state['ballState'])
 
     def make_move(self, move):
         self.requests.add(json.dumps({"path": "makeMove", "body": {"move": move}}))
@@ -66,6 +58,27 @@ class GameScreen(Screen):
                             'actionData': {'x': field_pos[0], 'y': field_pos[1]}})
             self.selected_player_id = None
 
+    def draw_player(self, player):
+        player_state = player['state']
+        self.canvas.add(Color(rgba=(0, 0, 1, 1)))
+        screen_player_x, screen_player_y = self.field_to_screen_coordinates(player_state['x'], player_state['y'])
+        instruction = Rectangle(pos=(screen_player_x - self.player_width // 2, screen_player_y - self.player_width // 2),
+                                size=(self.player_width, self.player_width))
+
+        rotation_angle = rads_to_degs(player_state['rotationAngle'])
+        self.canvas.add(Rotate(angle=rotation_angle, origin=(screen_player_x, screen_player_y)))
+        self.canvas.add(instruction)
+        self.canvas.add(Rotate(angle=-rotation_angle, origin=(screen_player_x, screen_player_y)))
+
+    def draw_ball(self, ball_state):
+        self.canvas.add(Color(rgba=(1, 0, 0, 1)))
+        instruction = Line(circle=(*self.field_to_screen_coordinates(ball_state['x'], ball_state['y']), self.scale * 3))
+        self.canvas.add(instruction)
+
 
 def clip(x, low, up):
     return min(up, max(x, low))
+
+
+def rads_to_degs(rads):
+    return rads / math.pi * 180

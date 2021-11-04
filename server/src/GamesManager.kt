@@ -1,8 +1,15 @@
 package com.example
 
+import io.ktor.http.cio.websocket.*
+import kotlinx.coroutines.delay
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+
 class GamesManager {
     private var spareGameId: GameId = 0
     private val gamesList = ArrayList<Game>()
+    private val updateTime = 10L
 
     fun createNewGame(player1Id: UserId, player2Id: UserId): Game {
         val gameId = spareGameId++
@@ -19,5 +26,15 @@ class GamesManager {
     fun makeMove(gameId: GameId, move: APIMove) {
         val game = gameById(gameId)
         game?.makeMove(move)
+    }
+
+    suspend fun runGame(game: Game, firstPlayerConnection: Connection, secondPlayerConnection: Connection) {
+        while (true) {
+            delay(updateTime)
+            game.nextState(updateTime)
+            val message = Json.encodeToString(APIRequest("gameState", Json.encodeToJsonElement(game.state)))
+            firstPlayerConnection.session.send(message)
+            secondPlayerConnection.session.send(message)
+        }
     }
 }

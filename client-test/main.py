@@ -6,6 +6,8 @@ from kivy.uix.screenmanager import ScreenManager
 from GameScreen import GameScreen
 from connection import hello
 from MenuScreen import MenuScreen
+from kivy.core.window import Window
+Window.size = (1300, 800)
 
 
 class XBallClientApp(App):
