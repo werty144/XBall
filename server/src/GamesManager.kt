@@ -23,9 +23,9 @@ class GamesManager {
 
     fun getGameForUser(userId: UserId): Game? = gamesList.find { (it.player1Id == userId) or (it.player2Id == userId) }
 
-    fun makeMove(gameId: GameId, move: APIMove) {
+    fun makeMove(gameId: GameId, move: APIMove, actorId: UserId) {
         val game = gameById(gameId)
-        game?.makeMove(move)
+        game?.makeMove(move, actorId)
     }
 
     suspend fun runGame(game: Game, firstPlayerConnection: Connection, secondPlayerConnection: Connection) {

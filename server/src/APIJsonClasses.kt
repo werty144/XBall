@@ -22,4 +22,4 @@ abstract class MoveBody
 data class APIMove(val playerId: Int, val action: String, val actionData: JsonElement)
 
 @Serializable
-data class APIMovementMove(val x: Float, val y: Float): MoveBody()
+class APIPoint(val x: Float, val y: Float): MoveBody()

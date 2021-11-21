@@ -44,7 +44,7 @@ class APIHandler(private val coroutineScope: CoroutineScope) {
                         val gameId = gamesManager.getGameForUser(userId)?.gameId
 
                         val move: APIMove = Json.decodeFromJsonElement(APIMove.serializer(), requestBody.move)
-                        if (gameId != null) gamesManager.makeMove(gameId, move)
+                        if (gameId != null) gamesManager.makeMove(gameId, move, userId)
                     }
                 }
             }

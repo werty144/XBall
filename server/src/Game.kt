@@ -8,7 +8,7 @@ import kotlin.math.*
 typealias GameId = Int
 
 @Serializable
-data class Game(val gameId: GameId, val player1Id: UserId, val player2Id: UserId, val gameProperties: GameProperties) {
+data class Game(val gameId: GameId, val player1Id: UserId, val player2Id: UserId, val properties: GameProperties) {
     val state: GameState
 
     init {
@@ -17,15 +17,32 @@ data class Game(val gameId: GameId, val player1Id: UserId, val player2Id: UserId
         val p2State = PlayerState(300.0F, 75F, 0F, 0F)
         val p2 = Player(1, player2Id, p2State)
         val players = listOf(p1, p2)
-        val ballState = BallState(150F, 75F, 0F, 0F, Vector(1.0F, 0.0F))
+        val ballState = BallState(150F, 75F)
         state = GameState(players, ballState)
     }
 
-    fun makeMove(move: APIMove) {
+    fun makeMove(move: APIMove, actorId: UserId) {
+        if (!validateMove(move, actorId)) {
+            return
+        }
         when (move.action) {
             "movement" -> {
-                val destination = Json.decodeFromJsonElement(APIMovementMove.serializer(), move.actionData)
+                val destination = Json.decodeFromJsonElement(Point.serializer(), move.actionData)
                 state.players.find { it.id == move.playerId }?.state?.destination = Point(destination.x, destination.y)
+            }
+            "grab" -> {
+                val player = state.players.find { it.id == move.playerId }!!
+                if (distance(player.state.position, state.ballState.position) <= properties.grabRadius) {
+                    state.ballState.ownerId = player.id
+                    state.ballState.destination = null
+                }
+            }
+            "throw" -> {
+                if (state.ballState.ownerId != move.playerId) return
+
+                val destination = Json.decodeFromJsonElement(Point.serializer(), move.actionData)
+                state.ballState.ownerId = null
+                state.ballState.destination = destination
             }
         }
     }
@@ -34,7 +51,19 @@ data class Game(val gameId: GameId, val player1Id: UserId, val player2Id: UserId
         state.players.forEach {
             it.move(this, updateTime)
         }
+
+        state.ballState.update(this, updateTime)
     }
+
+    fun validateMove(move: APIMove, actorId: UserId): Boolean {
+        val player = state.players.find { it.id == move.playerId }
+        return if (player == null) {
+            false
+        } else {
+            player.teamUser == actorId
+        }
+    }
+
 }
 
 enum class Speed {SLOW, NORM, FAST}
@@ -50,6 +79,8 @@ data class GameProperties(
     val ballSpeed = 150
     val playerRotationSpeed = 2*PI
     val playerRadius = 5
+    val ballRadius = 3
+    val grabRadius = 15
 
     fun pointWithinField(point: Point): Boolean {
         return (0 <= point.x) and (point.x <= width) and (0 <= point.y) and (point.y <= height)
@@ -119,7 +150,7 @@ data class PlayerState(
 @Serializable
 data class Player(val id: Int, val teamUser: UserId, val state: PlayerState) {
     fun move(game: Game, updateTime: Long) {
-        val gameProperties = game.gameProperties
+        val gameProperties = game.properties
 
         if (state.destination != null) {
             val destination = state.destination!!
@@ -152,16 +183,53 @@ data class Player(val id: Int, val teamUser: UserId, val state: PlayerState) {
     }
 
     fun canMove(target: Point, game: Game): Boolean {
-        return game.gameProperties.pointWithinField(target) and
+        return game.properties.pointWithinField(target) and
                 game.state.players.all {
                     (it.id == id) or
-                            (!game.gameProperties.playersIntersectIfPlacedTo(it.state.position, target))
+                            (!game.properties.playersIntersectIfPlacedTo(it.state.position, target))
                 }
     }
 }
 
 @Serializable
-data class BallState(var x: Float, var y: Float, var z: Float = 0F, var speed: Float, val direction: Vector)
+data class BallState(var x: Float, var y: Float) {
+    var z: Float = 0F
+    var ownerId: Int? = null
+    var destination: Point? = null
+
+    var position: Point = Point(0F, 0F)
+        get() = Point(x, y)
+
+    fun update(game: Game, updateTime: Long) {
+        if (ownerId != null) {
+            val player = game.state.players.find { it.id == ownerId }!!
+            val position = player.state.position +
+                    player.state.orientation.unit() *
+                    (game.properties.playerRadius + game.properties.ballRadius).toFloat()
+            x = position.x
+            y = position.y
+        }
+
+        if (destination != null) {
+            val destination = destination!!
+            if (!game.properties.pointWithinField(destination)) return
+
+            val position = Point(x, y)
+            val orientation = Vector(position, destination).unit()
+
+            val step = orientation * (game.properties.ballSpeed / (1000F / updateTime))
+            if (distance(destination, position) <= step.length()) {
+                    x = destination.x
+                    y = destination.y
+                    this.destination = null
+            } else {
+                val nextPoint = position + step
+                x = nextPoint.x
+                y = nextPoint.y
+            }
+        }
+    }
+}
 
 @Serializable
 data class GameState(val players: List<Player>, val ballState: BallState)

@@ -15,6 +15,7 @@ async def listen(websocket):
 
     user_id = await websocket.recv()
     menu_screen.set_user_id_label(user_id)
+    game_screen.session_id = int(user_id)
     while True:
         message = await websocket.recv()
         message = json.loads(message)

@@ -1,6 +1,8 @@
 import json
 import math
 
+from kivy.app import App
+from kivy.core.window import Window
 from kivy.graphics import Rectangle, Color, Line, Rotate, Ellipse
 from kivy.uix.screenmanager import Screen
 
@@ -9,6 +11,7 @@ class GameScreen(Screen):
     def __init__(self, **kw):
         self.requests = set()
         self.game_id = None
+        self.session_id = None
 
         self.field_x = 50
         self.field_y = 100
@@ -18,7 +21,15 @@ class GameScreen(Screen):
         self.player_radius = 5
         self.state = None
         self.selected_player_id = None
+        self.throw_intention = False
+        self._keyboard = None
         super().__init__(**kw)
+
+
+    def on_enter(self, *args):
+        self._keyboard = Window.request_keyboard(
+            self._keyboard_closed, self, 'text')
+        self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
     def set_game_state(self, state):
         self.state = state
@@ -53,13 +64,31 @@ class GameScreen(Screen):
         field_pos = self.screen_to_field_coordinates(*touch.pos)
 
         if touch.button == 'left':
-            self.selected_player_id = self.player_id_by_field_coordinates(*field_pos)
-            print(f'New player Id is {self.selected_player_id}')
+            if self.throw_intention:
+                self.make_move({'playerId': self.selected_player_id, 'action': 'throw',
+                                'actionData': {'x': field_pos[0], 'y': field_pos[1]}})
+                self.throw_intention = False
+            else:
+                self.selected_player_id = self.player_id_by_field_coordinates(*field_pos)
 
         if touch.button == 'right':
             if self.selected_player_id is not None:
                 self.make_move({'playerId': self.selected_player_id, 'action': 'movement',
                                 'actionData': {'x': field_pos[0], 'y': field_pos[1]}})
+
+    def _keyboard_closed(self):
+        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
+        self._keyboard = None
+
+    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+        if keycode[1] == 'w':
+            if self.selected_player_id is not None:
+                self.make_move({'playerId': self.selected_player_id, 'action': 'grab',
+                                'actionData': {}})
+        if keycode[1] == 'q':
+            self.throw_intention = True
+
+        return True
 
     def draw_player(self, player):
         player_state = player['state']
@@ -69,6 +98,10 @@ class GameScreen(Screen):
 
         with self.canvas:
             Rotate(angle=rotation_angle, origin=(screen_player_x, screen_player_y))
+            if player['teamUser'] == self.session_id:
+                Color(rgba=(0, 0, 1, 1))
+            else:
+                Color(rgba=(1, 0, 0, 1))
             Ellipse(pos=(screen_player_x - self.player_radius * self.scale, screen_player_y - self.player_radius * self.scale),
                     size=(self.player_radius * self.scale * 2, self.player_radius * self.scale * 2)
                     )
