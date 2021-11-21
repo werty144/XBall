@@ -32,7 +32,7 @@ data class Game(val gameId: GameId, val player1Id: UserId, val player2Id: UserId
 
     fun nextState(updateTime: Long) {
         state.players.forEach {
-            it.move(gameProperties, updateTime)
+            it.move(this, updateTime)
         }
     }
 }
@@ -49,6 +49,15 @@ data class GameProperties(
     val playerSpeed = 60
     val ballSpeed = 150
     val playerRotationSpeed = 2*PI
+    val playerRadius = 5
+
+    fun pointWithinField(point: Point): Boolean {
+        return (0 <= point.x) and (point.x <= width) and (0 <= point.y) and (point.y <= height)
+    }
+
+    fun playersIntersectIfPlacedTo(position1: Point, position2: Point): Boolean {
+        return distance(position1, position2) < 2 * playerRadius
+    }
 }
 
 @Serializable
@@ -102,11 +111,16 @@ data class PlayerState(
     @Required
     var rotationAngle: Float = 0F
         get() = orientation.angle()
+
+    var position: Point = Point(x, y)
+        get() = Point(x, y)
 }
 
 @Serializable
 data class Player(val id: Int, val teamUser: UserId, val state: PlayerState) {
-    fun move(gameProperties: GameProperties, updateTime: Long) {
+    fun move(game: Game, updateTime: Long) {
+        val gameProperties = game.gameProperties
+
         if (state.destination != null) {
             val destination = state.destination!!
             val position = Point(state.x, state.y)
@@ -114,13 +128,17 @@ data class Player(val id: Int, val teamUser: UserId, val state: PlayerState) {
 
             val step = orientation * (gameProperties.playerSpeed / (1000F / updateTime))
             if (distance(destination, position) <= step.length()) {
-                state.x = destination.x
-                state.y = destination.y
-                state.destination = null
+                if (canMove(destination, game)) {
+                    state.x = destination.x
+                    state.y = destination.y
+                    state.destination = null
+                }
             } else {
                 val nextPoint = position + step
-                state.x = nextPoint.x
-                state.y = nextPoint.y
+                if (canMove(nextPoint, game)) {
+                    state.x = nextPoint.x
+                    state.y = nextPoint.y
+                }
             }
 
             val angleDiff = state.orientation.orientedAngleWithVector(orientation)
@@ -131,6 +149,14 @@ data class Player(val id: Int, val teamUser: UserId, val state: PlayerState) {
                 state.orientation = state.orientation.rotated(sign(angleDiff) * maxAngle)
             }
         }
+    }
+
+    fun canMove(target: Point, game: Game): Boolean {
+        return game.gameProperties.pointWithinField(target) and
+                game.state.players.all {
+                    (it.id == id) or
+                            (!game.gameProperties.playersIntersectIfPlacedTo(it.state.position, target))
+                }
     }
 }
 
