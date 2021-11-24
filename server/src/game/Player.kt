@@ -3,6 +3,7 @@ package com.example.game
 import com.example.infrastructure.UserId
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -15,6 +16,7 @@ data class PlayerState(
 ) {
     var speed: Float = 0F
     var positionTarget: Point? = null
+    @Transient
     var orientation: Vector = Vector(1F, 0F)
     var orientationTarget: Point? = null
 
