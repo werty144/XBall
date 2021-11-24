@@ -14,16 +14,18 @@ data class PlayerState(
     @Required
     var z: Float = 0F
 ) {
-    var speed: Float = 0F
+    @Transient
     var positionTarget: Point? = null
     @Transient
     var orientation: Vector = Vector(1F, 0F)
+    @Transient
     var orientationTarget: Point? = null
 
     @Required
     var rotationAngle: Float = 0F
         get() = orientation.angle()
 
+    @Transient
     var position: Point = Point(x, y)
         get() = Point(x, y)
 }
