@@ -1,8 +1,9 @@
-package com.example
+package com.example.routing
 
+import com.example.infrastructure.Coupler
+import com.example.infrastructure.GamesManager
 import io.ktor.http.cio.websocket.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import kotlinx.coroutines.launch

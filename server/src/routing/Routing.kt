@@ -1,4 +1,4 @@
-package com.example
+package com.example.routing
 
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*

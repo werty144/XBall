@@ -22,9 +22,9 @@ class GameScreen(Screen):
         self.state = None
         self.selected_player_id = None
         self.throw_intention = False
+        self.orientation_intention = False
         self._keyboard = None
         super().__init__(**kw)
-
 
     def on_enter(self, *args):
         self._keyboard = Window.request_keyboard(
@@ -68,6 +68,10 @@ class GameScreen(Screen):
                 self.make_move({'playerId': self.selected_player_id, 'action': 'throw',
                                 'actionData': {'x': field_pos[0], 'y': field_pos[1]}})
                 self.throw_intention = False
+            elif self.orientation_intention:
+                self.make_move({'playerId': self.selected_player_id, 'action': 'orientation',
+                                'actionData': {'x': field_pos[0], 'y': field_pos[1]}})
+                self.orientation_intention = False
             else:
                 self.selected_player_id = self.player_id_by_field_coordinates(*field_pos)
 
@@ -82,11 +86,18 @@ class GameScreen(Screen):
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         if keycode[1] == 'w':
+            self.orientation_intention = False
+            self.throw_intention = False
             if self.selected_player_id is not None:
                 self.make_move({'playerId': self.selected_player_id, 'action': 'grab',
                                 'actionData': {}})
         if keycode[1] == 'q':
+            self.orientation_intention = False
             self.throw_intention = True
+
+        if keycode[1] == 'e':
+            self.orientation_intention = True
+            self.throw_intention = False
 
         return True
 

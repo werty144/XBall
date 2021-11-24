@@ -1,5 +1,12 @@
-package com.example
+package com.example.infrastructure
 
+import com.example.game.Game
+import com.example.game.GameId
+import com.example.game.GameProperties
+import com.example.game.Speed
+import com.example.routing.APIMove
+import com.example.routing.APIRequest
+import com.example.routing.Connection
 import io.ktor.http.cio.websocket.*
 import kotlinx.coroutines.delay
 import kotlinx.serialization.encodeToString

@@ -1,4 +1,4 @@
-package com.example
+package com.example.infrastructure
 
 import kotlinx.serialization.Serializable
 

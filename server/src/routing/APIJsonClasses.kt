@@ -1,5 +1,7 @@
-package com.example
+package com.example.routing
 
+import com.example.infrastructure.InviteId
+import com.example.infrastructure.UserId
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
