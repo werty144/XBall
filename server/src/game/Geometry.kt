@@ -1,10 +1,7 @@
 package com.example.game
 
 import kotlinx.serialization.Serializable
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
 
 @Serializable
 data class Point(val x: Float, val y: Float) {
@@ -33,6 +30,8 @@ class Vector{
 
     operator fun times(n: Float): Vector = Vector(x * n, y * n)
 
+    operator fun plus(other: Vector): Vector = Vector(x + other.x, y + other.y)
+
     fun length(): Float = sqrt(x * x + y * y)
 
     fun angle(): Float = atan2(y, x)
@@ -40,5 +39,9 @@ class Vector{
     fun rotated(angle: Float): Vector = Vector(x * cos(angle) - y * sin(angle), x * sin(angle) + y * cos(angle))
 
     fun orientedAngleWithVector(v: Vector): Float = atan2(x * v.y - y * v.x, x * v.x + y * v.y)
+
+    fun angleWithVector(v: Vector): Float = abs(orientedAngleWithVector(v))
+
+    fun orthogonalUnit(): Vector = Vector(-y, x).unit()
 
 }

@@ -39,11 +39,7 @@ data class Game(val gameId: GameId, val player1Id: UserId, val player2Id: UserId
                 grabRandom(this, move)
             }
             "throw" -> {
-                if (state.ballState.ownerId != move.playerId) return
-
-                val destination = Json.decodeFromJsonElement(Point.serializer(), move.actionData)
-                state.ballState.ownerId = null
-                state.ballState.destination = destination
+                throwRandom(this, move)
             }
         }
     }
@@ -86,6 +82,12 @@ data class GameProperties(
     fun pointWithinField(point: Point): Boolean {
         return (0 <= point.x) and (point.x <= width) and (0 <= point.y) and (point.y <= height)
     }
+
+    fun clipPointToField(point: Point): Point =
+        Point(
+            max(0F, min(point.x, width.toFloat())),
+            max(0F, min(point.y, height.toFloat()))
+        )
 
     fun playersIntersectIfPlacedTo(position1: Point, position2: Point): Boolean {
         return distance(position1, position2) < 2 * playerRadius

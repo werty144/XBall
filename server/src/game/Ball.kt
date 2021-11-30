@@ -1,5 +1,6 @@
 package com.example.game
 
+import io.ktor.sessions.*
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -23,7 +24,6 @@ data class BallState(var x: Float, var y: Float) {
 
         if (destination != null) {
             val destination = destination!!
-            if (!game.properties.pointWithinField(destination)) return
 
             val position = Point(x, y)
             val orientation = Vector(position, destination).unit()
