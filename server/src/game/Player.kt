@@ -12,12 +12,13 @@ data class PlayerState(
     var x: Float,
     var y: Float,
     @Required
-    var z: Float = 0F
+    var z: Float = 0F,
+    @Transient
+    var orientation: Vector = Vector(1F, 0F)
 ) {
     @Transient
     var positionTarget: Point? = null
-    @Transient
-    var orientation: Vector = Vector(1F, 0F)
+
     @Transient
     var orientationTarget: Point? = null
 
@@ -32,12 +33,12 @@ data class PlayerState(
 
 @Serializable
 data class Player(val id: Int, val teamUser: UserId, val state: PlayerState) {
-    fun nextState(game: Game, updateTime: Long) {
+    fun nextState(game: Game, updateTime: Float) {
         move(game, updateTime)
         rotate(game, updateTime)
     }
 
-    fun rotate(game: Game, updateTime: Long) {
+    fun rotate(game: Game, updateTime: Float) {
         var direction: Vector? = null
         if (state.positionTarget != null) {
             direction = Vector(state.position, state.positionTarget!!).unit()
@@ -59,7 +60,7 @@ data class Player(val id: Int, val teamUser: UserId, val state: PlayerState) {
         }
     }
 
-    fun move(game: Game, updateTime: Long) {
+    fun move(game: Game, updateTime: Float) {
         if (state.positionTarget != null) {
             val destination = state.positionTarget!!
             val direction = Vector(state.position, destination).unit()

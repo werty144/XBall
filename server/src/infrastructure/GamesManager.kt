@@ -18,9 +18,9 @@ class GamesManager {
     private val gamesList = ArrayList<Game>()
     private val updateTime = 10L
 
-    fun createNewGame(player1Id: UserId, player2Id: UserId): Game {
+    fun createNewGame(invite: Invite): Game {
         val gameId = spareGameId++
-        val game = Game(gameId, player1Id, player2Id, GameProperties(2, Speed.NORM))
+        val game = Game(gameId, invite.inviterId, invite.invitedId, invite.gameProperties)
         gamesList.add(game)
 
         return game

@@ -24,10 +24,9 @@ class APIHandler(private val coroutineScope: CoroutineScope) {
 
                 when (requestPath) {
                     "invite" -> {
-                        val requestBody = Json.decodeFromJsonElement(APIInvite.serializer(), request.body)
-                        val invitedId = requestBody.invitedId
-                        val newInvite = coupler.formNewInvite(userId, invitedId)
-                        if  (newInvite != null) connections.find { it.id == invitedId }?.session?.send(
+                        val invite = Json.decodeFromJsonElement(APIInvite.serializer(), request.body)
+                        val newInvite = coupler.formNewInvite(userId, invite)
+                        if  (newInvite != null) connections.find { it.id == invite.invitedId }?.session?.send(
                             Json.encodeToString(APIRequest("invite", Json.encodeToJsonElement(newInvite)))
                         )
                     }
@@ -35,7 +34,7 @@ class APIHandler(private val coroutineScope: CoroutineScope) {
                         val requestBody = Json.decodeFromJsonElement(APIAcceptInvite.serializer(), request.body)
                         val inviteId = requestBody.inviteId
                         val invite = coupler.getInviteById(inviteId)
-                        val game = gamesManager.createNewGame(invite.inviterId, invite.invitedId)
+                        val game = gamesManager.createNewGame(invite)
                         val firstPlayerConnection = connections.first { it.id == invite.inviterId }
                         val secondPlayerConnection = connections.first { it.id == invite.invitedId }
                         coroutineScope.launch {gamesManager.runGame(game, firstPlayerConnection, secondPlayerConnection)}

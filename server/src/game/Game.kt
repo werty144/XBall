@@ -13,12 +13,25 @@ data class Game(val gameId: GameId, val player1Id: UserId, val player2Id: UserId
     val state: GameState
 
     init {
-        val p1State = PlayerState(0.0F, 75.0F, 0.0F)
-        val p1 = Player(0, player1Id, p1State)
-        val p2State = PlayerState(300.0F, 75F, 0F)
-        val p2 = Player(1, player2Id, p2State)
-        val players = listOf(p1, p2)
-        val ballState = BallState(150F, 75F)
+        val players = ArrayList<Player>()
+        var sparePlayersId = 0
+        for (i in 1..properties.playersNumber) {
+            players.add(Player(sparePlayersId++, player1Id,
+                PlayerState(
+                    properties.fieldWidth * 1/4,
+                    properties.fieldHeight / (properties.playersNumber + 1) * i,
+                    orientation = Vector(1F, 0F)
+                )
+            ))
+            players.add(Player(sparePlayersId++, player2Id,
+                PlayerState(
+                    properties.fieldWidth * 3/4,
+                    properties.fieldHeight / (properties.playersNumber + 1) * i,
+                    orientation = Vector(-1F, 0F)
+                )
+            ))
+        }
+        val ballState = BallState(properties.fieldWidth / 2, properties.fieldHeight / 2)
         state = GameState(players, ballState)
     }
 
@@ -45,11 +58,12 @@ data class Game(val gameId: GameId, val player1Id: UserId, val player2Id: UserId
     }
 
     fun nextState(updateTime: Long) {
+        val speedAdjustedUpdateTime = updateTime * properties.speed.slowingCoefficient()
         state.players.forEach {
-            it.nextState(this, updateTime)
+            it.nextState(this, speedAdjustedUpdateTime)
         }
 
-        state.ballState.update(this, updateTime)
+        state.ballState.update(this, speedAdjustedUpdateTime)
     }
 
     fun validateMove(move: APIMove, actorId: UserId): Boolean {
@@ -63,15 +77,28 @@ data class Game(val gameId: GameId, val player1Id: UserId, val player2Id: UserId
 
 }
 
-enum class Speed {SLOW, NORM, FAST}
+enum class Speed {
+    SLOW,
+    NORMAL,
+    FAST;
+
+    fun slowingCoefficient(): Float {
+        return when (this) {
+            SLOW -> 0.25F
+            NORMAL -> 0.5F
+            FAST -> 1F
+        }
+    }
+}
+
 
 @Serializable
 data class GameProperties(
-    val playersN: Int,
+    val playersNumber: Int,
     val speed: Speed
 ) {
-    val width = 300
-    val height = 150
+    val fieldWidth = 300F
+    val fieldHeight = 150F
     val playerSpeed = 60
     val ballSpeed = 150
     val playerRotationSpeed = 2*PI
@@ -80,13 +107,13 @@ data class GameProperties(
     val grabRadius = 15
 
     fun pointWithinField(point: Point): Boolean {
-        return (0 <= point.x) and (point.x <= width) and (0 <= point.y) and (point.y <= height)
+        return (0 <= point.x) and (point.x <= fieldWidth) and (0 <= point.y) and (point.y <= fieldHeight)
     }
 
     fun clipPointToField(point: Point): Point =
         Point(
-            max(0F, min(point.x, width.toFloat())),
-            max(0F, min(point.y, height.toFloat()))
+            max(0F, min(point.x, fieldWidth.toFloat())),
+            max(0F, min(point.y, fieldHeight.toFloat()))
         )
 
     fun playersIntersectIfPlacedTo(position1: Point, position2: Point): Boolean {

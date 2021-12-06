@@ -12,7 +12,7 @@ data class BallState(var x: Float, var y: Float) {
     var position: Point = Point(0F, 0F)
         get() = Point(x, y)
 
-    fun update(game: Game, updateTime: Long) {
+    fun update(game: Game, updateTime: Float) {
         if (ownerId != null) {
             val player = game.state.players.find { it.id == ownerId }!!
             val position = player.state.position +

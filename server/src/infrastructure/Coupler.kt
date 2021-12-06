@@ -1,12 +1,14 @@
 package com.example.infrastructure
 
+import com.example.game.GameProperties
+import com.example.routing.APIInvite
 import kotlinx.serialization.Serializable
 
 typealias UserId = Int
 typealias InviteId = Int
 
 @Serializable
-data class Invite(val inviteId: InviteId, val inviterId: UserId, val invitedId: UserId)
+data class Invite(val inviteId: InviteId, val inviterId: UserId, val invitedId: UserId, val gameProperties: GameProperties)
 
 class Coupler {
     private var spareUserId: UserId = 0
@@ -15,12 +17,12 @@ class Coupler {
 
     fun getNewUserId() = spareUserId++;
 
-    fun formNewInvite(inviterId: UserId, invitedId: UserId): Invite? {
-        val invitePredicate = {it: Invite -> (it.inviterId == inviterId) and (it.invitedId == invitedId)}
+    fun formNewInvite(inviterId: UserId, apiInvite: APIInvite): Invite? {
+        val invitePredicate = {it: Invite -> (it.inviterId == inviterId) and (it.invitedId == apiInvite.invitedId)}
 
         if (invites.any { invitePredicate(it) }) return null
 
-        val newInvite = Invite(spareInviteId++, inviterId, invitedId)
+        val newInvite = Invite(spareInviteId++, inviterId, apiInvite.invitedId, GameProperties(apiInvite.playersNumber, apiInvite.speed))
         invites.add(newInvite)
         return newInvite
     }

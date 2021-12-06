@@ -1,5 +1,6 @@
 package com.example.routing
 
+import com.example.game.Speed
 import com.example.infrastructure.InviteId
 import com.example.infrastructure.UserId
 import kotlinx.serialization.Serializable
@@ -11,7 +12,7 @@ abstract class RequestBody
 data class APIRequest(val path: String, val body: JsonElement)
 
 @Serializable
-data class APIInvite(val invitedId: UserId): RequestBody()
+data class APIInvite(val invitedId: UserId, val speed: Speed, val playersNumber: Int): RequestBody()
 @Serializable
 data class APIAcceptInvite(val inviteId: InviteId): RequestBody()
 @Serializable
