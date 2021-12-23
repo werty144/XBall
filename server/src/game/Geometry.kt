@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlin.math.*
 
 @Serializable
-data class Point(val x: Float, val y: Float) {
+data class Point(val x: Float, val y: Float, val z:Float = 0F) {
     operator fun plus(vector: Vector): Point {
         return Point(x + vector.x, y + vector.y)
     }
@@ -16,6 +16,7 @@ fun distance(p1: Point, p2: Point) = Vector(p1, p2).length()
 class Vector{
     val x: Float
     val y: Float
+    val z = 0F
 
     constructor(x: Float, y: Float) { this.x =  x; this.y = y }
 

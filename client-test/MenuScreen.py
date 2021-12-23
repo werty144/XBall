@@ -1,3 +1,4 @@
+import asyncio
 import json
 
 from kivy.uix.screenmanager import Screen
@@ -15,6 +16,7 @@ class MenuScreen(Screen):
     invited_id = None
     invite_speed = None
     invite_players_number = None
+    my_id = None
 
     def send_invite(self):
         self.requests.add(json.dumps({"path": "invite", "body": {
@@ -31,7 +33,17 @@ class MenuScreen(Screen):
         self.requests.add(json.dumps({"path": "acceptInvite", "body": {"inviteId": self.cur_invite_id}}))
 
     def set_user_id_label(self, id):
+        self.my_id = id
+        self.auto_invite()
         self.ids['user_id_label'].text = f"Your Id is {id}"
+
+    def auto_invite(self):
+        self.invited_id = self.my_id
+        self.invite_speed = 'FAST'
+        self.invite_players_number = 3
+        self.send_invite()
+        # await asyncio.sleep(1)
+        # self.accept_invite()
 
     def select_speed(self, button_id):
         if self.selected_speed_button is not None:

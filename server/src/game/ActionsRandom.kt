@@ -1,6 +1,7 @@
 package com.example.game
 
 import com.example.routing.APIMove
+import io.ktor.http.cio.websocket.*
 import kotlinx.serialization.json.Json
 import kotlin.math.*
 import kotlin.random.Random.Default.nextDouble
@@ -50,7 +51,7 @@ fun grabProbability(game: Game, move: APIMove): Double {
         if (ballOwnerId == player.id) return 1.0
 
         val ballOwner = game.state.players.find { it.id == ballOwnerId }!!
-        if (ballOwner.teamUser == player.teamUser) return successProbability
+        if (ballOwner.userId == player.userId) return successProbability
 
         val ownerMoves = ballOwner.state.positionTarget != null
         if (ownerMoves) successProbability = successProbability.pow(1F/1.3)
@@ -91,4 +92,21 @@ fun throwRandom(game: Game, move: APIMove) {
     game.state.ballState.ownerId = null
     game.state.ballState.destination = destination
 
+}
+
+fun attackRandom(game: Game, move: APIMove) {
+    val player = game.state.players.find {it.id == move.playerId}!!
+    val playerSide = game.sides[player.userId]!!
+    val destination = game.properties.targetPoint(playerSide.other())
+    game.state.ballState.ownerId = null
+    game.state.ballState.destination = destination
+}
+
+fun targetAttempt(game: Game) {
+    val ballNextPoint = game.state.ballState.nextPoint(game)
+    val targetSide = Side.values().find {
+        distance(game.properties.targetPoint(it), ballNextPoint) < game.properties.ballRadius + game.properties.targetRadius
+    }!!
+    val targetPoint = game.properties.targetPoint(targetSide)
+    game.goal(targetSide)
 }

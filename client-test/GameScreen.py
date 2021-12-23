@@ -4,6 +4,7 @@ import math
 from kivy.app import App
 from kivy.core.window import Window
 from kivy.graphics import Rectangle, Color, Line, Rotate, Ellipse
+from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 
 
@@ -19,6 +20,14 @@ class GameScreen(Screen):
         self.field_height = 150
         self.field_width = self.field_height * 2
         self.player_radius = 5
+        self.ball_radius = 3
+        self.target_x_margin = 0.15
+        self.target_y_margin = 0.5
+        self.target_radius = 5
+        self.score = None
+        self.score_label = Label(text="0:0",
+                              font_size='60sp',
+                              pos_hint={'center_x': 0.5, 'center_y': 0.95})
         self.state = None
         self.selected_player_id = None
         self.throw_intention = False
@@ -31,17 +40,21 @@ class GameScreen(Screen):
             self._keyboard_closed, self, 'text')
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
-    def set_game_state(self, state):
-        self.state = state
+    def set_game(self, message_body):
+        self.state = message_body['state']
+        self.score = message_body['score']
         self.canvas.clear()
+        self.remove_widget(self.score_label)
 
         with self.canvas:
             Rectangle(pos=(self.field_x, self.field_y), size=(self.field_width * self.scale, self.field_height * self.scale))
 
-        for player in state['players']:
+        for player in self.state['players']:
             self.draw_player(player)
 
-        self.draw_ball(state['ballState'])
+        self.draw_ball(self.state['ballState'])
+        self.draw_target()
+        self.draw_score()
 
     def make_move(self, move):
         self.requests.add(json.dumps({"path": "makeMove", "body": {"move": move}}))
@@ -99,6 +112,13 @@ class GameScreen(Screen):
             self.orientation_intention = True
             self.throw_intention = False
 
+        if keycode[1] == 'r':
+            self.orientation_intention = False
+            self.throw_intention = False
+            if self.selected_player_id is not None:
+                self.make_move({'playerId': self.selected_player_id, 'action': 'attack',
+                                'actionData': {}})
+
         return True
 
     def draw_player(self, player):
@@ -109,7 +129,7 @@ class GameScreen(Screen):
 
         with self.canvas:
             Rotate(angle=rotation_angle, origin=(screen_player_x, screen_player_y))
-            if player['teamUser'] == self.session_id:
+            if player['userId'] == self.session_id:
                 Color(rgba=(0, 0, 1, 1))
             else:
                 Color(rgba=(1, 0, 0, 1))
@@ -125,9 +145,25 @@ class GameScreen(Screen):
 
     def draw_ball(self, ball_state):
         self.canvas.add(Color(rgba=(1, 0, 0, 1)))
-        instruction = Line(circle=(*self.field_to_screen_coordinates(ball_state['x'], ball_state['y']), self.scale * 3))
+        instruction = Line(circle=(*self.field_to_screen_coordinates(ball_state['x'], ball_state['y']), self.scale * self.ball_radius))
         self.canvas.add(instruction)
 
+    def draw_target(self):
+        self.canvas.add(Color(rgba=(0, 0, 0, 1)))
+        left = Line(circle=(
+            *self.field_to_screen_coordinates(self.field_width * self.target_x_margin, self.field_height * self.target_y_margin),
+            self.scale * self.target_radius
+        ))
+        right = Line(circle=(
+            *self.field_to_screen_coordinates(self.field_width * (1 - self.target_x_margin), self.field_height * self.target_y_margin),
+            self.scale * self.target_radius
+        ))
+        self.canvas.add(left)
+        self.canvas.add(right)
+
+    def draw_score(self):
+        self.score_label.text = f"{self.score['LEFT']}:{self.score['RIGHT']}"
+        self.add_widget(self.score_label)
 
 def clip(x, low, up):
     return min(up, max(x, low))
