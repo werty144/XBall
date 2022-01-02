@@ -45,4 +45,5 @@ class Vector{
 
     fun orthogonalUnit(): Vector = Vector(-y, x).unit()
 
+    fun reflect(other: Vector): Vector = this.rotated(this.orientedAngleWithVector(other) * 2)
 }

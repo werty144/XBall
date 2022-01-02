@@ -99,6 +99,7 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
 
     fun goal(side: Side) {
         score[side.other()] = score[side.other()]!! + 1
+        state.ballState.destination = properties.targetPoint(side)
         state.ballState.active = false
         toActivityTimer = 3000L
     }
@@ -148,6 +149,7 @@ data class GameProperties(
     val targetYMargin = 0.5F
     val targetZ = 40F
     val targetRadius = 5
+    val flyHeight = 35F
 
     fun pointWithinField(point: Point): Boolean {
         return (0 <= point.x) and (point.x <= fieldWidth) and (0 <= point.y) and (point.y <= fieldHeight)

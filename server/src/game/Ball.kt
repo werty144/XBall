@@ -1,17 +1,23 @@
 package com.example.game
 
 import io.ktor.sessions.*
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class BallState(var x: Float, var y: Float) {
+    @Required
     var z: Float = 0F
     var active = true
     var ownerId: Int? = null
     var destination: Point? = null
+    var flyMode: Boolean = false
 
     var position: Point = Point(0F, 0F)
         get() = Point(x, y)
+
+    var orientation: Vector? = null
+        get() = destination?.let { Vector(position, it).unit() }
 
     fun update(game: Game) {
         if (ownerId != null) {
@@ -23,6 +29,12 @@ data class BallState(var x: Float, var y: Float) {
             y = position.y
             return
         }
+
+        if (flyMode and (z != game.properties.flyHeight)) {
+            z += kotlin.math.min(game.properties.flyHeight - z, 2F)
+            return
+        }
+
 
         if (destination != null) {
             val destination = destination!!
@@ -36,12 +48,21 @@ data class BallState(var x: Float, var y: Float) {
             if (distance(position, destination) <= distance(position, nextPoint)) {
                 x = destination.x
                 y = destination.y
+                flyMode = false
                 this.destination = null
                 return
             }
 
             x = nextPoint.x
             y = nextPoint.y
+        } else {
+            if (!flyMode) {
+                if (z != 0F) {
+                    z -= kotlin.math.min(z, 2F)
+                } else {
+                    flyMode = false
+                }
+            }
         }
     }
 
@@ -54,7 +75,7 @@ data class BallState(var x: Float, var y: Float) {
     }
 
     fun intersectTarget(game: Game, nextPoint: Point): Boolean {
-        return Side.values().any {
+        return flyMode and Side.values().any {
             distance(game.properties.targetPoint(it), nextPoint) <
                 game.properties.targetRadius + game.properties.ballRadius
         }
