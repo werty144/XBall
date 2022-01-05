@@ -16,9 +16,11 @@ fun distance(p1: Point, p2: Point) = Vector(p1, p2).length()
 class Vector{
     val x: Float
     val y: Float
-    val z = 0F
 
-    constructor(x: Float, y: Float) { this.x =  x; this.y = y }
+    constructor(x: Float, y: Float) {
+        this.x =  x
+        this.y = y
+    }
 
     constructor(p1: Point, p2: Point) {
         val xDiff = p2.x - p1.x
@@ -27,7 +29,15 @@ class Vector{
         this.y = yDiff
     }
 
-    fun unit(): Vector = Vector(x / length(), y / length())
+    override fun toString(): String {
+        return "Vector($x, $y)"
+    }
+
+    fun unit(): Vector {
+        val length = length()
+        if (length == 0F) throw IllegalStateException("Zero vector")
+        return Vector(x / length, y / length)
+    }
 
     operator fun times(n: Float): Vector = Vector(x * n, y * n)
 
@@ -46,4 +56,9 @@ class Vector{
     fun orthogonalUnit(): Vector = Vector(-y, x).unit()
 
     fun reflect(other: Vector): Vector = this.rotated(this.orientedAngleWithVector(other) * 2)
+}
+
+fun viewAngle(player: Player, point: Point): Float {
+    if (point == player.state.position) return 0F
+    return player.state.orientation.angleWithVector(Vector(player.state.position, point))
 }

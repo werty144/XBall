@@ -41,10 +41,10 @@ data class Player(val id: Int, val userId: UserId, val state: PlayerState) {
 
     fun rotate(game: Game, updateTime: Float) {
         var direction: Vector? = null
-        if (state.positionTarget != null) {
+        if ((state.positionTarget != null) and (state.positionTarget != state.position)) {
             direction = Vector(state.position, state.positionTarget!!).unit()
         } else {
-            if (state.orientationTarget != null) {
+            if ((state.orientationTarget != null) and (state.orientationTarget != state.positionTarget)) {
                 direction = Vector(state.position, state.orientationTarget!!).unit()
             }
         }
@@ -62,15 +62,15 @@ data class Player(val id: Int, val userId: UserId, val state: PlayerState) {
     }
 
     fun move(game: Game, updateTime: Float) {
-        if (state.positionTarget != null) {
-            val destination = state.positionTarget!!
-            val direction = Vector(state.position, destination).unit()
+        if ((state.positionTarget != null) and (state.positionTarget != state.position)) {
+            val positionTarget = state.positionTarget!!
+            val direction = Vector(state.position, positionTarget).unit()
 
             val step = direction * (game.properties.playerSpeed / (1000F / updateTime))
-            if (distance(destination, state.position) <= step.length()) {
-                if (canMove(destination, game)) {
-                    state.x = destination.x
-                    state.y = destination.y
+            if (distance(positionTarget, state.position) <= step.length()) {
+                if (canMove(positionTarget, game)) {
+                    state.x = positionTarget.x
+                    state.y = positionTarget.y
                     state.positionTarget = null
                 }
             } else {

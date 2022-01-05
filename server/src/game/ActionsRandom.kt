@@ -1,7 +1,6 @@
 package com.example.game
 
 import com.example.routing.APIMove
-import io.ktor.http.cio.websocket.*
 import kotlinx.serialization.json.Json
 import kotlin.math.*
 import kotlin.random.Random.Default.nextDouble
@@ -31,15 +30,9 @@ fun grabProbability(game: Game, move: APIMove): Double {
     var successProbability: Double?
     val ballOwnerId = game.state.ballState.ownerId
 
-    val angle =
-        player.state.orientation.angleWithVector(
-            Vector(
-                player.state.position,
-                ballState.position
-            )
-        )
+    val viewAngle = viewAngle(player, ballState.position)
 
-    successProbability = -(angle / PI) * (angle / PI) + 1
+    successProbability = -(viewAngle / PI) * (viewAngle / PI) + 1
     val playerMoves = player.state.positionTarget != null
     if (playerMoves) {
         successProbability = successProbability.pow(1.3)
@@ -59,14 +52,9 @@ fun grabProbability(game: Game, move: APIMove): Double {
         val ownerMoves = ballOwner.state.positionTarget != null
         if (ownerMoves) successProbability = successProbability.pow(1F/1.3)
 
-        val facingAngle = ballOwner.state.orientation.angleWithVector(
-            Vector(
-                ballOwner.state.position,
-                player.state.position
-            )
-        )
+        val facingAngle = viewAngle(ballOwner, player.state.position)
 
-        successProbability = successProbability * (PI - facingAngle) / PI
+        successProbability *= (PI - facingAngle) / PI
     }
 
     return successProbability
@@ -81,21 +69,23 @@ fun throwRandom(game: Game, move: APIMove) {
 }
 
 fun randomDestination(game: Game, target: Point, player: Player, sigma_factor: Float = 1F/20): Point {
+    if (game.state.ballState.position == target) return target
+
     val random = Random()
 
-    val positionTarget = Vector(player.state.position, target)
+    val ballPositionTarget = Vector(game.state.ballState.position, target)
     val playerMoves = player.state.positionTarget != null
-    var sigma = positionTarget.length() * sigma_factor
+    var sigma = ballPositionTarget.length() * sigma_factor
     if (playerMoves) sigma *= 1.5F
-    val orientationTargetAngle = player.state.orientation.angleWithVector(positionTarget)
-    sigma *= 9 * (orientationTargetAngle / PI).toFloat().pow(3) + 1
+    val viewAngle = viewAngle(player, target)
+    sigma *= 9 * (viewAngle / PI).toFloat().pow(3) + 1
     val dispersion = random.nextGaussian().toFloat() * sigma
 
-    val positionDestination = positionTarget +
-            (positionTarget.unit() * dispersion) +
-            (positionTarget.orthogonalUnit() * dispersion)
+    val ballPositionDestination = ballPositionTarget +
+            (ballPositionTarget.unit() * dispersion) +
+            (ballPositionTarget.orthogonalUnit() * dispersion)
 
-    return game.properties.clipPointToField(player.state.position + positionDestination)
+    return game.properties.clipPointToField(game.state.ballState.position + ballPositionDestination)
 }
 
 fun randomLiftDestination(game: Game, target: Point, player: Player): Point = randomDestination(game, target, player, 0.1f)

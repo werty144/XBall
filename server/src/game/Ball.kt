@@ -17,7 +17,13 @@ data class BallState(var x: Float, var y: Float) {
         get() = Point(x, y)
 
     var orientation: Vector? = null
-        get() = destination?.let { Vector(position, it).unit() }
+        get() = destination?.let {
+            if (position == destination) {
+                null
+            } else {
+                Vector(position, it).unit()
+            }
+        }
 
     fun update(game: Game) {
         if (ownerId != null) {
@@ -67,7 +73,8 @@ data class BallState(var x: Float, var y: Float) {
     }
 
     fun nextPoint(game: Game): Point {
-        if (destination == null) throw NullPointerException("Next step called but no destination")
+        if (destination == null) throw IllegalStateException("Next step called but no destination")
+        if (destination == position) return position
 
         val orientation = Vector(position, destination!!).unit()
         val step = orientation * (game.properties.ballSpeed / (1000F / game.gameUpdateTime))

@@ -2,6 +2,7 @@ package com.example.game
 
 import com.example.routing.APIMove
 import com.example.infrastructure.UserId
+import com.example.routing.tryJsonParse
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlin.math.*
@@ -52,11 +53,11 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
         }
         when (move.action) {
             "movement" -> {
-                val positionTarget = Json.decodeFromJsonElement(Point.serializer(), move.actionData)
+                val positionTarget = tryJsonParse(Point.serializer(), move.actionData) ?: return
                 state.players.find { it.id == move.playerId }?.state?.positionTarget = positionTarget
             }
             "orientation" -> {
-                val orientationTarget = Json.decodeFromJsonElement(Point.serializer(), move.actionData)
+                val orientationTarget = tryJsonParse(Point.serializer(), move.actionData) ?: return
                 state.players.find { it.id == move.playerId }?.state?.orientationTarget = orientationTarget
             }
             "grab" -> {
@@ -67,6 +68,10 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
             }
             "attack" -> {
                 attackRandom(this, move)
+            }
+            "stop" -> {
+                state.players.find { it.id == move.playerId }?.state?.positionTarget = null
+                state.players.find { it.id == move.playerId }?.state?.orientationTarget = null
             }
         }
     }

@@ -61,8 +61,8 @@ class GameScreen(Screen):
         self.requests.add(json.dumps({"path": "makeMove", "body": {"move": move}}))
 
     def screen_to_field_coordinates(self, x, y):
-        return clip((x - self.field_x) // self.scale, 0, 300), \
-               clip((y - self.field_y) // self.scale, 0, 150)
+        return clip((x - self.field_x) // self.scale, 0, self.field_width), \
+               clip((y - self.field_y) // self.scale, 0, self.field_height)
 
     def field_to_screen_coordinates(self, x, y):
         return x * self.scale + self.field_x, \
@@ -102,9 +102,8 @@ class GameScreen(Screen):
         if keycode[1] == 'w':
             self.orientation_intention = False
             self.throw_intention = False
-            if self.selected_player_id is not None:
-                self.make_move({'playerId': self.selected_player_id, 'action': 'grab',
-                                'actionData': {}})
+            self.make_move({'playerId': self.selected_player_id, 'action': 'grab',
+                            'actionData': {}})
         if keycode[1] == 'q':
             self.orientation_intention = False
             self.throw_intention = True
@@ -116,9 +115,11 @@ class GameScreen(Screen):
         if keycode[1] == 'r':
             self.orientation_intention = False
             self.throw_intention = False
-            if self.selected_player_id is not None:
-                self.make_move({'playerId': self.selected_player_id, 'action': 'attack',
-                                'actionData': {}})
+            self.make_move({'playerId': self.selected_player_id, 'action': 'attack',
+                            'actionData': {}})
+
+        if keycode[1] == 's':
+            self.make_move({'playerId': self.selected_player_id, 'action': 'stop', 'actionData': {}})
 
         return True
 
