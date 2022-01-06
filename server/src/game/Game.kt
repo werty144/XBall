@@ -9,19 +9,20 @@ import kotlin.math.*
 
 typealias GameId = Int
 
-@Serializable
 data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, val properties: GameProperties, val worldUpdateTime: Long) {
     var state: GameState
     val sides: Map<UserId, Side>
     val score: MutableMap<Side, Int>
     val gameUpdateTime: Float
-    var toActivityTimer: Long? = null
+    val timer: Timer
 
     init {
         gameUpdateTime = worldUpdateTime * properties.speed.slowingCoefficient()
         sides = mapOf(user1Id to Side.LEFT, user2Id to Side.RIGHT)
         score = mutableMapOf(Side.LEFT to 0, Side.RIGHT to 0)
         state = initialState()
+        timer = Timer(worldUpdateTime)
+        timer.start()
     }
 
     fun initialState(): GameState {
@@ -54,11 +55,11 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
         when (move.action) {
             "movement" -> {
                 val positionTarget = tryJsonParse(Point.serializer(), move.actionData) ?: return
-                state.players.find { it.id == move.playerId }?.state?.positionTarget = positionTarget
+                state.players.find { it.id == move.playerId }?.state?.positionTarget = properties.clipPointToField(positionTarget)
             }
             "orientation" -> {
                 val orientationTarget = tryJsonParse(Point.serializer(), move.actionData) ?: return
-                state.players.find { it.id == move.playerId }?.state?.orientationTarget = orientationTarget
+                state.players.find { it.id == move.playerId }?.state?.orientationTarget = properties.clipPointToField(orientationTarget)
             }
             "grab" -> {
                 grabRandom(this, move)
@@ -77,16 +78,13 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
     }
 
     fun nextState() {
-        if (toActivityTimer != null) {
-            if (toActivityTimer!! > 0) {
-                toActivityTimer = toActivityTimer!! - worldUpdateTime
-            } else {
-                state = initialState()
-                toActivityTimer = null
-                return
-            }
+        if ((!timer.active) && (timer.toActivityCountDown!! <= 0)) {
+            state = initialState()
+            timer.start()
+            return
         }
 
+        timer.tick()
         state.players.forEach {
             it.nextState(this)
         }
@@ -103,10 +101,11 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
     }
 
     fun goal(side: Side) {
+        if (!state.ballState.active) return
         score[side.other()] = score[side.other()]!! + 1
         state.ballState.destination = properties.targetPoint(side)
         state.ballState.active = false
-        toActivityTimer = 3000L
+        timer.stop()
     }
 }
 
@@ -182,3 +181,27 @@ data class GameProperties(
 
 @Serializable
 data class GameState(val players: List<Player>, val ballState: BallState)
+
+data class Timer(val worldUpdateTime: Long) {
+    var time: Long = 0L
+    var active: Boolean = true
+    var toActivityCountDown: Long? = null
+
+    fun start() {
+        active = true
+        toActivityCountDown = null
+    }
+
+    fun stop(toActivityTime: Long = 3000L) {
+        active = false
+        toActivityCountDown = toActivityTime
+    }
+
+    fun tick() {
+        if (active) {
+            time += worldUpdateTime
+        } else {
+            toActivityCountDown = toActivityCountDown?.minus(worldUpdateTime)
+        }
+    }
+}

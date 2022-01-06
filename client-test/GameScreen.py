@@ -26,9 +26,13 @@ class GameScreen(Screen):
         self.target_radius = 5
         self.flyHeight = 35
         self.score = None
+        self.time = None
         self.score_label = Label(text="0:0",
-                              font_size='60sp',
-                              pos_hint={'center_x': 0.5, 'center_y': 0.95})
+                                 font_size='60sp',
+                                 pos_hint={'center_x': 0.5, 'center_y': 0.95})
+        self.time_label = Label(text="0.0",
+                                font_size='35sp',
+                                pos_hint={'center_x': 0.1, 'center_y': 0.95})
         self.state = None
         self.selected_player_id = None
         self.throw_intention = False
@@ -44,11 +48,14 @@ class GameScreen(Screen):
     def set_game(self, message_body):
         self.state = message_body['state']
         self.score = message_body['score']
+        self.time = message_body['time']
         self.canvas.clear()
         self.remove_widget(self.score_label)
+        self.remove_widget(self.time_label)
 
         with self.canvas:
-            Rectangle(pos=(self.field_x, self.field_y), size=(self.field_width * self.scale, self.field_height * self.scale))
+            Rectangle(pos=(self.field_x, self.field_y),
+                      size=(self.field_width * self.scale, self.field_height * self.scale))
 
         for player in self.state['players']:
             self.draw_player(player)
@@ -56,6 +63,7 @@ class GameScreen(Screen):
         self.draw_ball(self.state['ballState'])
         self.draw_target()
         self.draw_score()
+        self.draw_time()
 
     def make_move(self, move):
         self.requests.add(json.dumps({"path": "makeMove", "body": {"move": move}}))
@@ -71,7 +79,7 @@ class GameScreen(Screen):
     def player_id_by_field_coordinates(self, x, y):
         for player in self.state['players']:
             player_x, player_y = player['state']['x'], player['state']['y']
-            if (player_x - x)**2 + (player_y - y)**2 <= self.player_radius**2:
+            if (player_x - x) ** 2 + (player_y - y) ** 2 <= self.player_radius ** 2:
                 return player['id']
 
     def on_touch_down(self, touch):
@@ -135,11 +143,13 @@ class GameScreen(Screen):
                 Color(rgba=(0, 0, 1, 1))
             else:
                 Color(rgba=(1, 0, 0, 1))
-            Ellipse(pos=(screen_player_x - self.player_radius * self.scale, screen_player_y - self.player_radius * self.scale),
+            Ellipse(pos=(
+            screen_player_x - self.player_radius * self.scale, screen_player_y - self.player_radius * self.scale),
                     size=(self.player_radius * self.scale * 2, self.player_radius * self.scale * 2)
                     )
             Color(rgba=(1, 1, 0, 1))
-            Line(points=[screen_player_x, screen_player_y, screen_player_x + self.player_radius * self.scale, screen_player_y],
+            Line(points=[screen_player_x, screen_player_y, screen_player_x + self.player_radius * self.scale,
+                         screen_player_y],
                  width=2)
             if player['id'] == self.selected_player_id:
                 Line(circle=(screen_player_x, screen_player_y, self.player_radius * self.scale), width=2)
@@ -148,17 +158,20 @@ class GameScreen(Screen):
     def draw_ball(self, ball_state):
         self.canvas.add(Color(rgba=(1, 0, 0, 1)))
         ball_radius = (1 + ball_state['z'] / self.flyHeight) * self.ball_radius
-        instruction = Line(circle=(*self.field_to_screen_coordinates(ball_state['x'], ball_state['y']), self.scale * ball_radius))
+        instruction = Line(
+            circle=(*self.field_to_screen_coordinates(ball_state['x'], ball_state['y']), self.scale * ball_radius))
         self.canvas.add(instruction)
 
     def draw_target(self):
         self.canvas.add(Color(rgba=(0, 0, 0, 1)))
         left = Line(circle=(
-            *self.field_to_screen_coordinates(self.field_width * self.target_x_margin, self.field_height * self.target_y_margin),
+            *self.field_to_screen_coordinates(self.field_width * self.target_x_margin,
+                                              self.field_height * self.target_y_margin),
             self.scale * self.target_radius
         ))
         right = Line(circle=(
-            *self.field_to_screen_coordinates(self.field_width * (1 - self.target_x_margin), self.field_height * self.target_y_margin),
+            *self.field_to_screen_coordinates(self.field_width * (1 - self.target_x_margin),
+                                              self.field_height * self.target_y_margin),
             self.scale * self.target_radius
         ))
         self.canvas.add(left)
@@ -168,9 +181,19 @@ class GameScreen(Screen):
         self.score_label.text = f"{self.score['LEFT']}:{self.score['RIGHT']}"
         self.add_widget(self.score_label)
 
+    def draw_time(self):
+        self.time_label.text = millis_to_min_secs_string(self.time)
+        self.add_widget(self.time_label)
+
+
 def clip(x, low, up):
     return min(up, max(x, low))
 
 
 def rads_to_degs(rads):
     return rads / math.pi * 180
+
+
+def millis_to_min_secs_string(mls):
+    secs = mls // 1000
+    return f'{secs // 60}.{secs % 60}'

@@ -44,7 +44,7 @@ data class Player(val id: Int, val userId: UserId, val state: PlayerState) {
         if ((state.positionTarget != null) and (state.positionTarget != state.position)) {
             direction = Vector(state.position, state.positionTarget!!).unit()
         } else {
-            if ((state.orientationTarget != null) and (state.orientationTarget != state.positionTarget)) {
+            if ((state.orientationTarget != null) and (state.orientationTarget != state.position)) {
                 direction = Vector(state.position, state.orientationTarget!!).unit()
             }
         }

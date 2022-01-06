@@ -43,7 +43,8 @@ class GamesManager {
                 "path" to Json.encodeToJsonElement("game"),
                 "body" to JsonObject(mapOf(
                     "state" to Json.encodeToJsonElement(game.state),
-                    "score" to Json.encodeToJsonElement(game.score)
+                    "score" to Json.encodeToJsonElement(game.score),
+                    "time" to Json.encodeToJsonElement(game.timer.time)
                 )
             ))))
             firstPlayerConnection.session.send(message)
