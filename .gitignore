@@ -11,3 +11,6 @@ venv
 __pycache__/
 client-test/.idea
 .cache
+client/Library
+client/Logs
+client/Temp
