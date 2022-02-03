@@ -10,7 +10,7 @@ public class SocketConnection : MonoBehaviour
 {
   WebSocket websocket;
   CoordsGetter coordsGetter;
-  public int x = 0;
+  public GameState state;
 
   // Start is called before the first frame update
   async void Start()
@@ -47,8 +47,8 @@ public class SocketConnection : MonoBehaviour
         var json = JsonConvert.DeserializeObject<ApiMessage>(message);
         // var reader = new JsonReader();
         // dynamic json = reader.Read(src.ToString());
-        x = json.body.state;
-      }catch {
+        this.state = json.body;
+      } catch {
 
       }
       // Debug.Log("OnMessage! " + message);
@@ -91,11 +91,42 @@ public class SocketConnection : MonoBehaviour
 
 public class ApiMessage {
   public string path;
-  public Game body;
+  public GameState body;
 }
 
-public class Game {
+public class GameState {
+  public List<Player> players;
+  public BallState ballState;
+}
+
+public class Point {
+  public float x;
+  public float y;
+}
+
+public class Player {
   public int id;
-  public KeyValuePair<int, int> players;
-  public int state;
+  public int teamUser;
+  public PlayerState state;
+}
+
+public class PlayerState {
+  public float x;
+  public float y;
+  public float z;
+  public float speed;
+  public Point destination;
+}
+
+public class BallState {
+  public float x;
+  public float y;
+  public float z;
+  public float speed;
+  public Vector direction;
+}
+
+public class Vector {
+  public float x;
+  public float y;
 }
