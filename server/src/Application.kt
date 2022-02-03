@@ -1,5 +1,6 @@
 package com.example
 
+import com.example.routing.configureRouting
 import io.ktor.application.*
 import io.ktor.websocket.*
 

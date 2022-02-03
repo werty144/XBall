@@ -15,6 +15,7 @@ async def listen(websocket):
 
     user_id = await websocket.recv()
     menu_screen.set_user_id_label(user_id)
+    game_screen.session_id = int(user_id)
     while True:
         message = await websocket.recv()
         message = json.loads(message)
@@ -22,10 +23,10 @@ async def listen(websocket):
             invite_id = message["body"]["inviteId"]
             inviter_id = message["body"]["inviterId"]
             menu_screen.add_invite(invite_id, inviter_id)
-        elif message["path"] == "gameState":
+        elif message["path"] == "game":
             if sm.current != "game":
-                sm.switch_to(game_screen)
-            game_screen.set_game_state(message["body"])
+                sm.current = "game"
+            game_screen.set_game(message["body"])
 
 
 async def say(websocket):

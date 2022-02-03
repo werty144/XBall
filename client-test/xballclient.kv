@@ -10,13 +10,55 @@
         pos_hint: {"center_x": 0.5, "center_y": 0.5}
         orientation: "vertical"
         BoxLayout:
-            Label:
-                size_hint_x: 0.5
+            Button:
+                size_hint_x: 0.3
                 text: "Invite user"
-            TextInput:
-                multiline: False
-                text: ""
-                on_text_validate: root.send_invite(self.text)
+                on_press: root.send_invite()
+            BoxLayout:
+                size_hint_x: 0.2
+                orientation: "vertical"
+                Label:
+                    size_hint_y: 0.25
+                    text: "User ID"
+                TextInput:
+                    multiline: False
+                    text: ""
+                    on_text_validate: root.set_invited_id(self.text)
+            BoxLayout:
+                size_hint_x: 0.3
+                orientation: "vertical"
+                Label:
+                    text: "Game speed"
+                Button:
+                    id: button_slow
+                    text: "Slow"
+                    on_press: root.select_speed("button_slow")
+                Button:
+                    id: button_normal
+                    text: "Normal"
+                    on_press: root.select_speed("button_normal")
+                Button:
+                    id: button_fast
+                    text: "Fast"
+                    on_press: root.select_speed("button_fast")
+            BoxLayout:
+                size_hint_x: 0.2
+                orientation: "vertical"
+                Label:
+                    text: "Players number"
+                Button:
+                    id: button_one_player
+                    text: "1"
+                    on_press: root.select_players_number("button_one_player")
+                Button:
+                    id: button_two_player
+                    text: "2"
+                    on_press: root.select_players_number("button_two_player")
+                Button:
+                    id: button_three_player
+                    text: "3"
+                    on_press: root.select_players_number("button_three_player")
+
         BoxLayout:
             Label:
                 id: invite_from_label
@@ -27,10 +69,3 @@
                 on_press: root.accept_invite()
 
 
-<GameScreen>:
-    canvas:
-        Color:
-            rgba: 1, 1, 1, 0.5
-        Rectangle:
-            size: root.field_height * 2, root.field_height
-            pos: root.field_x, root.field_y
