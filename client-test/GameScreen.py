@@ -46,6 +46,10 @@ class GameScreen(Screen):
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
     def set_game(self, message_body):
+        if message_body['status'] == 'ENDED':
+            sm = App.get_running_app().root
+            sm.current = 'menu'
+
         self.state = message_body['state']
         self.score = message_body['score']
         self.time = message_body['time']

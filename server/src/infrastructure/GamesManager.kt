@@ -2,6 +2,7 @@ package com.example.infrastructure
 
 import com.example.game.Game
 import com.example.game.GameId
+import com.example.game.GameStatus
 import com.example.routing.APIMove
 import com.example.routing.APIRequest
 import com.example.routing.Connection
@@ -44,11 +45,14 @@ class GamesManager {
                 "body" to JsonObject(mapOf(
                     "state" to Json.encodeToJsonElement(game.state),
                     "score" to Json.encodeToJsonElement(game.score),
-                    "time" to Json.encodeToJsonElement(game.timer.time)
+                    "time" to Json.encodeToJsonElement(game.timer.time),
+                    "status" to Json.encodeToJsonElement(game.getStatus())
                 )
             ))))
             firstPlayerConnection.session.send(message)
             secondPlayerConnection.session.send(message)
+
+            if (game.getStatus() == GameStatus.ENDED) return
         }
     }
 }

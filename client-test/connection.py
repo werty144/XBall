@@ -25,8 +25,9 @@ async def listen(websocket):
             menu_screen.add_invite(invite_id, inviter_id)
         elif message["path"] == "game":
             if sm.current != "game":
-                sm.switch_to(game_screen)
+                sm.current = "game"
             game_screen.set_game(message["body"])
+
 
 async def say(websocket):
     menu_screen = App.get_running_app().root.get_screen('menu')

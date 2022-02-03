@@ -4,7 +4,6 @@ import com.example.routing.APIMove
 import com.example.infrastructure.UserId
 import com.example.routing.tryJsonParse
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import kotlin.math.*
 
 typealias GameId = Int
@@ -13,6 +12,7 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
     var state: GameState
     val sides: Map<UserId, Side>
     val score: MutableMap<Side, Int>
+    var gameEnded: Boolean
     val gameUpdateTime: Float
     val timer: Timer
 
@@ -20,6 +20,7 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
         gameUpdateTime = worldUpdateTime * properties.speed.slowingCoefficient()
         sides = mapOf(user1Id to Side.LEFT, user2Id to Side.RIGHT)
         score = mutableMapOf(Side.LEFT to 0, Side.RIGHT to 0)
+        gameEnded = false
         state = initialState()
         timer = Timer(worldUpdateTime)
         timer.start()
@@ -78,7 +79,9 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
     }
 
     fun nextState() {
-        if ((!timer.active) && (timer.toActivityCountDown!! <= 0)) {
+        if (gameEnded) return
+        if (timer.needsUnpause) {
+            timer.needsUnpause = false
             state = initialState()
             timer.start()
             return
@@ -103,9 +106,19 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
     fun goal(side: Side) {
         if (!state.ballState.active) return
         score[side.other()] = score[side.other()]!! + 1
+        if (score[side.other()] == 1) {
+            gameEnded = true
+        }
         state.ballState.destination = properties.targetPoint(side)
         state.ballState.active = false
-        timer.stop()
+        timer.pause()
+    }
+
+    fun getStatus(): GameStatus {
+        return when (gameEnded) {
+            true -> GameStatus.ENDED
+            false -> GameStatus.RUNNING
+        }
     }
 }
 
@@ -119,6 +132,11 @@ enum class Side {
             RIGHT -> LEFT
         }
     }
+}
+
+enum class GameStatus {
+    ENDED,
+    RUNNING
 }
 
 enum class Speed {
@@ -184,15 +202,16 @@ data class GameState(val players: List<Player>, val ballState: BallState)
 
 data class Timer(val worldUpdateTime: Long) {
     var time: Long = 0L
-    var active: Boolean = true
-    var toActivityCountDown: Long? = null
+    private var active: Boolean = true
+    private var toActivityCountDown: Long? = null
+    var needsUnpause: Boolean = false
 
     fun start() {
         active = true
         toActivityCountDown = null
     }
 
-    fun stop(toActivityTime: Long = 3000L) {
+    fun pause(toActivityTime: Long = 3000L) {
         active = false
         toActivityCountDown = toActivityTime
     }
@@ -201,7 +220,10 @@ data class Timer(val worldUpdateTime: Long) {
         if (active) {
             time += worldUpdateTime
         } else {
-            toActivityCountDown = toActivityCountDown?.minus(worldUpdateTime)
+            toActivityCountDown = toActivityCountDown!!.minus(worldUpdateTime)
+            if (toActivityCountDown!! <= 0) {
+                needsUnpause = true
+            }
         }
     }
 }
