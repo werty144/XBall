@@ -34,7 +34,7 @@ class MenuScreen(Screen):
 
     def set_user_id_label(self, id):
         self.my_id = id
-        self.auto_invite()
+        # self.auto_invite()
         self.ids['user_id_label'].text = f"Your Id is {id}"
 
     def auto_invite(self):

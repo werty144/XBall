@@ -8,7 +8,7 @@
       "hash": "90f55f370aecb5911f0b7820f09beea5ff791cb3"
     },
     "com.unity.collab-proxy": {
-      "version": "1.13.5",
+      "version": "1.15.7",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -34,7 +34,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.11",
+      "version": "2.0.12",
       "depth": 0,
       "source": "registry",
       "dependencies": {
