@@ -53,14 +53,15 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
         if (!validateMove(move, userId)) {
             return
         }
+        val player = state.players.find { it.id == move.playerId }!!
         when (move.action) {
             "movement" -> {
                 val positionTarget = tryJsonParse(Point.serializer(), move.actionData) ?: return
-                state.players.find { it.id == move.playerId }?.state?.positionTarget = properties.clipPointToField(positionTarget)
+                player.state.positionTarget = properties.clipPointToField(positionTarget)
             }
             "orientation" -> {
                 val orientationTarget = tryJsonParse(Point.serializer(), move.actionData) ?: return
-                state.players.find { it.id == move.playerId }?.state?.orientationTarget = properties.clipPointToField(orientationTarget)
+                player.state.orientationTarget = properties.clipPointToField(orientationTarget)
             }
             "grab" -> {
                 grabRandom(this, move)
@@ -95,12 +96,9 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
     }
 
     fun validateMove(move: APIMove, userId: UserId): Boolean {
-        val player = state.players.find { it.id == move.playerId }
-        return if (player == null) {
-            false
-        } else {
-            player.userId == userId
-        }
+        val player = state.players.find { it.id == move.playerId } ?: return false
+
+        return player.userId == userId
     }
 
     fun goal(side: Side) {
@@ -173,6 +171,14 @@ data class GameProperties(
     val targetRadius = 5
     val flyHeight = 35F
 
+    override fun equals(other: Any?): Boolean {
+        return if (other is GameProperties) {
+            (playersNumber == other.playersNumber) and (speed == other.speed)
+        } else {
+            false
+        }
+    }
+
     fun pointWithinField(point: Point): Boolean {
         return (0 <= point.x) and (point.x <= fieldWidth) and (0 <= point.y) and (point.y <= fieldHeight)
     }
@@ -193,6 +199,12 @@ data class GameProperties(
             Side.RIGHT -> Point(fieldWidth * (1 - targetXMargin), fieldHeight * targetYMargin, targetZ)
         }
 
+    }
+
+    override fun hashCode(): Int {
+        var result = playersNumber
+        result = 31 * result + speed.hashCode()
+        return result
     }
 }
 

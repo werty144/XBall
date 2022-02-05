@@ -1,28 +1,28 @@
 package com.example.routing
 
+import com.example.infrastructure.InvitesManager
+import com.example.infrastructure.GamesManager
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
 import io.ktor.routing.*
 import io.ktor.websocket.*
-import java.util.*
+import kotlinx.coroutines.isActive
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.collections.LinkedHashSet
 
+typealias Connections = MutableSet<Connection>
 
-fun Application.configureRouting() {
+fun Application.configureRouting(gamesManager: GamesManager, invitesManager: InvitesManager, connections: Connections) {
 
-    val apiHandler = APIHandler(this)
+    val apiHandler = APIHandler(this, gamesManager, invitesManager, connections)
 
     routing {
-        val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
-
-
         webSocket("/") {
             val thisConnection = Connection(this)
             connections += thisConnection
+            thisConnection.session.isActive
             send("${thisConnection.id}")
             for (frame in incoming) {
-                apiHandler.handle(frame, thisConnection, connections)
+                apiHandler.handle(frame, thisConnection)
             }
         }
     }
@@ -34,4 +34,6 @@ class Connection(val session: DefaultWebSocketSession) {
     }
 
     val id = lastId.getAndIncrement()
+
+    override fun toString(): String = "Connection(id=$id, active=${session.isActive})"
 }

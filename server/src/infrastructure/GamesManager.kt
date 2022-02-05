@@ -4,32 +4,33 @@ import com.example.game.Game
 import com.example.game.GameId
 import com.example.game.GameStatus
 import com.example.routing.APIMove
-import com.example.routing.APIRequest
 import com.example.routing.Connection
 import io.ktor.http.cio.websocket.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 
 class GamesManager {
     private var spareGameId: GameId = 0
-    private val gamesList = ArrayList<Game>()
+    val games = ArrayList<Game>()
     private val updateTime = 10L
 
     fun createNewGame(invite: Invite): Game {
-        val gameId = spareGameId++
-        val game = Game(gameId, invite.inviterId, invite.invitedId, invite.gameProperties, updateTime)
-        gamesList.add(game)
+        val game = Game(spareGameId++, invite.inviterId, invite.invitedId, invite.gameProperties, updateTime)
+        games.add(game)
 
         return game
     }
 
-    fun gameById(gameId: GameId) = gamesList.find {it.gameId == gameId}
+    fun gameById(gameId: GameId) = games.find {it.gameId == gameId}
 
-    fun getGameForUser(userId: UserId): Game? = gamesList.find { (it.user1Id == userId) or (it.user2Id == userId) }
+    fun getGameForUser(userId: UserId): Game? = games.find { (it.user1Id == userId) or (it.user2Id == userId) }
+
+    fun userHasGames(userId: UserId): Boolean = games.any { (it.user1Id == userId) or (it.user2Id == userId) }
 
     fun makeMove(gameId: GameId, move: APIMove, actorId: UserId) {
         val game = gameById(gameId)
@@ -40,19 +41,28 @@ class GamesManager {
         while (true) {
             delay(updateTime)
             game.nextState()
-            val message = Json.encodeToString(JsonObject(mapOf(
-                "path" to Json.encodeToJsonElement("game"),
-                "body" to JsonObject(mapOf(
-                    "state" to Json.encodeToJsonElement(game.state),
-                    "score" to Json.encodeToJsonElement(game.score),
-                    "time" to Json.encodeToJsonElement(game.timer.time),
-                    "status" to Json.encodeToJsonElement(game.getStatus())
+            val message = Json.encodeToString(
+                JsonObject(
+                    mapOf(
+                        "path" to Json.encodeToJsonElement("game"),
+                        "body" to JsonObject(
+                            mapOf(
+                                "state" to Json.encodeToJsonElement(game.state),
+                                "score" to Json.encodeToJsonElement(game.score),
+                                "time" to Json.encodeToJsonElement(game.timer.time),
+                                "status" to Json.encodeToJsonElement(game.getStatus())
+                            )
+                        )
+                    )
                 )
-            ))))
+            )
             firstPlayerConnection.session.send(message)
             secondPlayerConnection.session.send(message)
 
-            if (game.getStatus() == GameStatus.ENDED) return
+            if (game.getStatus() == GameStatus.ENDED) {
+                games.remove(game)
+                return
+            }
         }
     }
 }

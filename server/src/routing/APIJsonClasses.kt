@@ -6,23 +6,18 @@ import com.example.infrastructure.UserId
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
-@Serializable
-abstract class RequestBody
+
 @Serializable
 data class APIRequest(val path: String, val body: JsonElement)
 
 @Serializable
-data class APIInvite(val invitedId: UserId, val speed: Speed, val playersNumber: Int): RequestBody()
+data class APIInvite(val invitedId: UserId, val speed: Speed, val playersNumber: Int)
 @Serializable
-data class APIAcceptInvite(val inviteId: InviteId): RequestBody()
+data class APIAcceptInvite(val inviteId: InviteId)
 @Serializable
-data class APIMakeMove(val move: JsonElement): RequestBody()
+data class APIMakeMove(val move: JsonElement)
 
 
-@Serializable
-abstract class MoveBody
 @Serializable
 data class APIMove(val playerId: Int, val action: String, val actionData: JsonElement)
 
-@Serializable
-class APIPoint(val x: Float, val y: Float): MoveBody()
