@@ -1,5 +1,6 @@
 package com.example.routing
 
+import com.example.infrastructure.AuthenticationManager
 import com.example.infrastructure.InvitesManager
 import com.example.infrastructure.GamesManager
 import io.ktor.application.*
@@ -13,7 +14,10 @@ import java.util.concurrent.atomic.AtomicInteger
 
 typealias Connections = MutableSet<Connection>
 
-fun Application.configureRouting(gamesManager: GamesManager, invitesManager: InvitesManager, connections: Connections) {
+fun Application.configureRouting(gamesManager: GamesManager,
+                                 invitesManager: InvitesManager,
+                                 authenticationManager: AuthenticationManager,
+                                 connections: Connections) {
 
     val apiHandler = APIHandler(this, gamesManager, invitesManager, connections)
 
@@ -29,13 +33,18 @@ fun Application.configureRouting(gamesManager: GamesManager, invitesManager: Inv
             thisConnection.session.isActive
             for (frame in incoming) {
                 if (!thisConnection.firstMessageReceived) {
-                    if (frame !is Frame.Text || !validate_token(frame.readText())) {
+                    if (frame !is Frame.Text || !authenticationManager.validate_token(frame.readText())) {
                         close()
                         connections.remove(thisConnection)
+                    } else {
+                        authenticationManager.mapConnectionToUser(
+                            thisConnection.id,
+                            authenticationManager.userIdByToken(frame.readText())
+                        )
                     }
                     thisConnection.firstMessageReceived = true
                 } else {
-                    apiHandler.handle(frame, thisConnection)
+                    apiHandler.handle(frame, authenticationManager.getUserIdByConnectionId(thisConnection.id))
                 }
             }
         }
@@ -53,9 +62,6 @@ class Connection(val session: DefaultWebSocketSession) {
     override fun toString(): String = "Connection(id=$id, active=${session.isActive})"
 }
 
-fun validate_token(token: String): Boolean {
-    return token.endsWith("_salt\n")
-}
 
 @kotlinx.serialization.Serializable
 data class UserCredentials(val id: String)

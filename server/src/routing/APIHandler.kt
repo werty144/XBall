@@ -2,6 +2,7 @@ package com.example.routing
 
 import com.example.infrastructure.InvitesManager
 import com.example.infrastructure.GamesManager
+import com.example.infrastructure.UserId
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
 import kotlinx.coroutines.Dispatchers
@@ -30,10 +31,9 @@ class APIHandler(
     private val invitesManager: InvitesManager,
     private val connections: Set<Connection>
 ) {
-    suspend fun handle(frame: Frame, connection: Connection) {
+    suspend fun handle(frame: Frame, userId: UserId) {
         when (frame) {
             is Frame.Text -> {
-                val userId = connection.id
                 val requestString = frame.readText()
                 val request = tryJsonParse(APIRequest.serializer(), requestString) ?: return
 

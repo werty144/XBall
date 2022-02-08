@@ -1,5 +1,6 @@
 package com.example
 
+import com.example.infrastructure.AuthenticationManager
 import com.example.infrastructure.InvitesManager
 import com.example.infrastructure.GamesManager
 import com.example.infrastructure.Logger
@@ -26,8 +27,9 @@ fun Application.module(testing: Boolean = false) {
 
     val invitesManager = InvitesManager()
     val gamesManager = GamesManager()
+    val authenticationManager = AuthenticationManager()
     val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
-    configureRouting(gamesManager, invitesManager, connections)
+    configureRouting(gamesManager, invitesManager, authenticationManager, connections)
 
     val logger = Logger(invitesManager, gamesManager, connections)
 //    launch { logger.logPeriodically() }
