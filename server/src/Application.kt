@@ -6,6 +6,8 @@ import com.example.infrastructure.Logger
 import com.example.routing.Connection
 import com.example.routing.configureRouting
 import io.ktor.application.*
+import io.ktor.features.*
+import io.ktor.serialization.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -18,6 +20,9 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
     install(WebSockets)
+    install(ContentNegotiation) {
+        json()
+    }
 
     val invitesManager = InvitesManager()
     val gamesManager = GamesManager()
@@ -25,5 +30,5 @@ fun Application.module(testing: Boolean = false) {
     configureRouting(gamesManager, invitesManager, connections)
 
     val logger = Logger(invitesManager, gamesManager, connections)
-    launch { logger.logPeriodically() }
+//    launch { logger.logPeriodically() }
 }
