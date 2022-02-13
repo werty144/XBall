@@ -48,7 +48,7 @@ class GamesManager {
                         "body" to JsonObject(
                             mapOf(
                                 "state" to Json.encodeToJsonElement(game.state),
-                                "score" to Json.encodeToJsonElement(game.score),
+                                "score" to Json.encodeToJsonElement(game.score.toString()),
                                 "time" to Json.encodeToJsonElement(game.timer.time),
                                 "status" to Json.encodeToJsonElement(game.getStatus())
                             )

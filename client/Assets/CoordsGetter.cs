@@ -73,6 +73,10 @@ public class CoordsGetter : MonoBehaviour
         }
     }
 
+    public bool hasState() {
+        return socketConnection.state != null;
+    }
+
     public Vector3 getPosition(int id) {
         // if (id == 1) {
         //     return new Vector3(radius * (float) Math.Sin(time / 1000) + , 0.0f, radius * (float) Math.Cos(time / 1000));

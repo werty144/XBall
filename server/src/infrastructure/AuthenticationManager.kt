@@ -8,7 +8,7 @@ class AuthenticationManager {
     }
 
     fun validate_token(token: String): Boolean {
-        return token.endsWith("_salt\n")
+        return token.endsWith("_salt")
     }
 
     fun mapConnectionToUser(connectionId: Int, userId: UserId) {

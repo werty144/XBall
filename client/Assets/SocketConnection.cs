@@ -11,10 +11,12 @@ public class SocketConnection : MonoBehaviour
   WebSocket websocket;
   CoordsGetter coordsGetter;
   public GameState state;
+  bool firstMessageSent;
 
   // Start is called before the first frame update
   async void Start()
   {
+    firstMessageSent = false;
 
     coordsGetter = GameObject.FindWithTag("coords").GetComponent<CoordsGetter>();
 
@@ -37,21 +39,21 @@ public class SocketConnection : MonoBehaviour
 
     websocket.OnMessage += (bytes) =>
     {
-      Debug.Log("OnMessage!");
-      Debug.Log(bytes);
-
       // getting the message as a string
       var message = System.Text.Encoding.UTF8.GetString(bytes);
-      // var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
       try {
-        var json = JsonConvert.DeserializeObject<ApiMessage>(message);
-        // var reader = new JsonReader();
-        // dynamic json = reader.Read(src.ToString());
-        this.state = json.body;
-      } catch {
-
+        // If compiler not working on this line you just need to set the Api Compatibility Level to .Net 4.x in your Player Settings
+        dynamic json = JsonConvert.DeserializeObject(message);
+        if (json.path == "invite") {
+          var invite = JsonConvert.DeserializeObject<ApiInvite>(message).body;
+          var replyObject = JsonConvert.SerializeObject(new {path = "acceptInvite", body = new {inviteId = invite.inviteId}});
+          coordsGetter.messages.Enqueue((string)replyObject);
+        } else if (json.path == "game") {
+          this.state = JsonConvert.DeserializeObject<ApiGameInfo>(message).body.state;
+        }
+      } catch (Exception e) {
+        Debug.Log("Error when parsing! " + e);
       }
-      // Debug.Log("OnMessage! " + message);
     };
 
     // Keep sending messages at every 0.3s
@@ -72,6 +74,11 @@ public class SocketConnection : MonoBehaviour
   {
     if (websocket.State == WebSocketState.Open)
     {
+      if (!firstMessageSent) {
+        await websocket.SendText("0_salt");
+        firstMessageSent = true;
+        return;
+      }
       // Sending bytes
       // await websocket.Send(new byte[] { 10, 20, 30 });
 
@@ -89,9 +96,34 @@ public class SocketConnection : MonoBehaviour
 
 }
 
-public class ApiMessage {
+
+public class ApiInvite {
   public string path;
-  public GameState body;
+  public Invite body;
+}
+
+public class Invite {
+  public int inviteId;
+  public int inviterId;
+  public int invitedId;
+  public GameProperties gameProperties;
+}
+
+public class ApiGameInfo {
+  public string path;
+  public GameInfo body;
+}
+
+public class GameInfo {
+  public GameState state;
+  public string score;
+  public long time;
+  public string status;
+}
+
+public class GameProperties {
+  public int playersNumber;
+  public string speed;
 }
 
 public class GameState {
@@ -106,7 +138,7 @@ public class Point {
 
 public class Player {
   public int id;
-  public int teamUser;
+  public int userId;
   public PlayerState state;
 }
 
@@ -114,16 +146,13 @@ public class PlayerState {
   public float x;
   public float y;
   public float z;
-  public float speed;
-  public Point destination;
+  public float rotationAngle;
 }
 
 public class BallState {
   public float x;
   public float y;
   public float z;
-  public float speed;
-  public Vector direction;
 }
 
 public class Vector {

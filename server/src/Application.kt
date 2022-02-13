@@ -32,5 +32,5 @@ fun Application.module(testing: Boolean = false) {
     configureRouting(gamesManager, invitesManager, authenticationManager, connections)
 
     val logger = Logger(invitesManager, gamesManager, connections)
-//    launch { logger.logPeriodically() }
+    launch { logger.logPeriodically() }
 }

@@ -40,7 +40,10 @@ public class PlayerScript : MonoBehaviour
         if (Input.GetKey("d")) {
             gameObject.transform.position += Vector3.right * speed;
         }
-        gameObject.transform.position = coordsGetter.getPosition(id);
+
+        if (coordsGetter.hasState()) {
+            gameObject.transform.position = coordsGetter.getPosition(id);
+        }
         
     }
     void OnGUI()

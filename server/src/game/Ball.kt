@@ -3,6 +3,7 @@ package com.example.game
 import io.ktor.sessions.*
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 data class BallState(var x: Float, var y: Float) {
@@ -13,9 +14,11 @@ data class BallState(var x: Float, var y: Float) {
     var destination: Point? = null
     var flyMode: Boolean = false
 
+    @Transient
     var position: Point = Point(0F, 0F)
         get() = Point(x, y)
 
+    @Transient
     var orientation: Vector? = null
         get() = destination?.let {
             if (position == destination) {
