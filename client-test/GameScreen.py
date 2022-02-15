@@ -66,7 +66,7 @@ class GameScreen(Screen):
 
         self.draw_ball(self.state['ballState'])
         self.draw_target()
-        self.draw_score()
+        # self.draw_score()
         self.draw_time()
 
     def make_move(self, move):

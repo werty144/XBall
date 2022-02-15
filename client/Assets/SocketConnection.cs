@@ -12,6 +12,7 @@ public class SocketConnection : MonoBehaviour
   CoordsGetter coordsGetter;
   public GameState state;
   bool firstMessageSent;
+  bool gameStarted;
 
   // Start is called before the first frame update
   async void Start()
@@ -49,7 +50,12 @@ public class SocketConnection : MonoBehaviour
           var replyObject = JsonConvert.SerializeObject(new {path = "acceptInvite", body = new {inviteId = invite.inviteId}});
           coordsGetter.messages.Enqueue((string)replyObject);
         } else if (json.path == "game") {
+          // This code should definetely be elsewhere. Also the state variable is not the variable of the socket connection. 
           this.state = JsonConvert.DeserializeObject<ApiGameInfo>(message).body.state;
+          if (!gameStarted) {
+            startGame();
+            gameStarted = true;
+          }
         }
       } catch (Exception e) {
         Debug.Log("Error when parsing! " + e);
@@ -92,6 +98,14 @@ public class SocketConnection : MonoBehaviour
   private async void OnApplicationQuit()
   {
     await websocket.Close();
+  }
+
+  void startGame() {
+    for (int i=0; i<this.state.players.Count; i++) {
+      var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+      cube.AddComponent<PlayerScript>();
+      cube.GetComponent<PlayerScript>().id = this.state.players[i].id;
+    }
   }
 
 }

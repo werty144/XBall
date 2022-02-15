@@ -73,8 +73,8 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
                 attackRandom(this, move)
             }
             "stop" -> {
-                state.players.find { it.id == move.playerId }?.state?.positionTarget = null
-                state.players.find { it.id == move.playerId }?.state?.orientationTarget = null
+                player.state.positionTarget = null
+                player.state.orientationTarget = null
             }
         }
     }

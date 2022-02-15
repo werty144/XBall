@@ -26,7 +26,7 @@ public class CoordsGetter : MonoBehaviour
     {
         time += 1;
         if (Input.GetKey("i")) {
-            messages.Enqueue("{\"path\": \"invite\", \"body\": {\"invitedId\": 0, \"speed\": \"FAST\", \"playersNumber\": 1}}");
+            messages.Enqueue("{\"path\": \"invite\", \"body\": {\"invitedId\": 0, \"speed\": \"FAST\", \"playersNumber\": 3}}");
         }
         if (Input.GetMouseButtonDown(0))
         {

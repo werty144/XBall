@@ -13,9 +13,6 @@ async def listen(websocket):
     menu_screen = sm.get_screen('menu')
     game_screen = sm.get_screen('game')
 
-    user_id = await websocket.recv()
-    menu_screen.set_user_id_label(user_id)
-    game_screen.session_id = int(user_id)
     while True:
         message = await websocket.recv()
         message = json.loads(message)
@@ -32,6 +29,7 @@ async def listen(websocket):
 async def say(websocket):
     menu_screen = App.get_running_app().root.get_screen('menu')
     game_screen = App.get_running_app().root.get_screen('game')
+    await websocket.send('1_salt')
     while True:
         await asyncio.sleep(0.1)
         while len(menu_screen.requests) > 0:
