@@ -13,10 +13,11 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
+import java.util.Collections
 
 class GamesManager {
     private var spareGameId: GameId = 0
-    val games = ArrayList<Game>()
+    val games: MutableSet<Game> = Collections.synchronizedSet(LinkedHashSet())
     private val updateTime = 10L
 
     fun createNewGame(invite: Invite): Game {

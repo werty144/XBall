@@ -1,5 +1,9 @@
 package com.example.infrastructure
 
+import com.example.routing.Connection
+import com.example.routing.Connections
+import io.ktor.http.cio.websocket.*
+
 class AuthenticationManager {
     private val connectionIdToUserId = mutableMapOf<Int, UserId>()
 
@@ -16,4 +20,24 @@ class AuthenticationManager {
     }
 
     fun getUserIdByConnectionId(connectionId: Int) = connectionIdToUserId[connectionId]!!
+
+    fun processFirstMessage(
+        frame: Frame,
+        thisConnection: Connection
+    ): Boolean {
+        thisConnection.firstMessageReceived = true
+        return if (frame !is Frame.Text || !validate_token(frame.readText())) {
+            false
+        } else {
+            mapConnectionToUser(
+                thisConnection.id,
+                userIdByToken(frame.readText())
+            )
+            true
+        }
+
+    }
 }
+
+@kotlinx.serialization.Serializable
+data class UserCredentials(val id: String)

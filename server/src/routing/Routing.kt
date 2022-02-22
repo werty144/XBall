@@ -1,8 +1,6 @@
 package com.example.routing
 
-import com.example.infrastructure.AuthenticationManager
-import com.example.infrastructure.InvitesManager
-import com.example.infrastructure.GamesManager
+import com.example.infrastructure.*
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
 import io.ktor.request.*
@@ -30,19 +28,12 @@ fun Application.configureRouting(gamesManager: GamesManager,
         webSocket("/") {
             val thisConnection = Connection(this)
             connections += thisConnection
-            thisConnection.session.isActive
             for (frame in incoming) {
                 if (!thisConnection.firstMessageReceived) {
-                    if (frame !is Frame.Text || !authenticationManager.validate_token(frame.readText())) {
+                    if (!authenticationManager.processFirstMessage(frame, thisConnection)) {
                         close()
                         connections.remove(thisConnection)
-                    } else {
-                        authenticationManager.mapConnectionToUser(
-                            thisConnection.id,
-                            authenticationManager.userIdByToken(frame.readText())
-                        )
                     }
-                    thisConnection.firstMessageReceived = true
                 } else {
                     apiHandler.handle(frame, authenticationManager.getUserIdByConnectionId(thisConnection.id))
                 }
@@ -61,7 +52,3 @@ class Connection(val session: DefaultWebSocketSession) {
 
     override fun toString(): String = "Connection(id=$id, active=${session.isActive})"
 }
-
-
-@kotlinx.serialization.Serializable
-data class UserCredentials(val id: String)

@@ -4,6 +4,7 @@ import com.example.game.GameProperties
 import com.example.routing.APIInvite
 import kotlinx.serialization.Serializable
 import java.sql.Timestamp
+import java.util.Collections
 
 typealias UserId = Int
 typealias InviteId = Int
@@ -32,7 +33,7 @@ data class Invite(val inviteId: InviteId,
 class InvitesManager {
     private var spareUserId: UserId = 0
     private var spareInviteId: InviteId = 0
-    val invites = ArrayList<Invite>()
+    val invites: MutableSet<Invite> = Collections.synchronizedSet(LinkedHashSet())
 
     fun getNewUserId() = spareUserId++
 
