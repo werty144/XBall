@@ -31,9 +31,10 @@ class APIHandler(
     private val invitesManager: InvitesManager,
     private val connections: Set<Connection>
 ) {
-    suspend fun handle(frame: Frame, userId: UserId) {
+    suspend fun handle(frame: Frame, connection: Connection) {
         when (frame) {
             is Frame.Text -> {
+                val userId = connection.userId
                 val requestString = frame.readText()
                 val request = tryJsonParse(APIRequest.serializer(), requestString) ?: return
 
@@ -42,7 +43,7 @@ class APIHandler(
                         if (gamesManager.userHasGames(userId)) return
                         val invite = tryJsonParse(APIInvite.serializer(), request.body) ?: return
                         val newInvite = invitesManager.formNewInvite(userId, invite) ?: return
-                        connections.find { it.id == invite.invitedId }?.session?.send(
+                        connections.find { it.userId == invite.invitedId }?.session?.send(
                             Json.encodeToString(APIRequest("invite", Json.encodeToJsonElement(newInvite)))
                         )
                     }
@@ -52,9 +53,7 @@ class APIHandler(
                         val inviteId = requestBody.inviteId
                         val invite = invitesManager.getInviteById(inviteId) ?: return
                         val game = gamesManager.createNewGame(invite)
-                        val firstPlayerConnection = connections.firstOrNull { it.id == invite.inviterId } ?: return
-                        val secondPlayerConnection = connections.firstOrNull { it.id == invite.invitedId } ?: return
-                        application.launch { gamesManager.runGame(game, firstPlayerConnection, secondPlayerConnection) }
+                        application.launch { gamesManager.runGame(game, invite.inviterId, invite.invitedId, connections) }
                         invitesManager.removeInviteById(inviteId)
                     }
                     "makeMove" -> {

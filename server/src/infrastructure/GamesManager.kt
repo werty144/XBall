@@ -8,6 +8,7 @@ import com.example.routing.Connection
 import io.ktor.http.cio.websocket.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -38,7 +39,11 @@ class GamesManager {
         game?.makeMove(move, actorId)
     }
 
-    suspend fun runGame(game: Game, firstPlayerConnection: Connection, secondPlayerConnection: Connection) {
+    suspend fun runGame(game: Game, firstUserId: UserId, secondUserId: UserId, connections: Set<Connection>) {
+        var firstPlayerConnection = connections.firstOrNull { (it.userId == firstUserId) and it.session.isActive}
+        var secondPlayerConnection = connections.firstOrNull { (it.userId == secondUserId) and it.session.isActive }
+        println(firstPlayerConnection)
+        println(secondPlayerConnection)
         while (true) {
             delay(updateTime)
             game.nextState()
@@ -57,8 +62,18 @@ class GamesManager {
                     )
                 )
             )
-            firstPlayerConnection.session.send(message)
-            secondPlayerConnection.session.send(message)
+
+            if ((firstPlayerConnection != null) && firstPlayerConnection.session.isActive) {
+                firstPlayerConnection.session.send(message)
+            } else {
+                firstPlayerConnection = connections.firstOrNull { (it.userId == firstUserId) and it.session.isActive}
+            }
+
+            if ((secondPlayerConnection != null) && secondPlayerConnection.session.isActive) {
+                secondPlayerConnection.session.send(message)
+            } else {
+                secondPlayerConnection = connections.firstOrNull { (it.userId == secondUserId) and it.session.isActive}
+            }
 
             if (game.getStatus() == GameStatus.ENDED) {
                 games.remove(game)

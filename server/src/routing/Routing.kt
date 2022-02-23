@@ -26,29 +26,33 @@ fun Application.configureRouting(gamesManager: GamesManager,
             call.respond(superSecretToken.toByteArray())
         }
         webSocket("/") {
-            val thisConnection = Connection(this)
-            connections += thisConnection
+            var firstMessageReceived = false
+            var thisConnection: Connection? = null
             for (frame in incoming) {
-                if (!thisConnection.firstMessageReceived) {
-                    if (!authenticationManager.processFirstMessage(frame, thisConnection)) {
+                if (!firstMessageReceived) {
+                    firstMessageReceived = true
+                    if (!authenticationManager.validateFirstMessage(frame)) {
                         close()
-                        connections.remove(thisConnection)
+                        return@webSocket
+                    } else {
+                        val token = (frame as Frame.Text).readText()
+                        thisConnection = Connection(this, authenticationManager.userIdByToken(token))
+                        connections += thisConnection
                     }
                 } else {
-                    apiHandler.handle(frame, authenticationManager.getUserIdByConnectionId(thisConnection.id))
+                    apiHandler.handle(frame, thisConnection!!)
                 }
             }
         }
     }
 }
 
-class Connection(val session: DefaultWebSocketSession) {
+class Connection(val session: DefaultWebSocketSession, val userId: UserId) {
     companion object {
         var lastId = AtomicInteger(0)
     }
 
     val id = lastId.getAndIncrement()
-    var firstMessageReceived = false
 
     override fun toString(): String = "Connection(id=$id, active=${session.isActive})"
 }

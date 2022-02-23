@@ -1,5 +1,6 @@
 import asyncio
 import json
+import sys
 from time import sleep
 
 import websockets
@@ -29,7 +30,11 @@ async def listen(websocket):
 async def say(websocket):
     menu_screen = App.get_running_app().root.get_screen('menu')
     game_screen = App.get_running_app().root.get_screen('game')
-    await websocket.send('1_salt')
+    if len(sys.argv) == 1:
+        user_id = '1'
+    else:
+        user_id = sys.argv[1]
+    await websocket.send(f'{user_id}_salt')
     while True:
         await asyncio.sleep(0.1)
         while len(menu_screen.requests) > 0:
