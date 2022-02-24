@@ -1,9 +1,6 @@
 package com.example
 
-import com.example.infrastructure.AuthenticationManager
-import com.example.infrastructure.InvitesManager
-import com.example.infrastructure.GamesManager
-import com.example.infrastructure.Logger
+import com.example.infrastructure.*
 import com.example.routing.Connection
 import com.example.routing.configureRouting
 import io.ktor.application.*
@@ -29,8 +26,12 @@ fun Application.module(testing: Boolean = false) {
     val gamesManager = GamesManager()
     val authenticationManager = AuthenticationManager()
     val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
+
     configureRouting(gamesManager, invitesManager, authenticationManager, connections)
 
     val logger = Logger(invitesManager, gamesManager, connections)
     launch { logger.logPeriodically() }
+
+    val cleaner = Cleaner(invitesManager, gamesManager, connections)
+    launch { cleaner.cleanPeriodically() }
 }
