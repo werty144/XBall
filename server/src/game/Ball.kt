@@ -4,24 +4,26 @@ import io.ktor.sessions.*
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import java.util.LinkedList
 
 @Serializable
-data class BallState(var x: Float, var y: Float) {
+data class BallState(var x: Double, var y: Double) {
     @Required
-    var z: Float = 0F
+    var z: Double = 0.0
     var active = true
     var ownerId: Int? = null
-    var destination: Point? = null
+    @Transient
+    var destinations = LinkedList<Point>()
     var flyMode: Boolean = false
 
     @Transient
-    var position: Point = Point(0F, 0F)
+    var position: Point = Point(0.0, 0.0)
         get() = Point(x, y)
 
     @Transient
     var orientation: Vector? = null
-        get() = destination?.let {
-            if (position == destination) {
+        get() = destinations.firstOrNull()?.let {
+            if (position == it) {
                 null
             } else {
                 Vector(position, it).unit()
@@ -31,22 +33,23 @@ data class BallState(var x: Float, var y: Float) {
     fun update(game: Game) {
         if (ownerId != null) {
             val player = game.state.players.find { it.id == ownerId }!!
-            val position = player.state.position +
+            var position = player.state.position +
                     player.state.orientation.unit() *
-                    (game.properties.playerRadius + game.properties.ballRadius).toFloat()
+                    (game.properties.playerRadius + game.properties.ballRadius)
+            position = game.properties.clipPointToBallBoundaries(position)
             x = position.x
             y = position.y
             return
         }
 
         if (flyMode and (z != game.properties.flyHeight)) {
-            z += kotlin.math.min(game.properties.flyHeight - z, 2F)
+            z += kotlin.math.min(game.properties.flyHeight - z, 2.0)
             return
         }
 
 
-        if (destination != null) {
-            val destination = destination!!
+        if (!destinations.isEmpty()) {
+            val destination = destinations.first
             val nextPoint = nextPoint(game)
 
             if (active and intersectTarget(game, nextPoint)) {
@@ -58,7 +61,7 @@ data class BallState(var x: Float, var y: Float) {
                 x = destination.x
                 y = destination.y
                 flyMode = false
-                this.destination = null
+                destinations.poll()
                 return
             }
 
@@ -66,8 +69,8 @@ data class BallState(var x: Float, var y: Float) {
             y = nextPoint.y
         } else {
             if (!flyMode) {
-                if (z != 0F) {
-                    z -= kotlin.math.min(z, 2F)
+                if (z != 0.0) {
+                    z -= kotlin.math.min(z, 2.0)
                 } else {
                     flyMode = false
                 }
@@ -76,10 +79,10 @@ data class BallState(var x: Float, var y: Float) {
     }
 
     fun nextPoint(game: Game): Point {
-        if (destination == null) throw IllegalStateException("Next step called but no destination")
-        if (destination == position) return position
+        if (destinations.isEmpty()) throw IllegalStateException("Next step called but no destination")
+        if (destinations.first == position) return position
 
-        val orientation = Vector(position, destination!!).unit()
+        val orientation = Vector(position, destinations.first).unit()
         val step = orientation * (game.properties.ballSpeed / (1000F / game.gameUpdateTime))
         return position + step
     }

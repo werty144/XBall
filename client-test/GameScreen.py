@@ -73,8 +73,7 @@ class GameScreen(Screen):
         self.requests.add(json.dumps({"path": "makeMove", "body": {"move": move}}))
 
     def screen_to_field_coordinates(self, x, y):
-        return clip((x - self.field_x) // self.scale, 0, self.field_width), \
-               clip((y - self.field_y) // self.scale, 0, self.field_height)
+        return (x - self.field_x) // self.scale, (y - self.field_y) // self.scale
 
     def field_to_screen_coordinates(self, x, y):
         return x * self.scale + self.field_x, \

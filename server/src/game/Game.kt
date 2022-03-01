@@ -32,20 +32,20 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
         for (i in 1..properties.playersNumber) {
             players.add(Player(sparePlayersId++, user1Id,
                 PlayerState(
-                    properties.fieldWidth * 1/4,
+                    properties.fieldWidth * 1/2,
                     properties.fieldHeight / (properties.playersNumber + 1) * i,
-                    orientation = Vector(1F, 0F)
+                    orientation = Vector(1.0, 0.0)
                 )
             ))
             players.add(Player(sparePlayersId++, user2Id,
                 PlayerState(
                     properties.fieldWidth * 3/4,
                     properties.fieldHeight / (properties.playersNumber + 1) * i,
-                    orientation = Vector(-1F, 0F)
+                    orientation = Vector(-1.0, 0.0)
                 )
             ))
         }
-        val ballState = BallState(properties.fieldWidth / 2, properties.fieldHeight / 2)
+        val ballState = BallState(properties.ballRadius, properties.fieldHeight - properties.ballRadius)
         return  GameState(players, ballState)
     }
 
@@ -107,7 +107,8 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
         if (score[side.other()] == 1) {
             gameEnded = true
         }
-        state.ballState.destination = properties.targetPoint(side)
+        state.ballState.destinations.clear()
+        state.ballState.destinations.add(properties.targetPoint(side))
         state.ballState.active = false
         timer.pause()
     }
@@ -157,19 +158,27 @@ data class GameProperties(
     val playersNumber: Int,
     val speed: Speed
 ) {
-    val fieldWidth = 300F
-    val fieldHeight = 150F
-    val playerSpeed = 60
-    val ballSpeed = 150
+    val fieldWidth = 300.0
+    val fieldHeight = 150.0
+    val playerSpeed = 60.0
+    val ballSpeed = 150.0
     val playerRotationSpeed = 2*PI
-    val playerRadius = 5
-    val ballRadius = 3
-    val grabRadius = 15
-    val targetXMargin = 0.15F
-    val targetYMargin = 0.5F
-    val targetZ = 40F
-    val targetRadius = 5
-    val flyHeight = 35F
+    val playerRadius = 5.0
+    val ballRadius = 3.0
+    val grabRadius = 15.0
+    val targetXMargin = 0.15
+    val targetYMargin = 0.5
+    val targetZ = 40.0
+    val targetRadius = .0
+    val flyHeight = 35.0
+    @kotlinx.serialization.Transient
+    val ballBoundaries = run {
+        val p1 = Point(ballRadius, ballRadius)
+        val p2 = Point(ballRadius, fieldHeight - ballRadius)
+        val p3 = Point(fieldWidth - ballRadius, fieldHeight - ballRadius)
+        val p4 = Point(fieldWidth - ballRadius, ballRadius)
+        listOf(Segment(p1, p2), Segment(p2, p3), Segment(p3, p4), Segment(p4, p1))
+    }
 
     override fun equals(other: Any?): Boolean {
         return if (other is GameProperties) {
@@ -183,11 +192,16 @@ data class GameProperties(
         return (0 <= point.x) and (point.x <= fieldWidth) and (0 <= point.y) and (point.y <= fieldHeight)
     }
 
-    fun clipPointToField(point: Point): Point =
+    fun clipToBoundaries(point: Point, margin: Double) =
         Point(
-            max(0F, min(point.x, fieldWidth)),
-            max(0F, min(point.y, fieldHeight))
+            max(margin, min(point.x, fieldWidth - margin)),
+            max(margin, min(point.y, fieldHeight - margin))
         )
+
+    fun clipPointToField(point: Point): Point = clipToBoundaries(point, 0.0)
+
+    fun clipPointToBallBoundaries(point: Point): Point = clipToBoundaries(point, ballRadius)
+
 
     fun playersIntersectIfPlacedTo(position1: Point, position2: Point): Boolean {
         return distance(position1, position2) < 2 * playerRadius

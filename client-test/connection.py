@@ -34,6 +34,7 @@ async def say(websocket):
         user_id = '1'
     else:
         user_id = sys.argv[1]
+    menu_screen.set_user_id_label(user_id)
     await websocket.send(f'{user_id}_salt')
     while True:
         await asyncio.sleep(0.1)

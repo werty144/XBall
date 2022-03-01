@@ -9,12 +9,12 @@ import kotlin.math.sign
 
 @Serializable
 data class PlayerState(
-    var x: Float,
-    var y: Float,
+    var x: Double,
+    var y: Double,
     @Required
-    var z: Float = 0F,
+    var z: Double = 0.0,
     @Transient
-    var orientation: Vector = Vector(1F, 0F)
+    var orientation: Vector = Vector(1.0, 0.0)
 ) {
     @Transient
     var positionTarget: Point? = null
@@ -23,7 +23,7 @@ data class PlayerState(
     var orientationTarget: Point? = null
 
     @Required
-    var rotationAngle: Float = 0F
+    var rotationAngle: Double = 0.0
         get() = orientation.angle()
 
     @Transient
@@ -51,7 +51,7 @@ data class Player(val id: Int, val userId: UserId, val state: PlayerState) {
 
         if (direction != null) {
             val angleDiff = state.orientation.orientedAngleWithVector(direction)
-            val maxAngle = (game.properties.playerRotationSpeed / (1000F / updateTime)).toFloat()
+            val maxAngle = (game.properties.playerRotationSpeed / (1000F / updateTime)).toDouble()
             if (abs(angleDiff) <= maxAngle) {
                 state.orientation = state.orientation.rotated(angleDiff)
                 state.orientationTarget = null

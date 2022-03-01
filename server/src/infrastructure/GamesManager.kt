@@ -42,8 +42,6 @@ class GamesManager {
     suspend fun runGame(game: Game, firstUserId: UserId, secondUserId: UserId, connections: Set<Connection>) {
         var firstPlayerConnection = connections.firstOrNull { (it.userId == firstUserId) and it.session.isActive}
         var secondPlayerConnection = connections.firstOrNull { (it.userId == secondUserId) and it.session.isActive }
-        println(firstPlayerConnection)
-        println(secondPlayerConnection)
         while (true) {
             delay(updateTime)
             game.nextState()
