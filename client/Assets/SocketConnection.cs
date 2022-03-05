@@ -3,23 +3,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using UnityEngine.SceneManagement;
 
 using NativeWebSocket;
+
 
 public class SocketConnection : MonoBehaviour
 {
   WebSocket websocket;
-  CoordsGetter coordsGetter;
-  public GameState state;
+  public static GameState state;
   bool firstMessageSent;
   bool gameStarted;
+  public static Queue<string> messages = new Queue<string>();
 
   // Start is called before the first frame update
   async void Start()
   {
-    firstMessageSent = false;
+    Debug.Log("Connection started!");
 
-    coordsGetter = GameObject.FindWithTag("coords").GetComponent<CoordsGetter>();
+    firstMessageSent = false;
 
     websocket = new WebSocket("ws://localhost:8080");
 
@@ -48,10 +50,10 @@ public class SocketConnection : MonoBehaviour
         if (json.path == "invite") {
           var invite = JsonConvert.DeserializeObject<ApiInvite>(message).body;
           var replyObject = JsonConvert.SerializeObject(new {path = "acceptInvite", body = new {inviteId = invite.inviteId}});
-          coordsGetter.messages.Enqueue((string)replyObject);
+          messages.Enqueue((string)replyObject);
         } else if (json.path == "game") {
           // This code should definetely be elsewhere. Also the state variable is not the variable of the socket connection. 
-          this.state = JsonConvert.DeserializeObject<ApiGameInfo>(message).body.state;
+          state = JsonConvert.DeserializeObject<ApiGameInfo>(message).body.state;
           if (!gameStarted) {
             startGame();
             gameStarted = true;
@@ -89,8 +91,8 @@ public class SocketConnection : MonoBehaviour
       // await websocket.Send(new byte[] { 10, 20, 30 });
 
       // Sending plain text
-      if (coordsGetter.messages.Count > 0) {
-        await websocket.SendText(coordsGetter.messages.Dequeue());
+      if (messages.Count > 0) {
+        await websocket.SendText(messages.Dequeue());
       }
     }
   }
@@ -101,12 +103,13 @@ public class SocketConnection : MonoBehaviour
   }
 
   void startGame() {
-    for (int i=0; i<this.state.players.Count; i++) {
-      var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-      cube.AddComponent<PlayerScript>();
-      cube.GetComponent<PlayerScript>().id = this.state.players[i].id;
-    }
+    SceneManager.LoadScene("GameScene");
   }
+
+  void Awake()
+     {
+         DontDestroyOnLoad(this);
+     }
 
 }
 

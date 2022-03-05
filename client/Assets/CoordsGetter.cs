@@ -5,19 +5,23 @@ using System;
 using System.Net.WebSockets;
 using Newtonsoft.Json;
 
+using static SocketConnection;
+
 
 public class CoordsGetter : MonoBehaviour
 {
 
     private float time = 0;
     public float radius = 2.0f;
-    public Queue<string> messages = new Queue<string>();
-    SocketConnection socketConnection;
     public static GameObject controlledUnit = null;         // instead of GameObject, could use custom type like ControllableUnit
     // Start is called before the first frame update
     void Start()
     {
-        socketConnection = GameObject.FindWithTag("connection").GetComponent<SocketConnection>();
+        for (int i=0; i< SocketConnection.state.players.Count; i++) {
+        var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cube.AddComponent<PlayerScript>();
+        cube.GetComponent<PlayerScript>().id = SocketConnection.state.players[i].id;
+    }
 
     }
 
@@ -25,9 +29,7 @@ public class CoordsGetter : MonoBehaviour
     void Update()
     {
         time += 1;
-        if (Input.GetKey("i")) {
-            messages.Enqueue("{\"path\": \"invite\", \"body\": {\"invitedId\": 0, \"speed\": \"FAST\", \"playersNumber\": 3}}");
-        }
+
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -68,13 +70,13 @@ public class CoordsGetter : MonoBehaviour
                 body.move = m;
                 request.body = body;
                 print(JsonConvert.SerializeObject(request));
-                messages.Enqueue(JsonConvert.SerializeObject(request));
+                SocketConnection.messages.Enqueue(JsonConvert.SerializeObject(request));
             }
         }
     }
 
     public bool hasState() {
-        return socketConnection.state != null;
+        return SocketConnection.state != null;
     }
 
     public Vector3 getPosition(int id) {
@@ -84,7 +86,7 @@ public class CoordsGetter : MonoBehaviour
         // if (id == 2) {
         //     return new Vector3(radius * (float) Math.Sin(time / 1000 + 2), (float) 0, radius * (float) Math.Cos(time / 1000 + 2));
         // }
-        return new Vector3(socketConnection.state.players[id].state.x / 10, socketConnection.state.players[id].state.z / 10, socketConnection.state.players[id].state.y / 10);
+        return new Vector3(SocketConnection.state.players[id].state.x / 10, SocketConnection.state.players[id].state.z / 10, SocketConnection.state.players[id].state.y / 10);
     }
 }
 

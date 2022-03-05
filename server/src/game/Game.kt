@@ -32,7 +32,7 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
         for (i in 1..properties.playersNumber) {
             players.add(Player(sparePlayersId++, user1Id,
                 PlayerState(
-                    properties.fieldWidth * 1/2,
+                    properties.fieldWidth * 1/4,
                     properties.fieldHeight / (properties.playersNumber + 1) * i,
                     orientation = Vector(1.0, 0.0)
                 )
@@ -45,7 +45,7 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
                 )
             ))
         }
-        val ballState = BallState(properties.ballRadius, properties.fieldHeight - properties.ballRadius)
+        val ballState = BallState(properties.fieldWidth / 2, properties.fieldHeight / 2)
         return  GameState(players, ballState)
     }
 
