@@ -6,89 +6,69 @@ using System.Net.WebSockets;
 using Newtonsoft.Json;
 
 using static SocketConnection;
+using static Utils;
 
 
-public class CoordsGetter : MonoBehaviour
+public class InputManager : MonoBehaviour
 {
 
-    private float time = 0;
-    public float radius = 2.0f;
     public static GameObject controlledUnit = null;         // instead of GameObject, could use custom type like ControllableUnit
+
     // Start is called before the first frame update
     void Start()
     {
-        for (int i=0; i< SocketConnection.state.players.Count; i++) {
-        var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cube.AddComponent<PlayerScript>();
-        cube.GetComponent<PlayerScript>().id = SocketConnection.state.players[i].id;
-    }
-
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        time += 1;
-
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if(Physics.Raycast(ray, out hit)) // you can also only accept hits to some layer and put your selectable units in this layer
             {
-                if(hit.collider.tag == "Player"){
-                    if (controlledUnit != null) {
+                if(hit.collider.tag == "Player")
+                {
+                    if (controlledUnit != null)
+                    {
                         controlledUnit.GetComponent<PlayerScript>().ResetHighlight();
                     }
                     controlledUnit = hit.transform.gameObject; // if using custom type, cast the result to type here
-                    print(controlledUnit.name);
                     controlledUnit.GetComponent<PlayerScript>().SetHighlight();
-                } else {
-                    if (controlledUnit != null) {
+                } else 
+                {
+                    if (controlledUnit != null)
+                    {
                         controlledUnit.GetComponent<PlayerScript>().ResetHighlight();
                     }
                     controlledUnit = null;
                 }
             }
         }
+
         if (Input.GetMouseButtonDown(1))
         {
             RaycastHit hit;
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if(Physics.Raycast(ray, out hit) && hit.collider.tag == "Field" && controlledUnit != null) {
-                // Debug.Log("Hit point: " + hit.point);
                 MoveRequest request = new MoveRequest();
                 request.path = "makeMove";
                 MoveBody body = new MoveBody();
                 Move m = new Move();
                 m.playerId = controlledUnit.GetComponent<PlayerScript>().id;
                 m.action = "movement";
-                Point p = new Point();
-                p.x = hit.point.x * 10;
-                p.y = hit.point.z * 10;
+                Point p = Utils.unityFieldPointToServerPoint(hit.point);
                 m.actionData = p;
                 body.move = m;
                 request.body = body;
-                print(JsonConvert.SerializeObject(request));
                 SocketConnection.messages.Enqueue(JsonConvert.SerializeObject(request));
             }
         }
     }
-
-    public bool hasState() {
-        return SocketConnection.state != null;
-    }
-
-    public Vector3 getPosition(int id) {
-        // if (id == 1) {
-        //     return new Vector3(radius * (float) Math.Sin(time / 1000) + , 0.0f, radius * (float) Math.Cos(time / 1000));
-        // }
-        // if (id == 2) {
-        //     return new Vector3(radius * (float) Math.Sin(time / 1000 + 2), (float) 0, radius * (float) Math.Cos(time / 1000 + 2));
-        // }
-        return new Vector3(SocketConnection.state.players[id].state.x / 10, SocketConnection.state.players[id].state.z / 10, SocketConnection.state.players[id].state.y / 10);
-    }
 }
+
 
 public class MoveRequest {
     public string path;

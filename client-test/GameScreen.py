@@ -16,15 +16,15 @@ class GameScreen(Screen):
 
         self.field_x = 50
         self.field_y = 100
-        self.scale = 4
-        self.field_height = 150
+        self.scale = 40
+        self.field_height = 15
         self.field_width = self.field_height * 2
-        self.player_radius = 5
-        self.ball_radius = 3
+        self.player_radius = 0.5
+        self.ball_radius = 0.3
         self.target_x_margin = 0.15
         self.target_y_margin = 0.5
-        self.target_radius = 5
-        self.flyHeight = 35
+        self.target_radius = 0.5
+        self.flyHeight = 4
         self.score = None
         self.time = None
         self.score_label = Label(text="0:0",
@@ -73,7 +73,7 @@ class GameScreen(Screen):
         self.requests.add(json.dumps({"path": "makeMove", "body": {"move": move}}))
 
     def screen_to_field_coordinates(self, x, y):
-        return (x - self.field_x) // self.scale, (y - self.field_y) // self.scale
+        return (x - self.field_x) / self.scale, (y - self.field_y) / self.scale
 
     def field_to_screen_coordinates(self, x, y):
         return x * self.scale + self.field_x, \

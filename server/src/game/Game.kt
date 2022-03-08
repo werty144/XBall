@@ -158,19 +158,19 @@ data class GameProperties(
     val playersNumber: Int,
     val speed: Speed
 ) {
-    val fieldWidth = 300.0
-    val fieldHeight = 150.0
-    val playerSpeed = 60.0
-    val ballSpeed = 150.0
+    val fieldWidth = 30.0
+    val fieldHeight = 15.0
+    val playerSpeed = 6.0
+    val ballSpeed = 15.0
     val playerRotationSpeed = 2*PI
-    val playerRadius = 5.0
-    val ballRadius = 3.0
-    val grabRadius = 15.0
+    val playerRadius = .5
+    val ballRadius = .3
+    val grabRadius = 1.5
     val targetXMargin = 0.15
     val targetYMargin = 0.5
-    val targetZ = 40.0
-    val targetRadius = .0
-    val flyHeight = 35.0
+    val targetZ = 4.0
+    val targetRadius = .4
+    val flyHeight = targetZ
     @kotlinx.serialization.Transient
     val ballBoundaries = run {
         val p1 = Point(ballRadius, ballRadius)

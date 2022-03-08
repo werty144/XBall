@@ -2,13 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using static SocketConnection;
+using static Utils;
+
 public class PlayerScript : MonoBehaviour
 {
-
-    int a = 0;
     public int id;
-    float speed = 0.05f;
-    CoordsGetter coordsGetter;
     Renderer m_ObjectRenderer;
     Material highlightedMaterial;
     List<Material> startMaterials = new List<Material>();
@@ -22,27 +21,18 @@ public class PlayerScript : MonoBehaviour
         highlightedMaterial = Resources.Load("Materials/HighlightGreen", typeof(Material)) as Material;
         highlightedMaterials = new List<Material>(startMaterials);
         highlightedMaterials.Add(highlightedMaterial);
-        coordsGetter = GameObject.FindWithTag("coords").GetComponent<CoordsGetter>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey("w")) {
-            gameObject.transform.position += Vector3.forward * speed;
-        }
-        if (Input.GetKey("a")) {
-            gameObject.transform.position += Vector3.left * speed;
-        }
-        if (Input.GetKey("s")) {
-            gameObject.transform.position += Vector3.back * speed;
-        }
-        if (Input.GetKey("d")) {
-            gameObject.transform.position += Vector3.right * speed;
-        }
-
-        if (coordsGetter.hasState()) {
-            gameObject.transform.position = coordsGetter.getPosition(id);
+        if (SocketConnection.state != null) {
+            gameObject.transform.position = Utils.serverFieldCoordsToUnityVector3
+            (
+                SocketConnection.state.players[id].state.x,
+                SocketConnection.state.players[id].state.y,
+                SocketConnection.state.players[id].state.z
+            );
         }
         
     }
