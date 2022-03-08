@@ -26,7 +26,6 @@ fun <T>tryJsonParse(serializer: DeserializationStrategy<T>, input: Any): T? {
 }
 
 class APIHandler(
-    private val application: Application,
     private val gamesManager: GamesManager,
     private val invitesManager: InvitesManager,
     private val connections: Set<Connection>
@@ -53,7 +52,7 @@ class APIHandler(
                         val inviteId = requestBody.inviteId
                         val invite = invitesManager.getInviteById(inviteId) ?: return
                         val game = gamesManager.createNewGame(invite)
-                        application.launch { gamesManager.runGame(game, invite.inviterId, invite.invitedId, connections) }
+                        gamesManager.launchGame(game, invite.inviterId, invite.invitedId, connections)
                         invitesManager.removeInviteById(inviteId)
                     }
                     "makeMove" -> {

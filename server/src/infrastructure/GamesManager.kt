@@ -6,20 +6,19 @@ import com.example.game.GameStatus
 import com.example.routing.APIMove
 import com.example.routing.Connection
 import io.ktor.http.cio.websocket.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 import java.util.Collections
+import kotlin.coroutines.CoroutineContext
 
 class GamesManager {
     private var spareGameId: GameId = 0
     val games: MutableSet<Game> = Collections.synchronizedSet(LinkedHashSet())
     private val updateTime = 10L
+    private val gameCoroutineScope: CoroutineScope = CoroutineScope(CoroutineName("Game scope"))
 
     fun createNewGame(invite: Invite): Game {
         val game = Game(spareGameId++, invite.inviterId, invite.invitedId, invite.gameProperties, updateTime)
@@ -37,6 +36,10 @@ class GamesManager {
     fun makeMove(gameId: GameId, move: APIMove, actorId: UserId) {
         val game = gameById(gameId)
         game?.makeMove(move, actorId)
+    }
+
+    fun launchGame(game: Game, firstUserId: UserId, secondUserId: UserId, connections: Set<Connection>) {
+        gameCoroutineScope.launch { runGame(game, firstUserId, secondUserId, connections) }
     }
 
     suspend fun runGame(game: Game, firstUserId: UserId, secondUserId: UserId, connections: Set<Connection>) {

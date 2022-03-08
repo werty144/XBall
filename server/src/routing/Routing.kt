@@ -17,7 +17,7 @@ fun Application.configureRouting(gamesManager: GamesManager,
                                  authenticationManager: AuthenticationManager,
                                  connections: Connections) {
 
-    val apiHandler = APIHandler(this, gamesManager, invitesManager, connections)
+    val apiHandler = APIHandler(gamesManager, invitesManager, connections)
 
     routing {
         post("/auth") {
