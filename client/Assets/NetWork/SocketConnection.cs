@@ -65,7 +65,7 @@ public class SocketConnection : MonoBehaviour
     };
 
     // Keep sending messages at every 0.3s
-    InvokeRepeating("SendWebSocketMessage", 0.0f, 0.3f);
+    InvokeRepeating("SendWebSocketMessage", 0.0f, 0.05f);
 
     // waiting for messages
     await websocket.Connect();

@@ -104,7 +104,7 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
     fun goal(side: Side) {
         if (!state.ballState.active) return
         score[side.other()] = score[side.other()]!! + 1
-        if (score[side.other()] == 1) {
+        if (score[side.other()] == properties.winScore) {
             gameEnded = true
         }
         state.ballState.destinations.clear()
@@ -171,6 +171,7 @@ data class GameProperties(
     val targetZ = 4.0
     val targetRadius = .4
     val flyHeight = targetZ
+    val winScore = 5
     @kotlinx.serialization.Transient
     val ballBoundaries = run {
         val p1 = Point(ballRadius, ballRadius)

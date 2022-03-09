@@ -8,12 +8,15 @@ import java.util.LinkedList
 
 @Serializable
 data class BallState(var x: Double, var y: Double) {
+    @Transient
+    val minZ = 1.0
     @Required
-    var z: Double = 0.0
+    var z: Double = minZ
     var active = true
     var ownerId: Int? = null
     @Transient
     var destinations = LinkedList<Point>()
+    @Transient
     var flyMode: Boolean = false
 
     @Transient
@@ -42,11 +45,12 @@ data class BallState(var x: Double, var y: Double) {
             return
         }
 
-        if (flyMode and (z != game.properties.flyHeight)) {
-            z += kotlin.math.min(game.properties.flyHeight - z, 2.0)
+        val verticalSpeed = game.properties.ballSpeed / (1000F / game.gameUpdateTime)
+
+        if (flyMode and (z < game.properties.flyHeight)) {
+            z += kotlin.math.min(game.properties.flyHeight - z, verticalSpeed)
             return
         }
-
 
         if (!destinations.isEmpty()) {
             val destination = destinations.first
@@ -69,8 +73,8 @@ data class BallState(var x: Double, var y: Double) {
             y = nextPoint.y
         } else {
             if (!flyMode) {
-                if (z != 0.0) {
-                    z -= kotlin.math.min(z, 2.0)
+                if (z > minZ) {
+                    z -= kotlin.math.min(z - minZ, verticalSpeed)
                 } else {
                     flyMode = false
                 }
