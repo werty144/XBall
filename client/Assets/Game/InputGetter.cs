@@ -69,5 +69,17 @@ public class InputGetter : MonoBehaviour
         {
             inputProcessor.attack();
         }
+
+        if (Input.GetKey("e"))
+        {
+            inputProcessor.turnIntention();
+        }
+
+        if (Input.GetKey("s"))
+        {
+            inputProcessor.stop();
+        }
+
+        inputProcessor.processMousePosition(Input.mousePosition);
     }
 }

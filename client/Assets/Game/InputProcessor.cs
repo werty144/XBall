@@ -13,6 +13,8 @@ public class InputProcessor
     RequestCreator requestCreator = new RequestCreator();
 
     bool wantThrow = false;
+    bool wantOrient = false;
+    CameraController cameraController = Camera.main.GetComponent<CameraController>();
 
     public void selectPlayer(GameObject player)
     {
@@ -31,7 +33,7 @@ public class InputProcessor
 
         Point point2D = Utils.unityFieldPointToServerPoint(point);
 
-        if (!wantThrow) 
+        if (!wantThrow && !wantOrient) 
         {
             removeHighlightIfPresent();
 
@@ -42,6 +44,12 @@ public class InputProcessor
         {
             requestCreator.throwRequest(selectedPlayer, point2D);
             wantThrow = false;
+        }
+
+        if (wantOrient)
+        {
+            requestCreator.orientationRequest(selectedPlayer, point2D);
+            wantOrient = false;
         }
     }
 
@@ -77,7 +85,20 @@ public class InputProcessor
 
     public void throwIntention()
     {
+        cancelIntentions();
         wantThrow = true;
+    }
+
+    public void turnIntention()
+    {
+        cancelIntentions();
+        wantOrient = true;
+    }
+
+    public void cancelIntentions()
+    {
+        wantThrow = false;
+        wantOrient = false;
     }
 
     public void attack()
@@ -88,5 +109,27 @@ public class InputProcessor
         }
 
         requestCreator.attackRequest(selectedPlayer);
+    }
+
+    public void stop()
+    {
+        if (selectedPlayer == null) 
+        {
+            return;
+        }
+
+        requestCreator.stopRequest(selectedPlayer);
+    }
+
+    public void processMousePosition(Vector3 mousePosition)
+    {
+        if (mousePosition.x >= Screen.width * 0.95)
+        {
+            cameraController.setMovingDirection(Vector3.right);
+        }
+        if (mousePosition.x <= Screen.width * 0.05)
+        {
+            cameraController.setMovingDirection(Vector3.left);
+        }
     }
 }

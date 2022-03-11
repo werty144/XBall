@@ -1,7 +1,7 @@
 public class GameConstants {
-    public static float fieldWidth = 30.0F;
+    public static float fieldWidth = 40.0F;
     public static float fieldHeight = 15.0F;
-    public static float playerRadius = .5F;
+    public static float playerRadius = .25F;
     public static float ballRadius = .3F;
     public static float grabRadius = 1.5F;
     public static float targetXMargin = 0.15F;

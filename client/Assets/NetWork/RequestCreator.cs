@@ -14,8 +14,10 @@ public class RequestCreator
     string grab = "grab";
     string throwString = "throw";
     string attack = "attack";
+    string orientation = "orientation";
+    string stop = "stop";
 
-    public void moveRequest(GameObject player, Point point)
+    public void createMoveRequest(GameObject player, string action, dynamic actionData)
     {
         string request = JsonConvert.SerializeObject(
             new 
@@ -26,73 +28,43 @@ public class RequestCreator
                     move = new
                     {
                         playerId = player.GetComponent<PlayerScript>().id,
-                        action = movement,
-                        actionData = point
+                        action = action,
+                        actionData = actionData
                     }
                 }
             }
             );
         SocketConnection.messages.Enqueue(request);
+    }
+
+    public void moveRequest(GameObject player, Point point)
+    {
+        createMoveRequest(player, movement, point);
     }
 
     public void grabRequest(GameObject player)
     {
-        string request = JsonConvert.SerializeObject(
-            new
-            {
-                path = makeMove,
-                body = new
-                {
-                    move = new 
-                    {
-                        playerId = player.GetComponent<PlayerScript>().id,
-                        action = grab,
-                        actionData = new {}
-                    }
-                }
-            }
-            );
-        SocketConnection.messages.Enqueue(request);
+        createMoveRequest(player, grab, new{});
     }
 
     public void throwRequest(GameObject player, Point point)
     {
-        string request = JsonConvert.SerializeObject(
-            new 
-            {
-                path = makeMove, 
-                body = new
-                {
-                    move = new
-                    {
-                        playerId = player.GetComponent<PlayerScript>().id,
-                        action = throwString,
-                        actionData = point
-                    }
-                }
-            }
-            );
-        SocketConnection.messages.Enqueue(request);
+        createMoveRequest(player, throwString, point);
+    }
+
+    public void orientationRequest(GameObject player, Point point)
+    {
+        createMoveRequest(player, orientation, point);
     }
 
     public void attackRequest(GameObject player)
     {
-        string request = JsonConvert.SerializeObject(
-            new 
-            {
-                path = makeMove, 
-                body = new
-                {
-                    move = new
-                    {
-                        playerId = player.GetComponent<PlayerScript>().id,
-                        action = attack,
-                        actionData = new {}
-                    }
-                }
-            }
-            );
-        SocketConnection.messages.Enqueue(request);
+        createMoveRequest(player, attack, new {});
+    }
+
+    public void stopRequest(GameObject player)
+    {
+        createMoveRequest(player, stop, new {});    
     }
 }
 

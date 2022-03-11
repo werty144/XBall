@@ -158,12 +158,12 @@ data class GameProperties(
     val playersNumber: Int,
     val speed: Speed
 ) {
-    val fieldWidth = 30.0
+    val fieldWidth = 40.0
     val fieldHeight = 15.0
     val playerSpeed = 6.0
     val ballSpeed = 15.0
     val playerRotationSpeed = 2*PI
-    val playerRadius = .5
+    val playerRadius = .25
     val ballRadius = .3
     val grabRadius = 1.5
     val targetXMargin = 0.15
