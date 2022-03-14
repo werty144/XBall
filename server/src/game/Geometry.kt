@@ -7,7 +7,7 @@ import kotlin.math.*
 const val EPS: Double = 1e-5
 
 @Serializable
-data class Point(val x: Double, val y: Double, val z:Double = 0.0) {
+data class Point(val x: Double, val y: Double) {
     operator fun plus(vector: Vector): Point {
         return Point(x + vector.x, y + vector.y)
     }

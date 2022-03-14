@@ -11,14 +11,14 @@ fun grabRandom(game: Game, move: APIMove) {
 
     if (
         (distance(player.state.position, game.state.ballState.position) > game.properties.grabRadius) or
-        game.state.ballState.flyMode
+        game.state.ballState.inAir()
     ) return
 
     val successProbability = grabProbability(game, move)
 
     if (nextDouble() < successProbability) {
         game.state.ballState.ownerId = player.id
-        game.state.ballState.destinations.clear()
+        game.state.ballState.clearDestinations()
     }
 
 }
@@ -39,8 +39,7 @@ fun grabProbability(game: Game, move: APIMove): Double {
     }
 
     if (ballOwnerId == null) {
-        val ballMoves = !ballState.destinations.isEmpty()
-        if (ballMoves) {
+        if (ballState.moves()) {
             successProbability = successProbability.pow(1.3)
         }
     } else {
@@ -65,7 +64,7 @@ fun throwRandom(game: Game, move: APIMove) {
     val player = game.state.players.find { it.id == move.playerId }!!
     val target = Json.decodeFromJsonElement(Point.serializer(), move.actionData)
     game.state.ballState.ownerId = null
-    game.state.ballState.destinations = randomDestination(game, target, player)
+    game.state.ballState.setDestinations(randomDestination(game, target, player))
 }
 
 fun randomDestination(game: Game, target: Point, player: Player, sigma_factor: Float = 1F/20): LinkedList<Point> {
@@ -93,12 +92,13 @@ fun randomDestination(game: Game, target: Point, player: Player, sigma_factor: F
 fun randomLiftDestination(game: Game, target: Point, player: Player): LinkedList<Point> = randomDestination(game, target, player, 0.1f)
 
 fun attackRandom(game: Game, move: APIMove) {
+    if (game.state.ballState.ownerId != move.playerId) return
     val player = game.state.players.find {it.id == move.playerId}!!
     val playerSide = game.sides[player.userId]!!
     val target = game.properties.targetPoint(playerSide.other())
     game.state.ballState.ownerId = null
-    game.state.ballState.flyMode = true
-    game.state.ballState.destinations = randomLiftDestination(game, target, player)
+    game.state.ballState.startLift()
+    game.state.ballState.setDestinations(randomLiftDestination(game, target, player))
 }
 
 fun targetAttempt(game: Game) {
@@ -125,6 +125,6 @@ fun targetAttempt(game: Game) {
         val newDirection = ballState.orientation!!.reflect(reflectionLine).unit()
         val bounceLength = Random().nextDouble() * 50
         val moveSegment = Segment(ballState.position, ballState.position + newDirection * bounceLength)
-        ballState.destinations = moveSegment.getReflectionSequence(game.properties)
+        ballState.setDestinations(moveSegment.getReflectionSequence(game.properties))
     }
 }

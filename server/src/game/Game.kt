@@ -4,6 +4,7 @@ import com.example.routing.APIMove
 import com.example.infrastructure.UserId
 import com.example.routing.tryJsonParse
 import kotlinx.serialization.Serializable
+import java.util.LinkedList
 import kotlin.math.*
 
 typealias GameId = Int
@@ -107,8 +108,7 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
         if (score[side.other()] == properties.winScore) {
             gameEnded = true
         }
-        state.ballState.destinations.clear()
-        state.ballState.destinations.add(properties.targetPoint(side))
+        state.ballState.setDestinations(LinkedList<Point>(listOf(properties.targetPoint(side))))
         state.ballState.active = false
         timer.pause()
     }
@@ -163,7 +163,7 @@ data class GameProperties(
     val playerSpeed = 6.0
     val ballSpeed = 15.0
     val playerRotationSpeed = 2*PI
-    val playerRadius = .25
+    val playerRadius = .35
     val ballRadius = .3
     val grabRadius = 1.5
     val targetXMargin = 0.15
@@ -210,8 +210,8 @@ data class GameProperties(
 
     fun targetPoint(side: Side): Point {
         return when (side) {
-            Side.LEFT -> Point(fieldWidth * targetXMargin, fieldHeight * targetYMargin, targetZ)
-            Side.RIGHT -> Point(fieldWidth * (1 - targetXMargin), fieldHeight * targetYMargin, targetZ)
+            Side.LEFT -> Point(fieldWidth * targetXMargin, fieldHeight * targetYMargin)
+            Side.RIGHT -> Point(fieldWidth * (1 - targetXMargin), fieldHeight * targetYMargin)
         }
 
     }

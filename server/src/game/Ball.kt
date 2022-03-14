@@ -15,9 +15,9 @@ data class BallState(var x: Double, var y: Double) {
     var active = true
     var ownerId: Int? = null
     @Transient
-    var destinations = LinkedList<Point>()
+    private var destinations = LinkedList<Point>()
     @Transient
-    var flyMode: Boolean = false
+    private var needsLift = false
 
     @Transient
     var position: Point = Point(0.0, 0.0)
@@ -42,13 +42,18 @@ data class BallState(var x: Double, var y: Double) {
             position = game.properties.clipPointToBallBoundaries(position)
             x = position.x
             y = position.y
+            z = player.state.z
             return
         }
 
         val verticalSpeed = game.properties.ballSpeed / (1000F / game.gameUpdateTime)
 
-        if (flyMode and (z < game.properties.flyHeight)) {
+        if (needsLift) {
             z += kotlin.math.min(game.properties.flyHeight - z, verticalSpeed)
+            if (z >= game.properties.flyHeight) {
+                needsLift = false
+                if (intersectTargetIfPlacedTo(game, position)) targetAttempt(game)
+            }
             return
         }
 
@@ -56,7 +61,7 @@ data class BallState(var x: Double, var y: Double) {
             val destination = destinations.first
             val nextPoint = nextPoint(game)
 
-            if (active and intersectTarget(game, nextPoint)) {
+            if (active and intersectTargetIfPlacedTo(game, nextPoint)) {
                 targetAttempt(game)
                 return
             }
@@ -64,7 +69,6 @@ data class BallState(var x: Double, var y: Double) {
             if (distance(position, destination) <= distance(position, nextPoint)) {
                 x = destination.x
                 y = destination.y
-                flyMode = false
                 destinations.poll()
                 return
             }
@@ -72,14 +76,26 @@ data class BallState(var x: Double, var y: Double) {
             x = nextPoint.x
             y = nextPoint.y
         } else {
-            if (!flyMode) {
-                if (z > minZ) {
-                    z -= kotlin.math.min(z - minZ, verticalSpeed)
-                } else {
-                    flyMode = false
-                }
+            if (z > minZ) {
+                z -= kotlin.math.min(z - minZ, verticalSpeed)
             }
         }
+    }
+
+    fun inAir(): Boolean = z > minZ
+
+    fun moves() = !destinations.isEmpty()
+
+    fun clearDestinations() {
+        destinations.clear()
+    }
+
+    fun setDestinations(newDestinations: LinkedList<Point>) {
+        destinations = newDestinations
+    }
+
+    fun startLift() {
+        needsLift = true
     }
 
     fun nextPoint(game: Game): Point {
@@ -91,10 +107,11 @@ data class BallState(var x: Double, var y: Double) {
         return position + step
     }
 
-    fun intersectTarget(game: Game, nextPoint: Point): Boolean {
-        return flyMode and Side.values().any {
-            distance(game.properties.targetPoint(it), nextPoint) <
-                game.properties.targetRadius + game.properties.ballRadius
-        }
+    fun intersectTargetIfPlacedTo(game: Game, nextPoint: Point): Boolean {
+        return (z == game.properties.flyHeight) and
+                Side.values().any {
+                    distance(game.properties.targetPoint(it), nextPoint) <
+                        game.properties.targetRadius + game.properties.ballRadius
+                }
     }
 }

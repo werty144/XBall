@@ -16,10 +16,10 @@ class GameScreen(Screen):
 
         self.field_x = 50
         self.field_y = 100
-        self.scale = 40
+        self.scale = 30
         self.field_height = 15
-        self.field_width = self.field_height * 2
-        self.player_radius = 0.5
+        self.field_width = 40
+        self.player_radius = 0.35
         self.ball_radius = 0.3
         self.target_x_margin = 0.15
         self.target_y_margin = 0.5
@@ -160,7 +160,7 @@ class GameScreen(Screen):
 
     def draw_ball(self, ball_state):
         self.canvas.add(Color(rgba=(1, 0, 0, 1)))
-        ball_radius = (1 + ball_state['z'] / self.flyHeight) * self.ball_radius
+        ball_radius = (ball_state['z'] ** (0.5)) * self.ball_radius
         instruction = Line(
             circle=(*self.field_to_screen_coordinates(ball_state['x'], ball_state['y']), self.scale * ball_radius))
         self.canvas.add(instruction)
