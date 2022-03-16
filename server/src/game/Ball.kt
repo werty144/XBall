@@ -13,6 +13,7 @@ data class BallState(var x: Double, var y: Double) {
     @Required
     var z: Double = minZ
     var active = true
+    @Required
     var ownerId: Int? = null
     @Transient
     private var destinations = LinkedList<Point>()

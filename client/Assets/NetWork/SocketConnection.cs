@@ -167,6 +167,7 @@ public class PlayerState {
 }
 
 public class BallState {
+  public int? ownerId;
   public float x;
   public float y;
   public float z;
