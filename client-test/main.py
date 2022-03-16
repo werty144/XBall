@@ -1,6 +1,10 @@
 import asyncio
+import sys
 
 from kivy.config import Config
+
+from bot import BotGame
+
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
 from kivy.app import App
@@ -31,5 +35,6 @@ async def run_app_with_close(app, connection_task):
 
 if __name__ == '__main__':
     app = XBallClientApp()
-    connection_task = asyncio.ensure_future(hello(app))
+    bot = None if len(sys.argv) <= 2 else BotGame()
+    connection_task = asyncio.ensure_future(hello(app, bot))
     asyncio.get_event_loop().run_until_complete(asyncio.gather(run_app_with_close(app, connection_task), connection_task))

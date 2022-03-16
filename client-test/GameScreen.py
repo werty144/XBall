@@ -23,7 +23,7 @@ class GameScreen(Screen):
         self.ball_radius = 0.3
         self.target_x_margin = 0.15
         self.target_y_margin = 0.5
-        self.target_radius = 0.5
+        self.target_radius = 0.4
         self.flyHeight = 4
         self.score = None
         self.time = None
