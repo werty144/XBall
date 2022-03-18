@@ -14,6 +14,7 @@ public class InputProcessor
 
     bool wantThrow = false;
     bool wantOrient = false;
+    bool wantBend = false;
     CameraController cameraController = Camera.main.GetComponent<CameraController>();
 
     public void selectPlayer(GameObject player)
@@ -33,7 +34,7 @@ public class InputProcessor
 
         Point point2D = Utils.unityFieldPointToServerPoint(point);
 
-        if (!wantThrow && !wantOrient) 
+        if (!anyIntention()) 
         {
             removeHighlightIfPresent();
 
@@ -50,6 +51,12 @@ public class InputProcessor
         {
             requestCreator.orientationRequest(selectedPlayer, point2D);
             wantOrient = false;
+        }
+
+        if (wantBend)
+        {
+            requestCreator.bendRequest(selectedPlayer, point2D);
+            wantBend = false;
         }
     }
 
@@ -95,10 +102,22 @@ public class InputProcessor
         wantOrient = true;
     }
 
+    public void bendIntention()
+    {
+        cancelIntentions();
+        wantBend = true;
+    }
+
     public void cancelIntentions()
     {
         wantThrow = false;
         wantOrient = false;
+        wantBend = false;
+    }
+
+    public bool anyIntention()
+    {
+        return wantBend || wantOrient || wantThrow;
     }
 
     public void attack()

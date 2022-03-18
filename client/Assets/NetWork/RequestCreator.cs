@@ -16,6 +16,7 @@ public class RequestCreator
     string attack = "attack";
     string orientation = "orientation";
     string stop = "stop";
+    string bend = "bend";
 
     public void createMoveRequest(GameObject player, string action, dynamic actionData)
     {
@@ -60,6 +61,11 @@ public class RequestCreator
     public void attackRequest(GameObject player)
     {
         createMoveRequest(player, attack, new {});
+    }
+
+    public void bendRequest(GameObject player, Point point)
+    {
+        createMoveRequest(player, bend, point);
     }
 
     public void stopRequest(GameObject player)

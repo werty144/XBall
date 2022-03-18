@@ -17,7 +17,7 @@ import kotlin.coroutines.CoroutineContext
 class GamesManager {
     private var spareGameId: GameId = 0
     val games: MutableSet<Game> = Collections.synchronizedSet(LinkedHashSet())
-    private val updateTime = 10L
+    private val updateTime = 5L
     private val gameCoroutineScope: CoroutineScope = CoroutineScope(CoroutineName("Game scope"))
 
     fun createNewGame(invite: Invite): Game {

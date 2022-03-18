@@ -91,6 +91,15 @@ fun randomDestination(game: Game, target: Point, player: Player, sigma_factor: F
 
 fun randomLiftDestination(game: Game, target: Point, player: Player): LinkedList<Point> = randomDestination(game, target, player, 0.1f)
 
+fun bendRandom(game: Game, move: APIMove) {
+    if (game.state.ballState.ownerId != move.playerId) return
+    val player = game.state.players.find { it.id == move.playerId }!!
+    val target = Json.decodeFromJsonElement(Point.serializer(), move.actionData)
+    game.state.ballState.ownerId = null
+    game.state.ballState.startLift()
+    game.state.ballState.setDestinations(randomLiftDestination(game, target, player))
+}
+
 fun attackRandom(game: Game, move: APIMove) {
     if (game.state.ballState.ownerId != move.playerId) return
     val player = game.state.players.find {it.id == move.playerId}!!

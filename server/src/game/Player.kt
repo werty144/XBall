@@ -34,12 +34,11 @@ data class PlayerState(
 @Serializable
 data class Player(val id: Int, val userId: UserId, val state: PlayerState) {
     fun nextState(game: Game) {
-        val updateTime = game.gameUpdateTime
-        move(game, updateTime)
-        rotate(game, updateTime)
+        move(game)
+        rotate(game)
     }
 
-    fun rotate(game: Game, updateTime: Float) {
+    fun rotate(game: Game) {
         var direction: Vector? = null
         if ((state.positionTarget != null) and (state.positionTarget != state.position)) {
             direction = Vector(state.position, state.positionTarget!!).unit()
@@ -51,7 +50,7 @@ data class Player(val id: Int, val userId: UserId, val state: PlayerState) {
 
         if (direction != null) {
             val angleDiff = state.orientation.orientedAngleWithVector(direction)
-            val maxAngle = (game.properties.playerRotationSpeed / (1000F / updateTime))
+            val maxAngle = (game.properties.playerRotationSpeed * game.deltaTime)
             if (abs(angleDiff) <= maxAngle) {
                 state.orientation = state.orientation.rotated(angleDiff)
                 state.orientationTarget = null
@@ -61,12 +60,12 @@ data class Player(val id: Int, val userId: UserId, val state: PlayerState) {
         }
     }
 
-    fun move(game: Game, updateTime: Float) {
+    fun move(game: Game) {
         if ((state.positionTarget != null) and (state.positionTarget != state.position)) {
             val positionTarget = state.positionTarget!!
             val direction = Vector(state.position, positionTarget).unit()
 
-            val step = direction * (game.properties.playerSpeed / (1000F / updateTime))
+            val step = direction * (game.properties.playerSpeed * game.deltaTime)
             if (distance(positionTarget, state.position) <= step.length()) {
                 if (canMove(positionTarget, game)) {
                     state.x = positionTarget.x

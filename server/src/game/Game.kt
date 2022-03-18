@@ -15,10 +15,12 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
     val score: MutableMap<Side, Int>
     var gameEnded: Boolean
     val gameUpdateTime: Float
+    val deltaTime: Float
     val timer: Timer
 
     init {
         gameUpdateTime = worldUpdateTime * properties.speed.slowingCoefficient()
+        deltaTime = gameUpdateTime / 1000F  // used to multiply speed by
         sides = mapOf(user1Id to Side.LEFT, user2Id to Side.RIGHT)
         score = mutableMapOf(Side.LEFT to 0, Side.RIGHT to 0)
         gameEnded = false
@@ -69,6 +71,9 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
             }
             "throw" -> {
                 throwRandom(this, move)
+            }
+            "bend" -> {
+                bendRandom(this, move)
             }
             "attack" -> {
                 attackRandom(this, move)

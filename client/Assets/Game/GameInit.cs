@@ -22,7 +22,7 @@ public class GameInit : MonoBehaviour
 
         var ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         ball.AddComponent<BallScript>();
-        ball.transform.localScale = new Vector3(GameConstants.ballRadius, GameConstants.ballRadius, GameConstants.ballRadius);
+        ball.transform.localScale = new Vector3(GameConstants.ballRadius * 2, GameConstants.ballRadius * 2, GameConstants.ballRadius * 2);
 
     }
 

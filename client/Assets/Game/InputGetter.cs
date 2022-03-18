@@ -80,6 +80,11 @@ public class InputGetter : MonoBehaviour
             inputProcessor.stop();
         }
 
+        if (Input.GetKey("d"))
+        {
+            inputProcessor.bendIntention();
+        }
+
         inputProcessor.processMousePosition(Input.mousePosition);
     }
 }

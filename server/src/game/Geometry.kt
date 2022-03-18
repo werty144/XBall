@@ -171,3 +171,42 @@ fun intersectionPoint(segment1: Segment, segment2: Segment): Point? {
     }
 }
 
+fun distance(line: Line, point: Point): Double {
+    return (abs(line.a * point.x + line.b * point.y + line.c))/(sqrt(line.a*line.a + line.b*line.b))
+}
+
+
+class Circle(val center: Point, val radius: Double)
+
+
+fun intersectionPoints(circle: Circle, line: Line): Pair<Point, Point>? {
+    if (distance(line, circle.center) > circle.radius) return null
+
+    val r = circle.radius
+    val x0 = circle.center.x
+    val y0 = circle.center.y
+
+    return if (line.b != 0.0) {
+        // quadratic equation on x coefficients
+        val a = line.a * line.a + line.b * line.b
+        val b = 2 * line.a * line.c + 2 * line.a * line.b * y0 - 2 * line.b * line.b * x0
+        val c = line.c * line.c + 2 * line.b * line.c * y0 - line.b * line.b * (r * r - x0 * x0 - y0 * y0)
+
+        val x1 = (-b + sqrt(b * b - 4 * a * c)) / (2 * a)
+        val y1 = (-line.c - line.a * x1)/line.b
+        val x2 = (-b - sqrt(b * b - 4 * a * c)) / (2 * a)
+        val y2 = (-line.c - line.a * x2)/line.b
+
+        Pair(Point(x1, y1), Point(x2, y2))
+    } else {
+        val a = line.a * line.a + line.b * line.b
+        val b = 2 * line.b * line.c + 2 * line.a * line.b * x0 - 2 * line.a * line.a *y0
+        val c = line.c * line.c + 2 * line.a * line.c * x0 - line.a * line.a * (r*r - x0*x0 - y0*y0)
+
+        val y1 = (-b + sqrt(b*b - 4*a*c))/(2*a)
+        val x1 = (-b*y1 - c)/a
+        val y2 = (-b - sqrt(b*b - 4*a*c))/(2*a)
+        val x2 = (-b*y1 - c)/a
+        Pair(Point(x1, y1), Point(x2, y2))
+    }
+}
