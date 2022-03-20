@@ -8,17 +8,20 @@ using System.Net.WebSockets;
 using static SocketConnection;
 using static Utils;
 using static InputProcessor;
+using static SettingsManager;
 
 
 public class InputGetter : MonoBehaviour
 {
 
-    InputProcessor inputProcessor;       
+    InputProcessor inputProcessor;
+    Dictionary<string, KeyCode> actionsToKey;    
 
     // Start is called before the first frame update
     void Start()
     {
         inputProcessor = new InputProcessor();
+        actionsToKey = SettingsManager.actionsToKey;
     }
 
     // Update is called once per frame
@@ -55,34 +58,39 @@ public class InputGetter : MonoBehaviour
             }
         }
 
-        if (Input.GetKey("w"))
+        if (Input.GetKey(actionsToKey["grab"]))
         {
             inputProcessor.grab();
         }
 
-        if (Input.GetKey("q"))
+        if (Input.GetKey(actionsToKey["throw"]))
         {
             inputProcessor.throwIntention();
         }
 
-        if (Input.GetKey("r"))
+        if (Input.GetKey(actionsToKey["attack"]))
         {
             inputProcessor.attack();
         }
 
-        if (Input.GetKey("e"))
+        if (Input.GetKey(actionsToKey["turn"]))
         {
             inputProcessor.turnIntention();
         }
 
-        if (Input.GetKey("s"))
+        if (Input.GetKey(actionsToKey["stop"]))
         {
             inputProcessor.stop();
         }
 
-        if (Input.GetKey("d"))
+        if (Input.GetKey(actionsToKey["bend"]))
         {
             inputProcessor.bendIntention();
+        }
+
+        if (Input.GetKeyUp(actionsToKey["switchPlayer"]))
+        {
+            inputProcessor.switchPlayer();
         }
 
         inputProcessor.processMousePosition(Input.mousePosition);

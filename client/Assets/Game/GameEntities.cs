@@ -6,8 +6,10 @@ using static SocketConnection;
 using static GameConstants;
 
 
-public class GameInit : MonoBehaviour
+public class GameEntities : MonoBehaviour
 {
+    public List<GameObject> myPlayers = new List<GameObject>();
+    public GameObject ball;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,9 +20,14 @@ public class GameInit : MonoBehaviour
             player.tag = "Player";
             player.AddComponent<PlayerScript>();
             player.GetComponent<PlayerScript>().id = SocketConnection.state.players[i].id;
+            player.GetComponent<PlayerScript>().userId = SocketConnection.state.players[i].userId;
+            if (player.GetComponent<PlayerScript>().userId == 0)
+            {
+                myPlayers.Add(player);
+            }
         }
 
-        var ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         ball.AddComponent<BallScript>();
         ball.transform.localScale = new Vector3(GameConstants.ballRadius * 2, GameConstants.ballRadius * 2, GameConstants.ballRadius * 2);
 

@@ -8,6 +8,7 @@ using static Utils;
 public class PlayerScript : MonoBehaviour
 {
     public int id;
+    public int userId;
     Renderer m_ObjectRenderer;
     Material highlightedMaterial;
     List<Material> startMaterials = new List<Material>();

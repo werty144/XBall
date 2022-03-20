@@ -105,12 +105,6 @@ public class SocketConnection : MonoBehaviour
   void startGame() {
     SceneManager.LoadScene("GameScene");
   }
-
-  void Awake()
-     {
-         DontDestroyOnLoad(this);
-     }
-
 }
 
 

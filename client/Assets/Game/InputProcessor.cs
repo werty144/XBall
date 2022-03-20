@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 
 using static SocketConnection;
@@ -16,10 +17,11 @@ public class InputProcessor
     bool wantOrient = false;
     bool wantBend = false;
     CameraController cameraController = Camera.main.GetComponent<CameraController>();
+    GameEntities gameEntities = GameObject.FindWithTag("GameEntities").GetComponent<GameEntities>();
 
     public void selectPlayer(GameObject player)
     {
-        removeHighlightIfPresent();
+        unselectPlayer();
 
         selectedPlayer = player;
         selectedPlayer.GetComponent<PlayerScript>().SetHighlight();
@@ -36,9 +38,7 @@ public class InputProcessor
 
         if (!anyIntention()) 
         {
-            removeHighlightIfPresent();
-
-            selectedPlayer = null;
+            unselectPlayer();
         }
 
         if (wantThrow)
@@ -60,12 +60,13 @@ public class InputProcessor
         }
     }
 
-    public void removeHighlightIfPresent()
+    public void unselectPlayer()
     {
         if (selectedPlayer != null)
         {
             selectedPlayer.GetComponent<PlayerScript>().ResetHighlight();
         }
+        selectedPlayer = null;
     }
 
     public void fieldRightClick(Vector3 point)
@@ -149,6 +150,21 @@ public class InputProcessor
         if (mousePosition.x <= Screen.width * 0.05)
         {
             cameraController.setMovingDirection(Vector3.left);
+        }
+    }
+
+    public void switchPlayer()
+    {
+        if (selectedPlayer != null)
+        {
+            var currentSelectedPlayerIndex = gameEntities.myPlayers.IndexOf(selectedPlayer);
+            var playersNumber = gameEntities.myPlayers.Count;
+            var newPlayerToSelect = gameEntities.myPlayers[(currentSelectedPlayerIndex + 1) % playersNumber];
+            unselectPlayer();
+            selectPlayer(newPlayerToSelect);
+        } else
+        {
+            selectPlayer(gameEntities.myPlayers[0]);
         }
     }
 }
