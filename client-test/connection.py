@@ -9,7 +9,7 @@ from kivy.app import App
 from MenuScreen import MenuScreen
 
 
-async def listen(websocket):
+async def listen(websocket, bot):
     sm = App.get_running_app().root
     menu_screen = sm.get_screen('menu')
     game_screen = sm.get_screen('game')
@@ -25,9 +25,11 @@ async def listen(websocket):
             if sm.current != "game":
                 sm.current = "game"
             game_screen.set_game(message["body"])
+            if bot is not None:
+                bot.set_game(message["body"])
 
 
-async def say(websocket):
+async def say(websocket, bot):
     menu_screen = App.get_running_app().root.get_screen('menu')
     game_screen = App.get_running_app().root.get_screen('game')
     if len(sys.argv) == 1:
@@ -35,6 +37,8 @@ async def say(websocket):
     else:
         user_id = sys.argv[1]
     menu_screen.set_user_id_label(user_id)
+    if bot is not None:
+        bot.set_user_id(user_id)
     await websocket.send(f'{user_id}_salt')
     while True:
         await asyncio.sleep(0.1)
@@ -42,15 +46,18 @@ async def say(websocket):
             await websocket.send(menu_screen.requests.pop())
         while len(game_screen.requests) > 0:
             await websocket.send(game_screen.requests.pop())
+        if bot is not None:
+            while len(bot.requests) > 0:
+                await websocket.send(bot.requests.pop())
 
 
-async def hello(app):
+async def hello(app, bot):
     # return
     try:
         await asyncio.sleep(0.1)
         uri = "ws://localhost:8080"
         async with websockets.connect(uri + "/") as websocket:
-            await asyncio.gather(listen(websocket), say(websocket))
+            await asyncio.gather(listen(websocket, bot), say(websocket, bot))
 
     except asyncio.CancelledError:
         pass
