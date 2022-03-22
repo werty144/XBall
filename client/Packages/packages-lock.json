@@ -7,6 +7,13 @@
       "dependencies": {},
       "hash": "90f55f370aecb5911f0b7820f09beea5ff791cb3"
     },
+    "com.rlabrecque.steamworks.net": {
+      "version": "https://github.com/rlabrecque/Steamworks.NET.git?path=/com.rlabrecque.steamworks.net#20.1.0",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "53d17180582752d7d8c9a757742da3a52dfc33d4"
+    },
     "com.unity.collab-proxy": {
       "version": "1.15.12",
       "depth": 0,
