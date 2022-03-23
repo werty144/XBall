@@ -27,7 +27,8 @@ public class PlayerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (SocketConnection.state != null) {
+        if (SocketConnection.state != null)
+        {
             gameObject.transform.position = Utils.serverFieldCoordsToUnityVector3
             (
                 SocketConnection.state.players[id].state.x,
@@ -37,20 +38,14 @@ public class PlayerScript : MonoBehaviour
         }
         
     }
-    void OnGUI()
-    {
-        Event e = Event.current;
-        if (e.control)
-        {
-            Debug.Log("Control was pressed.");
-        }
-    }
 
-    public void SetHighlight() {
+    public void SetHighlight()
+    {
         m_ObjectRenderer.materials = highlightedMaterials.ToArray();
     }
 
-    public void ResetHighlight() {
+    public void ResetHighlight()
+    {
         m_ObjectRenderer.materials = startMaterials.ToArray();
     }
 

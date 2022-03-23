@@ -63,7 +63,7 @@ class Hero:
 
 class BotGame:
     requests = set()
-    field_height = 15
+    field_height = 20
     field_width = 40
     player_radius = 0.35
     ball_radius = 0.3

@@ -143,11 +143,11 @@ public class InputProcessor
 
     public void processMousePosition(Vector3 mousePosition)
     {
-        if (mousePosition.x >= Screen.width * 0.95)
+        if (mousePosition.y >= Screen.height * 0.95)
         {
             cameraController.setMovingDirection(Vector3.right);
         }
-        if (mousePosition.x <= Screen.width * 0.05)
+        if (mousePosition.y <= Screen.height * 0.05)
         {
             cameraController.setMovingDirection(Vector3.left);
         }

@@ -24,6 +24,10 @@ public class GameEntities : MonoBehaviour
             if (player.GetComponent<PlayerScript>().userId == 0)
             {
                 myPlayers.Add(player);
+                player.GetComponent<Renderer>().material.color = Color.blue;
+            } else
+            {
+                player.GetComponent<Renderer>().material.color = Color.red;
             }
         }
 

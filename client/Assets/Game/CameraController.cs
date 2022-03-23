@@ -8,7 +8,7 @@ using static GameConstants;
 
 public class CameraController : MonoBehaviour
 {
-    float movingSpeed = 10f;
+    float movingSpeed = 15f;
     Vector3 movingDirection = Vector3.zero;
 
     // Start is called before the first frame update
@@ -33,7 +33,7 @@ public class CameraController : MonoBehaviour
     {
         if (movingDirection != Vector3.zero)
         {
-            transform.Translate(movingDirection * Time.deltaTime * movingSpeed);
+            transform.Translate(movingDirection * Time.deltaTime * movingSpeed, Space.World);
         }
     }
 }

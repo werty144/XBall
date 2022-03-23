@@ -17,7 +17,7 @@ class GameScreen(Screen):
         self.field_x = 50
         self.field_y = 100
         self.scale = 30
-        self.field_height = 15
+        self.field_height = 20
         self.field_width = 40
         self.player_radius = 0.35
         self.ball_radius = 0.3
