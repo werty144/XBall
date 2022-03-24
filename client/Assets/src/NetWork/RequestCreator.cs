@@ -28,7 +28,7 @@ public class RequestCreator
                 {
                     move = new
                     {
-                        playerId = player.GetComponent<PlayerScript>().id,
+                        playerId = player.GetComponent<PlayerController>().id,
                         action = action,
                         actionData = actionData
                     }

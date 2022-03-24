@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-using static SocketConnection;
+using static GameManager;
 using static Utils;
 
-public class PlayerScript : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     public int id;
     public int userId;
@@ -27,13 +27,13 @@ public class PlayerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (SocketConnection.state != null)
+        if (GameManager.state != null)
         {
             gameObject.transform.position = Utils.serverFieldCoordsToUnityVector3
             (
-                SocketConnection.state.players[id].state.x,
-                SocketConnection.state.players[id].state.y,
-                SocketConnection.state.players[id].state.z
+                GameManager.state.players[id].state.x,
+                GameManager.state.players[id].state.y,
+                GameManager.state.players[id].state.z
             );
         }
         

@@ -24,7 +24,7 @@ public class InputProcessor
         unselectPlayer();
 
         selectedPlayer = player;
-        selectedPlayer.GetComponent<PlayerScript>().SetHighlight();
+        selectedPlayer.GetComponent<PlayerController>().SetHighlight();
     }
 
     public void fieldLeftClick(Vector3 point)
@@ -64,7 +64,7 @@ public class InputProcessor
     {
         if (selectedPlayer != null)
         {
-            selectedPlayer.GetComponent<PlayerScript>().ResetHighlight();
+            selectedPlayer.GetComponent<PlayerController>().ResetHighlight();
         }
         selectedPlayer = null;
     }

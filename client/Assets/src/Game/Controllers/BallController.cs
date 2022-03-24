@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-using static SocketConnection;
+using static GameManager;
 using static Utils;
 
 
-public class BallScript : MonoBehaviour
+public class BallController : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
@@ -18,12 +18,12 @@ public class BallScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (SocketConnection.state != null) {
+        if (GameManager.state != null) {
             gameObject.transform.position = Utils.serverFieldCoordsToUnityVector3
             (
-                SocketConnection.state.ballState.x,
-                SocketConnection.state.ballState.y,
-                SocketConnection.state.ballState.z
+                GameManager.state.ballState.x,
+                GameManager.state.ballState.y,
+                GameManager.state.ballState.z
             );
         }
     }
