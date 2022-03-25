@@ -51,9 +51,11 @@ class APIHandler(
                         val requestBody = tryJsonParse(APIAcceptInvite.serializer(), request.body) ?: return
                         val inviteId = requestBody.inviteId
                         val invite = invitesManager.getInviteById(inviteId) ?: return
-                        val game = gamesManager.createNewGame(invite)
-                        gamesManager.launchGame(game, invite.inviterId, invite.invitedId, connections)
+                        gamesManager.acceptInvite(invite)
                         invitesManager.removeInviteById(inviteId)
+                    }
+                    "ready" -> {
+                        gamesManager.userReady(userId)
                     }
                     "makeMove" -> {
                         val requestBody = tryJsonParse(APIMakeMove.serializer(), request.body) ?: return

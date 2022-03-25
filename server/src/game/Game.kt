@@ -10,7 +10,7 @@ import kotlin.math.*
 typealias GameId = Int
 
 data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, val properties: GameProperties, val worldUpdateTime: Long) {
-    var state: GameState
+    lateinit var state: GameState
     val sides: Map<UserId, Side>
     val score: MutableMap<Side, Int>
     var gameEnded: Boolean
@@ -24,12 +24,12 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
         sides = mapOf(user1Id to Side.LEFT, user2Id to Side.RIGHT)
         score = mutableMapOf(Side.LEFT to 0, Side.RIGHT to 0)
         gameEnded = false
-        state = initialState()
+        toInitialState()
         timer = Timer(worldUpdateTime)
         timer.start()
     }
 
-    fun initialState(): GameState {
+    fun toInitialState() {
         val players = ArrayList<Player>()
         var sparePlayersId = 0
         for (i in 1..properties.playersNumber) {
@@ -49,7 +49,7 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
             ))
         }
         val ballState = BallState(properties.fieldWidth / 2, properties.fieldHeight / 2)
-        return  GameState(players, ballState)
+        state = GameState(players, ballState)
     }
 
     fun makeMove(move: APIMove, userId: UserId) {
@@ -89,7 +89,7 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
         if (gameEnded) return
         if (timer.needsUnpause) {
             timer.needsUnpause = false
-            state = initialState()
+            toInitialState()
             timer.start()
             return
         }

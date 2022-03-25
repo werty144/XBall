@@ -72,5 +72,17 @@ public class RequestCreator
     {
         createMoveRequest(player, stop, new {});    
     }
+
+    public void readyRequest()
+    {
+        string request = JsonConvert.SerializeObject(
+            new
+            {
+                path = "ready",
+                body = new {}
+            }
+        );
+        SocketConnection.messages.Enqueue(request);
+    }
 }
 

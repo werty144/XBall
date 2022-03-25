@@ -8,6 +8,7 @@ using NativeWebSocket;
 
 using static GameInfo;
 using static GameManager;
+using static Side;
 
 
 public class SocketConnection : MonoBehaviour
@@ -58,6 +59,10 @@ public class SocketConnection : MonoBehaviour
 					case "game":
 						var gameInfo = JsonConvert.DeserializeObject<ApiGameInfo>(message).body;
 						GameManager.setGameInfo(gameInfo);
+						break;
+					case "prepareGame":
+						var body = JsonConvert.DeserializeObject<ApiPrepareGame>(message).body;
+						GameManager.prepareGame(body.game.state, body.side);
 						break;
 					default:
 						break;
@@ -118,6 +123,18 @@ public class ApiGameInfo
 {
   public string path;
   public GameInfo body;
+}
+
+public class ApiPrepareGame
+{
+	public string path;
+	public PrepareGameBody body;
+}
+
+public class PrepareGameBody
+{
+	public Side side;
+	public GameInfo game;
 }
 
 public class Invite {

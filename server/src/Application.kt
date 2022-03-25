@@ -22,10 +22,10 @@ fun Application.module(testing: Boolean = false) {
         json()
     }
 
-    val invitesManager = InvitesManager()
-    val gamesManager = GamesManager()
-    val authenticationManager = AuthenticationManager()
     val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
+    val invitesManager = InvitesManager()
+    val gamesManager = GamesManager(connections)
+    val authenticationManager = AuthenticationManager()
 
     configureRouting(gamesManager, invitesManager, authenticationManager, connections)
 

@@ -34,6 +34,7 @@ class InvitesManager {
     private var spareUserId: UserId = 0
     private var spareInviteId: InviteId = 0
     val invites: MutableSet<Invite> = Collections.synchronizedSet(LinkedHashSet())
+    val inviteOutDateTime = 60_000L
 
     fun getNewUserId() = spareUserId++
 
@@ -69,5 +70,10 @@ class InvitesManager {
     fun getInviterId(userId: UserId, inviteId: InviteId): UserId? {
         if (! invites.any { (it.inviteId == inviteId) and (it.invitedId == userId) }) return null
         return invites.first { (it.inviteId == inviteId) and (it.invitedId == userId) }.inviterId
+    }
+
+    fun clean() {
+        val currentTimeStamp = Timestamp(System.currentTimeMillis())
+        invites.removeIf { currentTimeStamp.time - it.timeStamp.time > inviteOutDateTime }
     }
 }
