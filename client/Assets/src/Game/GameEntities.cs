@@ -10,25 +10,28 @@ public class GameEntities : MonoBehaviour
 {
     public List<GameObject> myPlayers = new List<GameObject>();
     public GameObject ball;
+    public GameObject blueSkin;
+    public GameObject redSkin;
     // Start is called before the first frame update
     void Start()
     {
         for (int i = 0; i < GameManager.state.players.Count; i++) 
         {
-            var player = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            player.transform.localScale = new Vector3(2 * GameConstants.playerRadius, 1F, 2 * GameConstants.playerRadius);
+            GameObject player;
+            if (GameManager.state.players[i].userId == 0)
+            {
+                player = (GameObject) Instantiate(blueSkin, new Vector3(0, 0, 0), Quaternion.identity);
+                myPlayers.Add(player);
+            } else
+            {
+                player = (GameObject) Instantiate(redSkin, new Vector3(0, 0, 0), Quaternion.identity);
+            }
+
+            // player.transform.localScale = new Vector3(20 * GameConstants.playerRadius, 10F, 20 * GameConstants.playerRadius);
             player.tag = "Player";
             player.AddComponent<PlayerController>();
             player.GetComponent<PlayerController>().id = GameManager.state.players[i].id;
             player.GetComponent<PlayerController>().userId = GameManager.state.players[i].userId;
-            if (player.GetComponent<PlayerController>().userId == 0)
-            {
-                myPlayers.Add(player);
-                player.GetComponent<Renderer>().material.color = Color.blue;
-            } else
-            {
-                player.GetComponent<Renderer>().material.color = Color.red;
-            }
         }
 
         ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -40,6 +43,6 @@ public class GameEntities : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

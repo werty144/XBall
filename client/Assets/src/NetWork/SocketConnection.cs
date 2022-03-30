@@ -91,6 +91,7 @@ public class SocketConnection : MonoBehaviour
 	{
 		if (websocket.State == WebSocketState.Open)
 		{
+			// Separate manager?..
 			if (!firstMessageSent)
 			{
 				await websocket.SendText("0_salt");
@@ -137,6 +138,8 @@ public class PrepareGameBody
 	public GameInfo game;
 }
 
+
+// Should make separate manager
 public class Invite {
   public int inviteId;
   public int inviterId;

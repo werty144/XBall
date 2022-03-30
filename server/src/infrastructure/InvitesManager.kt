@@ -48,7 +48,6 @@ class InvitesManager {
             inviterId,
             apiInvite.invitedId,
             GameProperties(apiInvite.playersNumber, apiInvite.speed)
-
         )
 
         if ((invites.any { it == newInvite }) or !validateAPIInvite(apiInvite)) return null

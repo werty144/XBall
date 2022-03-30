@@ -4,7 +4,6 @@ using UnityEngine;
 
 
 using static GameManager;
-using static Utils;
 
 
 public class BallController : MonoBehaviour
@@ -19,11 +18,11 @@ public class BallController : MonoBehaviour
     void Update()
     {
         if (GameManager.state != null) {
-            gameObject.transform.position = Utils.serverFieldCoordsToUnityVector3
+            gameObject.transform.position = new Vector3
             (
                 GameManager.state.ballState.x,
-                GameManager.state.ballState.y,
-                GameManager.state.ballState.z
+                GameManager.state.ballState.z,
+                GameManager.state.ballState.y
             );
         }
     }

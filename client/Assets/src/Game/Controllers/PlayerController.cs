@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using static GameManager;
-using static Utils;
 
 public class PlayerController : MonoBehaviour
 {
@@ -17,11 +16,11 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        m_ObjectRenderer = GetComponent<Renderer>();
-        m_ObjectRenderer.GetMaterials(startMaterials);
-        highlightedMaterial = Resources.Load("Materials/HighlightGreen", typeof(Material)) as Material;
-        highlightedMaterials = new List<Material>(startMaterials);
-        highlightedMaterials.Add(highlightedMaterial);
+        // m_ObjectRenderer = GetComponent<Renderer>();
+        // m_ObjectRenderer.GetMaterials(startMaterials);
+        // highlightedMaterial = Resources.Load("Materials/HighlightGreen", typeof(Material)) as Material;
+        // highlightedMaterials = new List<Material>(startMaterials);
+        // highlightedMaterials.Add(highlightedMaterial);
     }
 
     // Update is called once per frame
@@ -29,11 +28,11 @@ public class PlayerController : MonoBehaviour
     {
         if (GameManager.state != null)
         {
-            gameObject.transform.position = Utils.serverFieldCoordsToUnityVector3
+            gameObject.transform.position = new Vector3
             (
                 GameManager.state.players[id].state.x,
-                GameManager.state.players[id].state.y,
-                GameManager.state.players[id].state.z
+                GameManager.state.players[id].state.z,
+                GameManager.state.players[id].state.y
             );
         }
         
@@ -41,12 +40,12 @@ public class PlayerController : MonoBehaviour
 
     public void SetHighlight()
     {
-        m_ObjectRenderer.materials = highlightedMaterials.ToArray();
+        // m_ObjectRenderer.materials = highlightedMaterials.ToArray();
     }
 
     public void ResetHighlight()
     {
-        m_ObjectRenderer.materials = startMaterials.ToArray();
+        // m_ObjectRenderer.materials = startMaterials.ToArray();
     }
 
 }

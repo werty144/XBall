@@ -27,6 +27,8 @@ async def listen(websocket, bot):
             game_screen.set_game(message["body"])
             if bot is not None:
                 bot.set_game(message["body"])
+        elif message["path"] == "prepareGame":
+            game_screen.requests.add(json.dumps({"path": "ready", "body": {}}))
 
 
 async def say(websocket, bot):

@@ -4,6 +4,7 @@ using UnityEngine;
 
 
 using static GameConstants;
+using static GameManager;
 
 
 public class CameraController : MonoBehaviour
@@ -14,7 +15,15 @@ public class CameraController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (GameManager.side == Side.LEFT)
+        {
+            transform.eulerAngles = new Vector3(transform.eulerAngles.x, 90, transform.eulerAngles.z);
+            transform.position = new Vector3(3, transform.position.y, transform.position.z);
+        } else
+        {
+            transform.eulerAngles = new Vector3(transform.eulerAngles.x, -90, transform.eulerAngles.z);
+            transform.position = new Vector3(GameConstants.fieldWidth - 3, transform.position.y, transform.position.z);
+        }
     }
 
     // Update is called once per frame
@@ -26,7 +35,25 @@ public class CameraController : MonoBehaviour
 
     public void setMovingDirection(Vector3 direction)
     {
-        movingDirection = direction;
+        if (direction == Vector3.forward)
+        {
+            if (GameManager.side == Side.LEFT)
+            {
+                movingDirection = Vector3.right;
+            } else
+            {
+                movingDirection = Vector3.left;
+            }
+        } else 
+        {
+            if (GameManager.side == Side.LEFT)
+            {
+                movingDirection = Vector3.left;
+            } else
+            {
+                movingDirection = Vector3.right;
+            }
+        }
     }
 
     void performMovement()

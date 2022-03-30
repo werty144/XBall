@@ -27,7 +27,23 @@ public class MainMenu : MonoBehaviour
                 }
             }
             );
-        Debug.Log("Sending invite!");
+        SocketConnection.messages.Enqueue(request);
+    }
+
+    public static void sendInviteBot(string speed, int playersNumber)
+    {
+        string request = JsonConvert.SerializeObject(
+            new 
+            {
+                path = "inviteBot", 
+                body = new
+                {
+                    invitedId = -1,
+                    speed = speed,
+                    playersNumber = playersNumber
+                }
+            }
+            );
         SocketConnection.messages.Enqueue(request);
     }
 }

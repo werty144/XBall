@@ -34,7 +34,9 @@ public class InputProcessor
             return;
         }
 
-        Point point2D = Utils.unityFieldPointToServerPoint(point);
+        Point point2D = new Point();
+        point2D.x = point.x;
+        point2D.y = point.z;
 
         if (!anyIntention()) 
         {
@@ -76,8 +78,9 @@ public class InputProcessor
             return;
         }
 
-        
-        Point point2D = Utils.unityFieldPointToServerPoint(point);
+        Point point2D = new Point();
+        point2D.x = point.x;
+        point2D.y = point.z;
         requestCreator.moveRequest(selectedPlayer, point2D);
     }
 
@@ -145,11 +148,11 @@ public class InputProcessor
     {
         if (mousePosition.y >= Screen.height * 0.95)
         {
-            cameraController.setMovingDirection(Vector3.right);
+            cameraController.setMovingDirection(Vector3.forward);
         }
         if (mousePosition.y <= Screen.height * 0.05)
         {
-            cameraController.setMovingDirection(Vector3.left);
+            cameraController.setMovingDirection(Vector3.back);
         }
     }
 

@@ -1,9 +1,6 @@
 package com.example.infrastructure
 
-import com.example.game.Game
-import com.example.game.GameId
-import com.example.game.GameStatus
-import com.example.game.Side
+import com.example.game.*
 import com.example.routing.APIMove
 import com.example.routing.Connection
 import com.example.routing.createGameJSONString
@@ -51,6 +48,24 @@ class GamesManager(val connections: Set<Connection>) {
         secondUserConnection!!.session.send(secondUserMessage)
 
         preparedGames.add(PreparedGame(game, firstUserId, secondUserId))
+    }
+
+    suspend fun acceptBotInvite(userId: UserId, gameProperties: GameProperties) {
+        val botId = -userId - 1
+
+        val userConnection = connections.firstOrNull { it.userId == userId }
+        if (!isActiveConnection(userConnection)) {
+            return
+        }
+
+        val game = Game(spareGameId++, userId, botId, gameProperties, updateTime)
+
+        val firstUserMessage = createPrepareGameJSONString(game, Side.LEFT)
+        userConnection!!.session.send(firstUserMessage)
+
+        val preparedGame = PreparedGame(game, userId, botId)
+        preparedGame.ready[botId] = true
+        preparedGames.add(preparedGame)
     }
 
     fun userReady(userId: UserId) {

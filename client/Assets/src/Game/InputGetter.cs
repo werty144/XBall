@@ -6,7 +6,6 @@ using System.Net.WebSockets;
 
 
 using static SocketConnection;
-using static Utils;
 using static InputProcessor;
 using static SettingsManager;
 
@@ -33,16 +32,20 @@ public class InputGetter : MonoBehaviour
             RaycastHit hit;
             if(Physics.Raycast(ray, out hit)) // you can also only accept hits to some layer and put your selectable units in this layer
             {
+                Debug.Log("Ray!");
                 switch (hit.collider.tag)
                 {
                 case "Player":
+                    Debug.Log("Player!");
                     var selectedPlayer = hit.transform.gameObject; // if using custom type, cast the result to type here
                     inputProcessor.selectPlayer(selectedPlayer);
                     break;
                 case "Field":
+                    Debug.Log("Field!");
                     inputProcessor.fieldLeftClick(hit.point);
                     break;
                 default:
+                    Debug.Log("None!");
                     break;
                 }
             }

@@ -1,7 +1,9 @@
 package com.example.routing
 
+import com.example.game.GameProperties
 import com.example.infrastructure.InvitesManager
 import com.example.infrastructure.GamesManager
+import com.example.infrastructure.Invite
 import com.example.infrastructure.UserId
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
@@ -63,6 +65,14 @@ class APIHandler(
 
                         val move: APIMove = tryJsonParse(APIMove.serializer(), requestBody.move) ?: return
                         gamesManager.makeMove(gameId, move, userId)
+                    }
+                    "inviteBot" -> {
+                        if (gamesManager.userHasGames(userId)) return
+                        val invite = tryJsonParse(APIInvite.serializer(), request.body) ?: return
+                        gamesManager.acceptBotInvite(
+                            userId,
+                            GameProperties(invite.playersNumber, invite.speed)
+                            )
                     }
                 }
             }

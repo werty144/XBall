@@ -46,6 +46,11 @@ public class InviteManager : MonoBehaviour
         }
     }
 
+    public void inviteBot()
+    {
+        MainMenu.sendInviteBot(speed, playersNumber);
+    }
+
     public void sendInvite()
     {
         if (invitedId == null)
