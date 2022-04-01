@@ -547,7 +547,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myPlayers: []
   ball: {fileID: 0}
-  blueSkin: {fileID: 5228718781536405089, guid: 1c52b2efd494c4e65be480ec38d84d23, type: 3}
+  blueSkin: {fileID: 1058401191493741137, guid: 80182860bd5c97a80b069317578eee93, type: 3}
   redSkin: {fileID: 2457281737349323061, guid: 9e5d73213f51e6dd682a434f41a02223, type: 3}
 --- !u!4 &1788325329
 Transform:

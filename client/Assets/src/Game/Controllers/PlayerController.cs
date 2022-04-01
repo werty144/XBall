@@ -28,11 +28,17 @@ public class PlayerController : MonoBehaviour
     {
         if (GameManager.state != null)
         {
-            gameObject.transform.position = new Vector3
+            transform.position = new Vector3
             (
                 GameManager.state.players[id].state.x,
                 GameManager.state.players[id].state.z,
                 GameManager.state.players[id].state.y
+            );
+            transform.eulerAngles = new Vector3
+            (
+                0,
+                -GameManager.state.players[id].state.rotationAngle * Mathf.Rad2Deg,
+                0
             );
         }
         

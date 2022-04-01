@@ -12,7 +12,7 @@ data class PlayerState(
     var x: Double,
     var y: Double,
     @Required
-    var z: Double = 1.0,
+    var z: Double = 0.0,
     @Transient
     var orientation: Vector = Vector(1.0, 0.0)
 ) {

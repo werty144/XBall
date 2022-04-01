@@ -47,7 +47,6 @@ data class BallState(var x: Double, var y: Double) {
             position = game.properties.clipPointToBallBoundaries(position)
             x = position.x
             y = position.y
-            z = player.state.z
             return
         }
 
