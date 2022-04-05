@@ -5,3 +5,15 @@
 *.iml
 *.ipr
 *.iws
+client/cmake-build-debug
+client/.idea
+venv
+__pycache__/
+client-test/.idea
+.cache
+client/Library
+client/Logs
+client/Temp
+*.sln
+*.csproj
+.vscode/
