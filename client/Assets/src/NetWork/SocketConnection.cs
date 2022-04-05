@@ -24,8 +24,8 @@ public class SocketConnection : MonoBehaviour
 
 		firstMessageSent = false;
 
-		// websocket = new WebSocket("ws://localhost:8080");
-		websocket = new WebSocket("ws://xball-server.herokuapp.com/");
+		websocket = new WebSocket("ws://localhost:8080");
+		// websocket = new WebSocket("ws://xball-server.herokuapp.com/");
 
 		websocket.OnOpen += () =>
 		{

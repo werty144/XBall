@@ -7,19 +7,13 @@ using static GameManager;
 public class PlayerController : MonoBehaviour
 {
     public int id;
-    Renderer m_ObjectRenderer;
-    Material highlightedMaterial;
-    List<Material> startMaterials = new List<Material>();
-    List<Material> highlightedMaterials;
+    public GameObject highlightCircle;
+    Outline highlight;
 
     // Start is called before the first frame update
     void Start()
     {
-        // m_ObjectRenderer = GetComponent<Renderer>();
-        // m_ObjectRenderer.GetMaterials(startMaterials);
-        // highlightedMaterial = Resources.Load("Materials/HighlightGreen", typeof(Material)) as Material;
-        // highlightedMaterials = new List<Material>(startMaterials);
-        // highlightedMaterials.Add(highlightedMaterial);
+        highlight = highlightCircle.GetComponent<Outline>();
     }
 
     // Update is called once per frame
@@ -45,12 +39,12 @@ public class PlayerController : MonoBehaviour
 
     public void SetHighlight()
     {
-        // m_ObjectRenderer.materials = highlightedMaterials.ToArray();
+        highlight.OutlineWidth = 5;
     }
 
     public void ResetHighlight()
     {
-        // m_ObjectRenderer.materials = startMaterials.ToArray();
+        highlight.OutlineWidth = 0;
     }
 
 }

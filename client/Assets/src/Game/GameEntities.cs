@@ -29,7 +29,6 @@ public class GameEntities : MonoBehaviour
 
             // player.transform.localScale = new Vector3(20 * GameConstants.playerRadius, 10F, 20 * GameConstants.playerRadius);
             player.tag = "Player";
-            player.AddComponent<PlayerController>();
             player.GetComponent<PlayerController>().id = GameManager.state.players[i].id;
         }
 
