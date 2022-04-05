@@ -41,3 +41,7 @@ dependencies {
     implementation("io.ktor:ktor-websockets:$ktor_version")
     implementation("io.ktor:ktor-serialization:$ktor_version")
 }
+
+tasks.create("stage") {
+    dependsOn("installDist")
+}
