@@ -32,7 +32,7 @@ data class PlayerState(
 }
 
 @Serializable
-data class Player(val id: Int, val userId: UserId, val state: PlayerState) {
+data class Player(val id: Int, val side: Side, val state: PlayerState) {
     fun nextState(game: Game) {
         move(game)
         rotate(game)

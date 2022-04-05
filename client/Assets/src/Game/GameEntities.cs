@@ -18,7 +18,7 @@ public class GameEntities : MonoBehaviour
         for (int i = 0; i < GameManager.state.players.Count; i++) 
         {
             GameObject player;
-            if (GameManager.state.players[i].userId == 0)
+            if (GameManager.state.players[i].side == GameManager.side)
             {
                 player = (GameObject) Instantiate(blueSkin, new Vector3(0, 0, 0), Quaternion.identity);
                 myPlayers.Add(player);
@@ -31,7 +31,6 @@ public class GameEntities : MonoBehaviour
             player.tag = "Player";
             player.AddComponent<PlayerController>();
             player.GetComponent<PlayerController>().id = GameManager.state.players[i].id;
-            player.GetComponent<PlayerController>().userId = GameManager.state.players[i].userId;
         }
 
         ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);

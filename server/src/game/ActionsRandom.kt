@@ -46,7 +46,7 @@ fun grabProbability(game: Game, move: APIMove): Double {
         if (ballOwnerId == player.id) return 1.0
 
         val ballOwner = game.state.players.find { it.id == ballOwnerId }!!
-        if (ballOwner.userId == player.userId) return successProbability
+        if (ballOwner.side == player.side) return successProbability
 
         val ownerMoves = ballOwner.state.positionTarget != null
         if (ownerMoves) successProbability = successProbability.pow(1F/1.3)
@@ -103,8 +103,7 @@ fun bendRandom(game: Game, move: APIMove) {
 fun attackRandom(game: Game, move: APIMove) {
     if (game.state.ballState.ownerId != move.playerId) return
     val player = game.state.players.find {it.id == move.playerId}!!
-    val playerSide = game.sides[player.userId]!!
-    val target = game.properties.targetPoint(playerSide.other())
+    val target = game.properties.targetPoint(player.side.other())
     game.state.ballState.ownerId = null
     game.state.ballState.startLift()
     game.state.ballState.setDestinations(randomLiftDestination(game, target, player))

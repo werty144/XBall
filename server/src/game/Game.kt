@@ -33,14 +33,14 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
         val players = ArrayList<Player>()
         var sparePlayersId = 0
         for (i in 1..properties.playersNumber) {
-            players.add(Player(sparePlayersId++, user1Id,
+            players.add(Player(sparePlayersId++, sides[user1Id]!!,
                 PlayerState(
                     properties.fieldWidth * 1/4,
                     properties.fieldHeight / (properties.playersNumber + 1) * i,
                     orientation = Vector(1.0, 0.0)
                 )
             ))
-            players.add(Player(sparePlayersId++, user2Id,
+            players.add(Player(sparePlayersId++, sides[user2Id]!!,
                 PlayerState(
                     properties.fieldWidth * 3/4,
                     properties.fieldHeight / (properties.playersNumber + 1) * i,
@@ -104,7 +104,7 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
     fun validateMove(move: APIMove, userId: UserId): Boolean {
         val player = state.players.find { it.id == move.playerId } ?: return false
 
-        return player.userId == userId
+        return player.side == sides[userId]
     }
 
     fun goal(side: Side) {

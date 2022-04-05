@@ -63,7 +63,7 @@ public class Point
 public class Player
 {
 	public int id;
-	public int userId;
+	public Side side;
 	public PlayerState state;
 }
 
