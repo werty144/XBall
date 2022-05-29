@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 
 
 using static SocketConnection;
+using static InviteReceiver;
+
 
 public class MainMenu : MonoBehaviour
 {
@@ -45,5 +47,38 @@ public class MainMenu : MonoBehaviour
             }
             );
         SocketConnection.messages.Enqueue(request);
+    }
+
+    public static void receiveInvite(Invite invite)
+    {
+        InviteReceiver.receiveInvite(invite);
+    }
+
+    public static void acceptInvite(int inviteId)
+    {
+        string request = JsonConvert.SerializeObject(
+            new 
+            {
+                path = "acceptInvite",
+                body = new 
+                {
+                    inviteId = inviteId
+                }
+            }
+            );
+        SocketConnection.messages.Enqueue(request);
+    }
+
+    public static void test()
+    {
+        var invite = new Invite();
+        invite.invitedId = 0;
+        invite.inviteId = 0;
+        invite.inviterId = 228;
+        var gameProperties = new GameProperties();
+        gameProperties.playersNumber = 0;
+        gameProperties.speed = "ass";
+        invite.gameProperties = gameProperties;
+        receiveInvite(invite);
     }
 }

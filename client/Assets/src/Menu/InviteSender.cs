@@ -5,7 +5,7 @@ using UnityEngine;
 
 using static MainMenu;
 
-public class InviteManager : MonoBehaviour
+public class InviteSender : MonoBehaviour
 {
     int playersNumber = 3;
     int? invitedId = null;

@@ -54,8 +54,7 @@ public class SocketConnection : MonoBehaviour
 				{
 					case "invite":
 						var invite = JsonConvert.DeserializeObject<ApiInvite>(message).body;
-						var replyObject = JsonConvert.SerializeObject(new {path = "acceptInvite", body = new {inviteId = invite.inviteId}});
-						messages.Enqueue((string)replyObject);
+						MainMenu.receiveInvite(invite);
 						break;
 					case "game":
 						var gameInfo = JsonConvert.DeserializeObject<ApiGameInfo>(message).body;
