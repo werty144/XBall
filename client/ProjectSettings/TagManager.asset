@@ -8,6 +8,7 @@ TagManager:
   - connection
   - Field
   - GameEntities
+  - invite from string
   layers:
   - Default
   - TransparentFX
