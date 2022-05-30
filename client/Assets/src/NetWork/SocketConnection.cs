@@ -17,7 +17,6 @@ public class SocketConnection : MonoBehaviour
 	bool firstMessageSent;
 	public static Queue<string> messages = new Queue<string>();
 
-	// Start is called before the first frame update
 	async void Start()
 	{
 		Debug.Log("Connection started!");
@@ -44,7 +43,6 @@ public class SocketConnection : MonoBehaviour
 
 		websocket.OnMessage += (bytes) =>
 		{
-			// getting the message as a string
 			var message = System.Text.Encoding.UTF8.GetString(bytes);
 			try
 			{
@@ -73,10 +71,8 @@ public class SocketConnection : MonoBehaviour
 			}
 		};
 
-		// Keep sending messages at every 0.05s
 		InvokeRepeating("SendWebSocketMessage", 0.0f, 0.05f);
 
-		// waiting for messages
 		await websocket.Connect();
 	}
 
@@ -99,7 +95,6 @@ public class SocketConnection : MonoBehaviour
 				return;
 			}
 
-			// Sending plain text
 			while (messages.Count > 0)
 			{
 				await websocket.SendText(messages.Dequeue());

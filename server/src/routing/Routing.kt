@@ -45,8 +45,8 @@ fun Application.configureRouting(gamesManager: GamesManager,
             }
         }
 
-        get("/test") {
-            call.respondText("Pashel nahuy, test udalsya")
+        get("/stop_games") {
+            gamesManager.stopAll()
         }
     }
 }

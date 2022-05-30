@@ -124,6 +124,8 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
             false -> GameStatus.RUNNING
         }
     }
+
+    fun getBallOwner(): Player? = state.players.findLast { it.id == state.ballState.ownerId }
 }
 
 enum class Side {
@@ -177,6 +179,7 @@ data class GameProperties(
     val targetRadius = .4
     val flyHeight = targetZ
     val winScore = 5
+    val grabCoolDown = 500
     @kotlinx.serialization.Transient
     val ballBoundaries = run {
         val p1 = Point(ballRadius, ballRadius)

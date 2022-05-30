@@ -1,9 +1,13 @@
 package com.example.game
 
 import com.example.infrastructure.UserId
+import com.example.routing.APIMove
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+import java.sql.Timestamp
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -33,7 +37,12 @@ data class PlayerState(
 
 @Serializable
 data class Player(val id: Int, val side: Side, val state: PlayerState) {
+    @Transient
+    var lastTimeBallOwner: Timestamp = Timestamp(System.currentTimeMillis())
+
+
     fun nextState(game: Game) {
+        manageGrab(game)
         move(game)
         rotate(game)
     }
@@ -88,5 +97,20 @@ data class Player(val id: Int, val side: Side, val state: PlayerState) {
                     (it.id == id) or
                             (!game.properties.playersIntersectIfPlacedTo(it.state.position, target))
                 }
+    }
+
+    fun manageGrab(game: Game) {
+        if (game.state.ballState.ownerId == id) {
+            lastTimeBallOwner = Timestamp(System.currentTimeMillis())
+            return
+        }
+
+        val ballOwner = game.getBallOwner()
+        if ((ballOwner != null) && (ballOwner.side == side)) return
+
+        val currentTimeStamp = Timestamp(System.currentTimeMillis())
+        if (currentTimeStamp.time - lastTimeBallOwner.time < game.properties.grabCoolDown) return
+
+        grabRandom(game, APIMove(id, "grab", Json.encodeToJsonElement("")))
     }
 }

@@ -17,6 +17,7 @@ class GamesManager(val connections: Set<Connection>) {
     val preparedGameOutDateTime = 15_000L
     private val updateTime = 5L
     private val gameCoroutineScope: CoroutineScope = CoroutineScope(CoroutineName("Game scope"))
+    private val runningGames: MutableSet<Pair<GameId, Job>> = Collections.synchronizedSet(LinkedHashSet())
 
     fun gameById(gameId: GameId) = games.find {it.gameId == gameId}
 
@@ -78,7 +79,8 @@ class GamesManager(val connections: Set<Connection>) {
             val game = preparedGame.game
             games.add(game)
             game.toInitialState()
-            gameCoroutineScope.launch { runGame(game) }
+            val gameJob = gameCoroutineScope.launch { runGame(game) }
+            runningGames.add(Pair(game.gameId, gameJob))
         }
     }
 
@@ -107,6 +109,15 @@ class GamesManager(val connections: Set<Connection>) {
                 return
             }
         }
+    }
+
+    fun stopGame(gameId: GameId) {
+        runningGames.find { it.first == gameId }?.second?.cancel()
+        games.removeIf { it.gameId == gameId }
+    }
+
+    fun stopAll() {
+        games.forEach { stopGame(it.gameId) }
     }
 
     fun isActiveConnection(connection: Connection?): Boolean {
