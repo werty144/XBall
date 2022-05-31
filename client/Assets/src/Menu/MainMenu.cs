@@ -2,10 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using System.Net;
 
 
 using static SocketConnection;
 using static InviteReceiver;
+using static SteamAuth;
+
 
 
 public class MainMenu : MonoBehaviour
@@ -69,16 +72,18 @@ public class MainMenu : MonoBehaviour
         SocketConnection.messages.Enqueue(request);
     }
 
+    public static void authenticate(string ticket)
+    {
+        WebClient webClient = new WebClient();
+        webClient.QueryString.Add("key", "E5E11C2593D64822EB9F4F29FE04B470");
+        webClient.QueryString.Add("appid", "480");
+        webClient.QueryString.Add("ticket", ticket);
+        string result = webClient.DownloadString("https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/");
+        print(result);
+    }
+
     public static void test()
     {
-        var invite = new Invite();
-        invite.invitedId = 0;
-        invite.inviteId = 0;
-        invite.inviterId = 228;
-        var gameProperties = new GameProperties();
-        gameProperties.playersNumber = 0;
-        gameProperties.speed = "ass";
-        invite.gameProperties = gameProperties;
-        receiveInvite(invite);
+        SteamAuth.authenticate();
     }
 }

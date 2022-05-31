@@ -14,15 +14,11 @@ using static Side;
 public class SocketConnection : MonoBehaviour
 {
 	WebSocket websocket;
-	bool firstMessageSent;
+	bool firstMessageSent = false;
 	public static Queue<string> messages = new Queue<string>();
 
 	async void Start()
 	{
-		Debug.Log("Connection started!");
-
-		firstMessageSent = false;
-
 		websocket = new WebSocket("ws://localhost:8080");
 		// websocket = new WebSocket("ws://xball-server.herokuapp.com/");
 
@@ -41,7 +37,46 @@ public class SocketConnection : MonoBehaviour
 			Debug.Log("Connection closed!");
 		};
 
-		websocket.OnMessage += (bytes) =>
+		websocket.OnMessage += (bytes) => ProcessMessage(bytes);
+
+		InvokeRepeating("SendWebSocketMessage", 0.0f, 0.05f);
+
+		await websocket.Connect();
+	}
+
+	void Update()
+	{
+		#if !UNITY_WEBGL || UNITY_EDITOR
+			websocket.DispatchMessageQueue();
+		#endif
+	}
+
+	async void SendWebSocketMessage()
+	{
+		if (websocket.State == WebSocketState.Open)
+		{
+			// Separate manager?..
+			if (!firstMessageSent)
+			{
+				await websocket.SendText("0_salt");
+				firstMessageSent = true;
+				return;
+			}
+
+			while (messages.Count > 0)
+			{
+				await websocket.SendText(messages.Dequeue());
+			}
+		}
+	}
+
+	private async void OnApplicationQuit()
+	{
+		await websocket.Close();
+	}
+
+	private void ProcessMessage(byte[] bytes)
+	{
 		{
 			var message = System.Text.Encoding.UTF8.GetString(bytes);
 			try
@@ -69,42 +104,7 @@ public class SocketConnection : MonoBehaviour
 			{
 				Debug.Log("Error when parsing! " + e);
 			}
-		};
-
-		InvokeRepeating("SendWebSocketMessage", 0.0f, 0.05f);
-
-		await websocket.Connect();
-	}
-
-	void Update()
-	{
-	#if !UNITY_WEBGL || UNITY_EDITOR
-		websocket.DispatchMessageQueue();
-	#endif
-	}
-
-	async void SendWebSocketMessage()
-	{
-		if (websocket.State == WebSocketState.Open)
-		{
-			// Separate manager?..
-			if (!firstMessageSent)
-			{
-				await websocket.SendText("0_salt");
-				firstMessageSent = true;
-				return;
-			}
-
-			while (messages.Count > 0)
-			{
-				await websocket.SendText(messages.Dequeue());
-			}
 		}
-	}
-
-	private async void OnApplicationQuit()
-	{
-		await websocket.Close();
 	}
 }
 
@@ -135,7 +135,8 @@ public class PrepareGameBody
 
 
 // Should make separate manager
-public class Invite {
+public class Invite
+{
   public int inviteId;
   public int inviterId;
   public int invitedId;
