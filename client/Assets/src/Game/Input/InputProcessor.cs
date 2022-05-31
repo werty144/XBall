@@ -27,6 +27,17 @@ public class InputProcessor
         selectedPlayer.GetComponent<PlayerController>().SetHighlight();
     }
 
+    public void selectPlayer(int playerId)
+    {
+        if (playerId > gameEntities.myPlayers.Count)
+        	return;
+
+        unselectPlayer();
+
+        selectedPlayer = gameEntities.myPlayers[playerId - 1];
+        selectedPlayer.GetComponent<PlayerController>().SetHighlight();
+    }
+
     public void fieldLeftClick(Vector3 point)
     {
         if (selectedPlayer == null) 

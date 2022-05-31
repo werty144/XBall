@@ -92,6 +92,21 @@ public class InputGetter : MonoBehaviour
             inputProcessor.switchPlayer();
         }
 
+        if (Input.GetKey(actionsToKey["choosePlayer1"]))
+        {
+            inputProcessor.selectPlayer(1);
+        }
+
+        if (Input.GetKey(actionsToKey["choosePlayer2"]))
+        {
+            inputProcessor.selectPlayer(2);
+        }
+
+        if (Input.GetKey(actionsToKey["choosePlayer3"]))
+        {
+            inputProcessor.selectPlayer(3);
+        }
+
         inputProcessor.processMousePosition(Input.mousePosition);
     }
 }
