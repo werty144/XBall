@@ -8,12 +8,16 @@ public class PlayerController : MonoBehaviour
 {
     public int id;
     public GameObject highlightCircle;
+    public GameObject marker;
     Outline highlight;
+    Renderer markerRenderer;
 
     // Start is called before the first frame update
     void Start()
     {
         highlight = highlightCircle.GetComponent<Outline>();
+        markerRenderer = marker.GetComponent<Renderer>();
+        ResetHighlight();
     }
 
     // Update is called once per frame
@@ -40,11 +44,13 @@ public class PlayerController : MonoBehaviour
     public void SetHighlight()
     {
         highlight.OutlineWidth = 5;
+        markerRenderer.enabled = true;
     }
 
     public void ResetHighlight()
     {
         highlight.OutlineWidth = 0;
+        markerRenderer.enabled = false;
     }
 
 }

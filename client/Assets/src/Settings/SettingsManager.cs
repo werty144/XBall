@@ -20,5 +20,8 @@ public class SettingsManager : MonoBehaviour
         actionsToKey["turn"] = KeyCode.E;
         actionsToKey["bend"] = KeyCode.D;
         actionsToKey["switchPlayer"] = KeyCode.Tab;
+        actionsToKey["choosePlayer1"] = KeyCode.Alpha1;
+        actionsToKey["choosePlayer2"] = KeyCode.Alpha2;
+        actionsToKey["choosePlayer3"] = KeyCode.Alpha3;
     }
 }
