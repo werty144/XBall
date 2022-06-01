@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 import java.sql.Timestamp
 import java.util.Collections
 
-typealias UserId = Int
+typealias UserId = Long
 typealias InviteId = Int
 
 @Serializable
@@ -31,12 +31,9 @@ data class Invite(val inviteId: InviteId,
 }
 
 class InvitesManager {
-    private var spareUserId: UserId = 0
     private var spareInviteId: InviteId = 0
     val invites: MutableSet<Invite> = Collections.synchronizedSet(LinkedHashSet())
     val inviteOutDateTime = 60_000L
-
-    fun getNewUserId() = spareUserId++
 
     fun validateAPIInvite(apiInvite: APIInvite): Boolean {
         return listOf(1, 2, 3).contains(apiInvite.playersNumber)
@@ -51,7 +48,6 @@ class InvitesManager {
         )
 
         if ((invites.any { it == newInvite }) or !validateAPIInvite(apiInvite)) return null
-
         invites.add(newInvite)
         return newInvite
     }

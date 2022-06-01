@@ -13,15 +13,15 @@ using static Side;
 
 public class SocketConnection : MonoBehaviour
 {
-	WebSocket websocket;
+	WebSocket websocket = new WebSocket("ws://localhost:8080");
+	// WebSocket websocket = new WebSocket("ws://xball-server.herokuapp.com/");
 	bool firstMessageSent = false;
 	public static Queue<string> messages = new Queue<string>();
+	string password;
 
-	async void Start()
+	public async void StartConnection(string password_)
 	{
-		websocket = new WebSocket("ws://localhost:8080");
-		// websocket = new WebSocket("ws://xball-server.herokuapp.com/");
-
+		password = password_;
 		websocket.OnOpen += () =>
 		{
 			Debug.Log("Connection open!");
@@ -58,7 +58,7 @@ public class SocketConnection : MonoBehaviour
 			// Separate manager?..
 			if (!firstMessageSent)
 			{
-				await websocket.SendText("0_salt");
+				await websocket.SendText(password);
 				firstMessageSent = true;
 				return;
 			}
@@ -86,6 +86,7 @@ public class SocketConnection : MonoBehaviour
 				switch ((string) json.path)
 				{
 					case "invite":
+						print("Got invite");
 						var invite = JsonConvert.DeserializeObject<ApiInvite>(message).body;
 						MainMenu.receiveInvite(invite);
 						break;
@@ -138,8 +139,8 @@ public class PrepareGameBody
 public class Invite
 {
   public int inviteId;
-  public int inviterId;
-  public int invitedId;
+  public long inviterId;
+  public long invitedId;
   public GameProperties gameProperties;
 }
 

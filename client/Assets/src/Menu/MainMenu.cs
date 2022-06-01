@@ -13,12 +13,15 @@ using static SteamAuth;
 
 public class MainMenu : MonoBehaviour
 {
+    public static long myId;
+
+
     public void autoInvite()
     {
-        sendInvite(0, "FAST", 3);
+        sendInvite(myId, "FAST", 3);
     }
 
-    public static void sendInvite(int invitedId, string speed, int playersNumber)
+    public static void sendInvite(long invitedId, string speed, int playersNumber)
     {
         string request = JsonConvert.SerializeObject(
             new 
@@ -26,7 +29,7 @@ public class MainMenu : MonoBehaviour
                 path = "invite", 
                 body = new
                 {
-                    invitedId = invitedId,
+                    invitedId = invitedId.ToString(),
                     speed = speed,
                     playersNumber = playersNumber
                 }
@@ -72,18 +75,8 @@ public class MainMenu : MonoBehaviour
         SocketConnection.messages.Enqueue(request);
     }
 
-    public static void authenticate(string ticket)
-    {
-        WebClient webClient = new WebClient();
-        webClient.QueryString.Add("key", "E5E11C2593D64822EB9F4F29FE04B470");
-        webClient.QueryString.Add("appid", "480");
-        webClient.QueryString.Add("ticket", ticket);
-        string result = webClient.DownloadString("https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/");
-        print(result);
-    }
-
     public static void test()
     {
-        SteamAuth.authenticate();
+        // SteamAuth.authenticate();
     }
 }

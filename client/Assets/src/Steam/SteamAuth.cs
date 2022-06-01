@@ -13,9 +13,11 @@ using static MainMenu;
 public class SteamAuth : MonoBehaviour
 {
     protected Callback<GetAuthSessionTicketResponse_t> ticketResponse;
-	protected static byte[] ticket = new byte[1024];
+	protected static byte[] ticketBytes = new byte[1024];
 	protected static HAuthTicket ticketHandle;
 	protected static UInt32 ticketSize;
+	public static bool ticketReady = false;
+	public static string ticket;
 
 
 	private void OnEnable()
@@ -28,31 +30,34 @@ public class SteamAuth : MonoBehaviour
 
 	private static void OnTicketResponse(GetAuthSessionTicketResponse_t pCallback)
     {
-        if (pCallback.m_eResult == EResult.k_EResultOK) // 1 is OK code
+        if (pCallback.m_eResult == EResult.k_EResultOK)
 		{
-			ticket = ticket.Take((int)ticketSize).ToArray();
-			string ticketHexString = BitConverter.ToString(ticket).Replace("-","");
-			MainMenu.authenticate(ticketHexString);
+			ticketBytes = ticketBytes.Take((int)ticketSize).ToArray();
+			ticket = BitConverter.ToString(ticketBytes).Replace("-","");
+			ticketReady = true;
 		}
 
 	}
     
 	private static void getTicket() 
 	{
-		if(SteamManager.Initialized) 
+		if (SteamManager.Initialized) 
 		{
-			ticketHandle = SteamUser.GetAuthSessionTicket(ticket, 1024, out ticketSize);
+			ticketHandle = SteamUser.GetAuthSessionTicket(ticketBytes, 1024, out ticketSize);
 		}
 	}
 
-	public static void authenticate()
+	public static void Authenticate()
 	{
 		getTicket();
 	}
 
 	private void OnApplicationQuit()
 	{
-		SteamUser.CancelAuthTicket(ticketHandle);
+		if (SteamManager.Initialized) 
+		{
+			SteamUser.CancelAuthTicket(ticketHandle);
+		}
 	}
 }
 
