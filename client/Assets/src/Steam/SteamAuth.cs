@@ -7,9 +7,6 @@ using System.Linq;
 using Newtonsoft.Json;
 
 
-using static MainMenu;
-
-
 public class SteamAuth : MonoBehaviour
 {
     protected Callback<GetAuthSessionTicketResponse_t> ticketResponse;
@@ -50,6 +47,11 @@ public class SteamAuth : MonoBehaviour
 	public static void Authenticate()
 	{
 		getTicket();
+	}
+
+	public static ulong GetSteamID()
+	{
+		return SteamUser.GetSteamID().m_SteamID;
 	}
 
 	private void OnApplicationQuit()

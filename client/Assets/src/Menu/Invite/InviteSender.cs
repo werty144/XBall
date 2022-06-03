@@ -58,6 +58,6 @@ public class InviteSender : MonoBehaviour
             return;
         }
 
-        MainMenu.sendInvite((int) invitedId, speed, playersNumber);
+        MainMenu.sendInvite((ulong) invitedId, speed, playersNumber);
     }
 }
