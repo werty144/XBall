@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using System.Net;
+using System;
 
 
 using static SocketConnection;
@@ -13,15 +14,22 @@ using static SteamAuth;
 
 public class MainMenu : MonoBehaviour
 {
-    public static long myId;
+    public static ulong myID;
+
+
+    void Start()
+    {
+        myID = SteamAuth.GetSteamID();
+        print(myID);
+    }
 
 
     public void autoInvite()
     {
-        sendInvite(myId, "FAST", 3);
+        sendInvite(myID, "FAST", 3);
     }
 
-    public static void sendInvite(long invitedId, string speed, int playersNumber)
+    public static void sendInvite(ulong invitedId, string speed, int playersNumber)
     {
         string request = JsonConvert.SerializeObject(
             new 

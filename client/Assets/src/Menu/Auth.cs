@@ -14,6 +14,7 @@ using static SteamAuth;
 using static SocketConnection;
 using static MainMenu;
 
+
 public class Auth : MonoBehaviour
 {
     static private HttpClient client = new HttpClient();
@@ -46,7 +47,6 @@ public class Auth : MonoBehaviour
 
         if (password != null)
         {
-            MainMenu.myId = long.Parse(password);
             var connection = GameObject.Find("Connection");
             connection.GetComponent<SocketConnection>().StartConnection(password);
         } 
