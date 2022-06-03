@@ -8,6 +8,7 @@ using System.Collections.Specialized;
 using Newtonsoft.Json;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 
 using static SteamAuth;
@@ -37,7 +38,7 @@ public class Auth : MonoBehaviour
 
             if (timeSpent > 5000)
             {
-                Debug.Log("Can't get steam ticekt");
+                Debug.Log("Can't get steam ticket");
                 return;
             }
         }
@@ -56,6 +57,11 @@ public class Auth : MonoBehaviour
     {
         var credentials = new Credentials();
         credentials.ticket = ticket;
+
+        RSA rsa = RSA.Create();
+        string publicKey = rsa.ToXmlString(false);
+        credentials.publicKey = publicKey;
+        
         string json = JsonConvert.SerializeObject(credentials);
         var response = client.PostAsync
         (
@@ -65,7 +71,10 @@ public class Auth : MonoBehaviour
 
         if (response.StatusCode == HttpStatusCode.OK)
         {
-            return response.Content.ReadAsStringAsync().Result;
+            byte[] encodedPassword = response.Content.ReadAsByteArrayAsync().Result;
+            byte[] decodedPassword = rsa.Decrypt(encodedPassword, RSAEncryptionPadding.Pkcs1);
+
+            return Encoding.UTF8.GetString(decodedPassword);
         }
         return null;
     }
@@ -75,4 +84,5 @@ public class Auth : MonoBehaviour
 class Credentials
 {
     public string ticket;
+    public string publicKey;
 }

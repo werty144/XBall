@@ -47,7 +47,7 @@ class AuthenticationManager {
 fun String.utf8(): String = URLEncoder.encode(this, "UTF-8")
 
 @Serializable
-data class UserCredentials(val ticket: String)
+data class UserCredentials(val ticket: String, val publicKey: String)
 
 @Serializable
 class SteamAnswer(

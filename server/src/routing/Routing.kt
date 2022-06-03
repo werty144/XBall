@@ -1,6 +1,11 @@
 package com.example.routing
 
 import com.example.infrastructure.*
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
+import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.cio.websocket.*
@@ -9,7 +14,13 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.isActive
+import java.math.BigInteger
+import java.security.KeyFactory
+import java.security.spec.RSAPublicKeySpec
+import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
+import javax.crypto.Cipher
+
 
 typealias Connections = MutableSet<Connection>
 
@@ -25,8 +36,12 @@ fun Application.configureRouting(gamesManager: GamesManager,
             val credentials = call.receive<UserCredentials>()
             val steamId = authenticationManager.validateSteamTicket(credentials.ticket) ?: return@post
             val superSecretPassword = authenticationManager.generatePasswordForUser(steamId)
+
+            val publicKey = getPublicKey(credentials)
+            val encodedPassword = encodePassword(publicKey, superSecretPassword)
+
             call.response.status(HttpStatusCode.OK)
-            call.respond(superSecretPassword.toByteArray())
+            call.respond(encodedPassword)
         }
 
         webSocket("/") {
@@ -55,6 +70,37 @@ fun Application.configureRouting(gamesManager: GamesManager,
     }
 }
 
+fun getPublicKey(credentials: UserCredentials): RSAKeyValue {
+    val xmlMapper = XmlMapper(
+        JacksonXmlModule().apply { setDefaultUseWrapper(false) }
+    ).apply {
+        enable(SerializationFeature.WRAP_ROOT_VALUE)
+    }
+    val publicKey: RSAKeyValue =
+        xmlMapper.readValue(credentials.publicKey, RSAKeyValue::class.java)
+    return publicKey
+}
+
+fun encodePassword(publicKey: RSAKeyValue, password: String): ByteArray {
+    val decoder: Base64.Decoder = Base64.getDecoder()
+    val modulusBytes: ByteArray = decoder.decode(publicKey.Modulus)
+    val exponentBytes: ByteArray = decoder.decode(publicKey.Exponent)
+
+    val modulus = BigInteger(1, modulusBytes)
+    val exponent = BigInteger(1, exponentBytes)
+
+    val rsaPubKey = RSAPublicKeySpec(modulus, exponent)
+    val fact = KeyFactory.getInstance("RSA")
+    val pubKey = fact.generatePublic(rsaPubKey)
+
+    val cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+    cipher.init(Cipher.ENCRYPT_MODE, pubKey)
+
+    val bytes = password.toByteArray()
+
+    return cipher.doFinal(bytes)
+}
+
 class Connection(val session: DefaultWebSocketSession, val userId: UserId) {
     companion object {
         var lastId = AtomicInteger(0)
@@ -64,3 +110,10 @@ class Connection(val session: DefaultWebSocketSession, val userId: UserId) {
 
     override fun toString(): String = "Connection(userId=$userId, active=${session.isActive})"
 }
+
+@JacksonXmlRootElement(localName = "RSAKeyValue")
+data class RSAKeyValue(
+    @JacksonXmlProperty(localName = "Modulus")
+    val Modulus: String,
+    @JacksonXmlProperty(localName = "Exponent")
+    val Exponent: String)
