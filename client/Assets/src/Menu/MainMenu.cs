@@ -89,6 +89,12 @@ public class MainMenu : MonoBehaviour
 
     public static void test()
     {
-        LobbyManager.inviteToLobby();
+        // LobbyManager.inviteToLobby();
+        log("Jopa");
+    }
+
+    public static void log(string log)
+    {
+        GameObject.Find("LoggerContent").GetComponent<LoggerViewController>().addLog(log);
     }
 }

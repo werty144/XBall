@@ -30,8 +30,8 @@ public class SteamLobby : MonoBehaviour
     {
         if (pCallback.m_eResult == EResult.k_EResultOK)
         {
+            MainMenu.log("Lobby created trigger");
             lobbyID = new CSteamID(pCallback.m_ulSteamIDLobby);
-            print("Lobby created!");
             SteamMatchmaking.SetLobbyJoinable(lobbyID, true);
             lobbyReady = true;
         }
@@ -63,6 +63,7 @@ public class SteamLobby : MonoBehaviour
 
     private void OnLobbyDataUpdate(LobbyDataUpdate_t pCallback)
     {
+        MainMenu.log("Data update triggered");
         List<string> usersInLobby = new List<string>();
 
         for (int i = 0; i < SteamMatchmaking.GetNumLobbyMembers(lobbyID); i++)
@@ -75,6 +76,7 @@ public class SteamLobby : MonoBehaviour
 
     private void OnLobbyChatUpdate(LobbyChatUpdate_t pCallback)
     {
+        MainMenu.log("Chat update triggered");
         List<string> usersInLobby = new List<string>();
 
         for (int i = 0; i < SteamMatchmaking.GetNumLobbyMembers(lobbyID); i++)
