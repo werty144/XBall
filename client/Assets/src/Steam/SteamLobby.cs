@@ -13,14 +13,16 @@ using static MainMenu;
 public class SteamLobby : MonoBehaviour
 {
     public static bool lobbyReady = false;
-    public static ulong lobbyID;
+
+    private static CSteamID lobbyID;
 
     private void OnEnable()
     {
         if (SteamManager.Initialized)
         {
             Callback<LobbyCreated_t>.Create(OnLobbyCreated);
-            // Callback<LobbyMatchList_t>.Create(OnLobbyList);
+            Callback<LobbyDataUpdate_t>.Create(OnLobbyDataUpdate);
+            Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
         }
     }
 
@@ -28,9 +30,9 @@ public class SteamLobby : MonoBehaviour
     {
         if (pCallback.m_eResult == EResult.k_EResultOK)
         {
-            lobbyID = pCallback.m_ulSteamIDLobby;
+            lobbyID = new CSteamID(pCallback.m_ulSteamIDLobby);
             print("Lobby created!");
-            SteamMatchmaking.SetLobbyJoinable(new CSteamID(lobbyID), true);
+            SteamMatchmaking.SetLobbyJoinable(lobbyID, true);
             lobbyReady = true;
         }
     }
@@ -47,36 +49,53 @@ public class SteamLobby : MonoBehaviour
     {
         if (SteamManager.Initialized)
         {
-            SteamMatchmaking.SetLobbyData(new CSteamID(lobbyID), key, value);
+            SteamMatchmaking.SetLobbyData(lobbyID, key, value);
         }
     }
 
-    public static void autoInvite()
+    public static void inviteToLobby()
     {
         if (SteamManager.Initialized)
         {
-            
-            // bool result = SteamMatchmaking.InviteUserToLobby(new CSteamID(lobbyID), new CSteamID(MainMenu.myID));
-            // GameObject.Find("Test Text").GetComponent<Text>().text = string.Format("Reult: {0}", result);
-            SteamFriends.ActivateGameOverlayInviteDialog(new CSteamID(lobbyID));
+            SteamFriends.ActivateGameOverlayInviteDialog(lobbyID);
         }
     }
 
-    // public static void listLobbies()
-    // {
-    //     if (SteamManager.Initialized)
-    //     {
-    //         print(SteamMatchmaking.GetLobbyData(new CSteamID(lobbyID), "name"));
-    //         // SteamMatchmaking.RequestLobbyList();
-    //     }
-    // }
+    private void OnLobbyDataUpdate(LobbyDataUpdate_t pCallback)
+    {
+        List<string> usersInLobby = new List<string>();
 
-    // public void OnLobbyList(LobbyMatchList_t pCallback)
-    // {
-    //     for (int i = 0; i < pCallback.m_nLobbiesMatching; i++)
-    //     {
-    //         CSteamID lobbyID_ = SteamMatchmaking.GetLobbyByIndex(i);
-    //         print(SteamMatchmaking.GetLobbyData(lobbyID_, "name"));
-    //     }
-    // }
+        for (int i = 0; i < SteamMatchmaking.GetNumLobbyMembers(lobbyID); i++)
+        {
+            usersInLobby.Add(getLobbyUserName(i));
+        }
+
+        LobbyManager.OnLobbyUpdate(usersInLobby);
+    }
+
+    private void OnLobbyChatUpdate(LobbyChatUpdate_t pCallback)
+    {
+        List<string> usersInLobby = new List<string>();
+
+        for (int i = 0; i < SteamMatchmaking.GetNumLobbyMembers(lobbyID); i++)
+        {
+            usersInLobby.Add(getLobbyUserName(i));
+        }
+
+        LobbyManager.OnLobbyUpdate(usersInLobby);
+    }
+
+    private string getLobbyUserName(int index)
+    {
+        CSteamID userID = SteamMatchmaking.GetLobbyMemberByIndex(lobbyID, index);
+        return SteamFriends.GetFriendPersonaName(userID);
+    }
+
+    public static void leaveLobby()
+    {
+        if (SteamManager.Initialized)
+        {
+            SteamMatchmaking.LeaveLobby(lobbyID);
+        }
+    }
 }

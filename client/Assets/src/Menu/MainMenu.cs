@@ -9,6 +9,7 @@ using System;
 using static SocketConnection;
 using static InviteReceiver;
 using static SteamAuth;
+using static LobbyViewContoller;
 
 
 public class MainMenu : MonoBehaviour
@@ -66,6 +67,11 @@ public class MainMenu : MonoBehaviour
         InviteReceiver.receiveInvite(invite);
     }
 
+    public static void OnLobbyUpdate(List<string> usersInLobby)
+    {
+        GameObject.Find("Content").GetComponent<LobbyViewContoller>().OnLobbyUpdate(usersInLobby);
+    }
+
     public static void acceptInvite(int inviteId)
     {
         string request = JsonConvert.SerializeObject(
@@ -83,6 +89,6 @@ public class MainMenu : MonoBehaviour
 
     public static void test()
     {
-        LobbyManager.autoInvite();
+        LobbyManager.inviteToLobby();
     }
 }

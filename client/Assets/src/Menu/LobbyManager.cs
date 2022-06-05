@@ -4,8 +4,9 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 
-
 using static SteamLobby;
+using static MainMenu;
+
 
 public class LobbyManager : MonoBehaviour
 {
@@ -61,9 +62,20 @@ public class LobbyManager : MonoBehaviour
         SteamLobby.setLobbyData("name", "my best lobby");
     }
 
-    public static void autoInvite()
+    public static void inviteToLobby()
     {
-        SteamLobby.autoInvite();
+        SteamLobby.inviteToLobby();
+    }
+
+    public static void OnLobbyUpdate(List<string> usersInLobby)
+    {
+        MainMenu.OnLobbyUpdate(usersInLobby);
+    }
+
+    public static void leaveLobby()
+    {
+        SteamLobby.leaveLobby();
+        MainMenu.OnLobbyUpdate(new List<string>());
     }
 }
 
