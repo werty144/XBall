@@ -11,7 +11,6 @@ using static InviteReceiver;
 using static SteamAuth;
 
 
-
 public class MainMenu : MonoBehaviour
 {
     public static ulong myID;
@@ -20,7 +19,6 @@ public class MainMenu : MonoBehaviour
     void Start()
     {
         myID = SteamAuth.GetSteamID();
-        print(myID);
     }
 
 
@@ -85,6 +83,6 @@ public class MainMenu : MonoBehaviour
 
     public static void test()
     {
-        // SteamAuth.authenticate();
+        LobbyManager.autoInvite();
     }
 }

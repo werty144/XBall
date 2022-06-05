@@ -13,7 +13,6 @@ public class InviteSender : MonoBehaviour
 
     public void processPlayerNumberSelection(int newOption)
     {
-        Debug.Log("Entered player number");
         if (newOption == 0)
         {
             playersNumber = 3;

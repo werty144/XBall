@@ -9,12 +9,12 @@ using NativeWebSocket;
 using static GameInfo;
 using static GameManager;
 using static Side;
+using static Constants;
 
 
 public class SocketConnection : MonoBehaviour
 {
-	WebSocket websocket = new WebSocket("ws://localhost:8080");
-	// WebSocket websocket = new WebSocket("ws://xball-server.herokuapp.com/");
+	WebSocket websocket = new WebSocket("ws://" + Constants.serverURL);
 	bool firstMessageSent = false;
 	public static Queue<string> messages = new Queue<string>();
 	string password;

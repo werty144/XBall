@@ -13,12 +13,13 @@ using System.Threading.Tasks;
 using static SteamAuth;
 using static SocketConnection;
 using static MainMenu;
+using static Constants;
 
 
 public class Auth : MonoBehaviour
 {
     static private HttpClient client = new HttpClient();
-    static string serverURL = "http://localhost:8080";
+    static string serverURL = "http://" + Constants.serverURL;
 
     // Start is called before the first frame update
     void Start()
