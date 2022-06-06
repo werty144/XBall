@@ -14,11 +14,11 @@ import java.util.concurrent.atomic.AtomicInteger
 typealias Connections = MutableSet<Connection>
 
 fun Application.configureRouting(gamesManager: GamesManager,
-                                 invitesManager: InvitesManager,
+                                 lobbyManager: LobbyManager,
                                  authenticationManager: AuthenticationManager,
                                  connections: Connections) {
 
-    val apiHandler = APIHandler(gamesManager, invitesManager, connections)
+    val apiHandler = APIHandler(gamesManager, lobbyManager, connections)
 
     routing {
         post("/auth") {

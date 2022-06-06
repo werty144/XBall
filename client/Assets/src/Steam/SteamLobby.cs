@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using Steamworks;
 using UnityEngine.UI;
@@ -15,14 +16,19 @@ public class SteamLobby : MonoBehaviour
     public static bool lobbyReady = false;
 
     private static CSteamID lobbyID;
+    private const string trueString = "true";
+    private const string falseString = "false";
+
 
     private void OnEnable()
     {
         if (SteamManager.Initialized)
         {
             Callback<LobbyCreated_t>.Create(OnLobbyCreated);
+            Callback<LobbyEnter_t>.Create(OnLobbyEnter);
             Callback<LobbyDataUpdate_t>.Create(OnLobbyDataUpdate);
             Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
+            Callback<GameLobbyJoinRequested_t>.Create(OnLobbyJoinRequested);
         }
     }
 
@@ -30,11 +36,16 @@ public class SteamLobby : MonoBehaviour
     {
         if (pCallback.m_eResult == EResult.k_EResultOK)
         {
-            MainMenu.log("Lobby created trigger");
             lobbyID = new CSteamID(pCallback.m_ulSteamIDLobby);
             SteamMatchmaking.SetLobbyJoinable(lobbyID, true);
             lobbyReady = true;
         }
+    }
+
+    public void OnLobbyEnter(LobbyEnter_t pCallback)
+    {
+        lobbyID = new CSteamID(pCallback.m_ulSteamIDLobby);
+        MainMenu.log(string.Format("Lobby ID: {0}", pCallback.m_ulSteamIDLobby));
     }
     
     public static void createLobby()
@@ -42,14 +53,6 @@ public class SteamLobby : MonoBehaviour
         if (SteamManager.Initialized)
         {
             SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 2);
-        }
-    }
-
-    public static void setLobbyData(string key, string value)
-    {
-        if (SteamManager.Initialized)
-        {
-            SteamMatchmaking.SetLobbyData(lobbyID, key, value);
         }
     }
 
@@ -63,41 +66,122 @@ public class SteamLobby : MonoBehaviour
 
     private void OnLobbyDataUpdate(LobbyDataUpdate_t pCallback)
     {
-        MainMenu.log("Data update triggered");
-        List<string> usersInLobby = new List<string>();
-
-        for (int i = 0; i < SteamMatchmaking.GetNumLobbyMembers(lobbyID); i++)
-        {
-            usersInLobby.Add(getLobbyUserName(i));
-        }
-
-        LobbyManager.OnLobbyUpdate(usersInLobby);
+        lobbyID = new CSteamID(pCallback.m_ulSteamIDLobby);
+        OnLobbyUpdate();
     }
 
     private void OnLobbyChatUpdate(LobbyChatUpdate_t pCallback)
     {
-        MainMenu.log("Chat update triggered");
-        List<string> usersInLobby = new List<string>();
+        OnLobbyUpdate();
+    }
+
+    private void OnLobbyUpdate()
+    {
+        LobbyData lobbyData = new LobbyData();
+        lobbyData.metaData = getLobbyMetaData();
+        lobbyData.membersData = getLobbyMembersData();
+
+        LobbyManager.OnLobbyUpdate(lobbyData);
+    }
+
+    private static List<LobbyMemberData> getLobbyMembersData()
+    {
+        List<LobbyMemberData> membersData = new List<LobbyMemberData>();
 
         for (int i = 0; i < SteamMatchmaking.GetNumLobbyMembers(lobbyID); i++)
         {
-            usersInLobby.Add(getLobbyUserName(i));
-        }
+            LobbyMemberData memberData = new LobbyMemberData();
 
-        LobbyManager.OnLobbyUpdate(usersInLobby);
+            CSteamID userID = SteamMatchmaking.GetLobbyMemberByIndex(lobbyID, i);
+            
+            memberData.name = SteamFriends.GetFriendPersonaName(userID);
+            memberData.isReady = SteamMatchmaking.GetLobbyMemberData(lobbyID, userID, "ready") == trueString;
+
+            membersData.Add(memberData);
+        }
+        
+        return membersData;
     }
 
-    private string getLobbyUserName(int index)
+    private LobbyMetaData getLobbyMetaData()
     {
-        CSteamID userID = SteamMatchmaking.GetLobbyMemberByIndex(lobbyID, index);
-        return SteamFriends.GetFriendPersonaName(userID);
+        LobbyMetaData metaData = new LobbyMetaData();
+        metaData.speed = SteamMatchmaking.GetLobbyData(lobbyID, "speed");
+        var playersNumber = SteamMatchmaking.GetLobbyData(lobbyID, "playersNumber");
+        if (playersNumber == "")
+        {
+            metaData.playersNumber = -1;
+        } else
+        {
+            metaData.playersNumber = Int32.Parse(playersNumber);
+        }
+        
+        return metaData;
     }
 
     public static void leaveLobby()
     {
+        lobbyReady = false;
         if (SteamManager.Initialized)
         {
             SteamMatchmaking.LeaveLobby(lobbyID);
         }
+    }
+
+    private void OnLobbyJoinRequested(GameLobbyJoinRequested_t pCallback)
+    {
+        SteamMatchmaking.JoinLobby(pCallback.m_steamIDLobby);
+    }
+
+    public static void setInfo(string speed, int playersNumber)
+    {
+        if (SteamManager.Initialized)
+        {
+            SteamMatchmaking.SetLobbyData(lobbyID, "speed", speed);
+            SteamMatchmaking.SetLobbyData(lobbyID, "playersNumber", playersNumber.ToString());
+        }
+    }
+
+    public static void setLobbyReady(bool ready)
+    {
+        if (SteamManager.Initialized)
+        {
+            if (ready)
+            {
+                SteamMatchmaking.SetLobbyMemberData(lobbyID, "ready", trueString);
+            } else 
+            {
+                SteamMatchmaking.SetLobbyMemberData(lobbyID, "ready", falseString);     
+            }
+        }
+    }
+
+    public static bool allInAndReady()
+    {
+        if (SteamManager.Initialized)
+        {
+            List<LobbyMemberData> membersData = getLobbyMembersData();
+            bool everyBodyReady = true;
+            foreach (var member in membersData)
+            {
+                if (!member.isReady)
+                {
+                    everyBodyReady = false;
+                }
+            }
+
+            bool allIn = membersData.Count == SteamMatchmaking.GetLobbyMemberLimit(lobbyID);
+
+            MainMenu.log(string.Format("Starting game: {0}", (everyBodyReady && allIn)));
+
+            return everyBodyReady && allIn;
+        }
+
+        return false;
+    }
+
+    public static ulong getID()
+    {
+        return lobbyID.m_SteamID;
     }
 }

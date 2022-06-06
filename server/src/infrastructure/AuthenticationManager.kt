@@ -32,7 +32,7 @@ class AuthenticationManager {
 
         if (content.result != "OK") return null
 
-        return content.steamid.toLong()
+        return content.steamid.toULong()
     }
 
     fun validateFirstMessage(frame: Frame): Boolean {

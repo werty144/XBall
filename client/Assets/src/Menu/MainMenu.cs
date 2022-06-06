@@ -67,9 +67,14 @@ public class MainMenu : MonoBehaviour
         InviteReceiver.receiveInvite(invite);
     }
 
-    public static void OnLobbyUpdate(List<string> usersInLobby)
+    public static void OnLobbyUpdate(LobbyData lobbyData)
     {
-        GameObject.Find("Content").GetComponent<LobbyViewContoller>().OnLobbyUpdate(usersInLobby);
+        GameObject.Find("Lobby").GetComponent<LobbyViewContoller>().OnLobbyUpdate(lobbyData);
+    }
+
+    public static void leaveLobby()
+    {
+        LobbyManager.leaveLobby();
     }
 
     public static void acceptInvite(int inviteId)
@@ -87,10 +92,34 @@ public class MainMenu : MonoBehaviour
         SocketConnection.messages.Enqueue(request);
     }
 
+    public static void setLobbyReady(bool ready)
+    {
+        LobbyManager.setLobbyReady(ready);
+    }
+
+    public static void lobbyReady(ulong lobbyID, string speed, int playersNumber)
+    {
+        string request = JsonConvert.SerializeObject(
+            new 
+            {
+                path = "lobbyReady",
+                body = new 
+                {
+                    lobbyID = lobbyID,
+                    gameProperties = new
+                    {
+                        speed = speed,
+                        playersNumber = playersNumber
+                    }
+                }
+            }
+            );
+        SocketConnection.messages.Enqueue(request);
+    }
+
     public static void test()
     {
-        // LobbyManager.inviteToLobby();
-        log("Jopa");
+        lobbyReady(1, "FAST", 3);
     }
 
     public static void log(string log)

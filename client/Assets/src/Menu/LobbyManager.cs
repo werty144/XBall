@@ -10,8 +10,8 @@ using static MainMenu;
 
 public class LobbyManager : MonoBehaviour
 {
-    int playersNumber = 3;
-    Speed speed = Speed.FAST;
+    static int playersNumber = 3;
+    static string speed = "FAST";
 
     public void processPlayerNumberSelection(int newOption)
     {
@@ -22,6 +22,7 @@ public class LobbyManager : MonoBehaviour
         {
             playersNumber = newOption;
         }
+        setInfo();
     }
 
     public void processSpeedSelection(int newOption)
@@ -29,17 +30,18 @@ public class LobbyManager : MonoBehaviour
         switch (newOption)
         {
             case 0:
-                speed = Speed.FAST;
+                speed = "FAST";
                 break;
             case 1:
-                speed = Speed.SLOW;
+                speed = "NORMAL";
                 break;
             case 2:
-                speed = Speed.NORMAL;
+                speed = "SLOW";
                 break;
             default:
                 break;
         }
+        setInfo();
     }
 
     public async void createLobby()
@@ -59,7 +61,13 @@ public class LobbyManager : MonoBehaviour
             }
         }
         
-        SteamLobby.setLobbyData("name", "my best lobby");
+        setInfo();
+        SteamLobby.setLobbyReady(false);
+    }
+
+    private void setInfo()
+    {
+        SteamLobby.setInfo(speed, playersNumber);
     }
 
     public static void inviteToLobby()
@@ -67,36 +75,41 @@ public class LobbyManager : MonoBehaviour
         SteamLobby.inviteToLobby();
     }
 
-    public static void OnLobbyUpdate(List<string> usersInLobby)
+    public static void OnLobbyUpdate(LobbyData lobbyData)
     {
-        MainMenu.OnLobbyUpdate(usersInLobby);
+        MainMenu.OnLobbyUpdate(lobbyData);
+        if (SteamLobby.allInAndReady())
+        {
+            MainMenu.lobbyReady(SteamLobby.getID(), speed, playersNumber);
+        }
     }
 
     public static void leaveLobby()
     {
         SteamLobby.leaveLobby();
-        MainMenu.OnLobbyUpdate(new List<string>());
+    }
+
+    public static void setLobbyReady(bool ready)
+    {
+        SteamLobby.setLobbyReady(ready);
     }
 }
 
 
-public enum Speed
+public class LobbyMemberData
 {
-    SLOW,
-    NORMAL,
-    FAST
+    public string name;
+    public bool isReady;
 }
-
 
 public class LobbyMetaData
 {
-    public Speed speed;
+    public string speed;
     public int playersNumber;
+}
 
-
-    public LobbyMetaData(Speed speed, int playersNumber)
-    {
-        this.speed = speed;
-        this.playersNumber = playersNumber;
-    }
+public class LobbyData
+{
+    public LobbyMetaData metaData;
+    public List<LobbyMemberData> membersData;
 }
