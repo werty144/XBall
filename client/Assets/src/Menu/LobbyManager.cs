@@ -10,46 +10,15 @@ using static MainMenu;
 
 public class LobbyManager : MonoBehaviour
 {
-    static int playersNumber = 3;
-    static string speed = "FAST";
+    private static bool inLobby = false;
 
-    public void processPlayerNumberSelection(int newOption)
-    {
-        if (newOption == 0)
-        {
-            playersNumber = 3;
-        } else 
-        {
-            playersNumber = newOption;
-        }
-        setInfo();
-    }
 
-    public void processSpeedSelection(int newOption)
-    {
-        switch (newOption)
-        {
-            case 0:
-                speed = "FAST";
-                break;
-            case 1:
-                speed = "NORMAL";
-                break;
-            case 2:
-                speed = "SLOW";
-                break;
-            default:
-                break;
-        }
-        setInfo();
-    }
-
-    public async void createLobby()
+    public static async void createLobby(LobbyMetaData metaData)
     {
         SteamLobby.createLobby();
 
         int timeSpent = 0;
-        while (!SteamLobby.lobbyReady)
+        while (!SteamLobby.lobbyCreated)
         {
             await Task.Delay(25);
             timeSpent = timeSpent + 25;
@@ -60,14 +29,19 @@ public class LobbyManager : MonoBehaviour
                 return;
             }
         }
+        SteamLobby.lobbyCreated = false;
         
-        setInfo();
+        inLobby = true;
+        setMetaData(metaData);
         SteamLobby.setLobbyReady(false);
     }
 
-    private void setInfo()
+    public static void setMetaData(LobbyMetaData metaData)
     {
-        SteamLobby.setInfo(speed, playersNumber);
+        if (inLobby)
+        {
+            SteamLobby.setMetaData(metaData);
+        }
     }
 
     public static void inviteToLobby()
@@ -75,17 +49,39 @@ public class LobbyManager : MonoBehaviour
         SteamLobby.inviteToLobby();
     }
 
+    public static LobbyData getLobbyData()
+    {
+        if (inLobby)
+        {
+            return SteamLobby.getLobbyData();
+        }
+
+        return null;
+    }
+
     public static void OnLobbyUpdate(LobbyData lobbyData)
     {
-        MainMenu.OnLobbyUpdate(lobbyData);
+        var lobbyView = GameObject.Find("Lobby");
+        if (lobbyView != null)
+        {
+            lobbyView.GetComponent<LobbyViewContoller>().OnLobbyUpdate(lobbyData);
+        }
+
         if (SteamLobby.allInAndReady())
         {
-            MainMenu.lobbyReady(SteamLobby.getID(), speed, playersNumber);
+            MainMenu.lobbyReady
+            (
+                SteamLobby.getID(),
+                lobbyData.membersData.Count,
+                lobbyData.metaData.speed,
+                lobbyData.metaData.playersNumber
+            );  
         }
     }
 
     public static void leaveLobby()
     {
+        inLobby = false;
         SteamLobby.leaveLobby();
     }
 

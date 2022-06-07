@@ -13,7 +13,7 @@ using static MainMenu;
 
 public class SteamLobby : MonoBehaviour
 {
-    public static bool lobbyReady = false;
+    public static bool lobbyCreated = false;
 
     private static CSteamID lobbyID;
     private const string trueString = "true";
@@ -38,7 +38,7 @@ public class SteamLobby : MonoBehaviour
         {
             lobbyID = new CSteamID(pCallback.m_ulSteamIDLobby);
             SteamMatchmaking.SetLobbyJoinable(lobbyID, true);
-            lobbyReady = true;
+            lobbyCreated = true;
         }
     }
 
@@ -52,7 +52,7 @@ public class SteamLobby : MonoBehaviour
     {
         if (SteamManager.Initialized)
         {
-            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 2);
+            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 1);
         }
     }
 
@@ -77,11 +77,15 @@ public class SteamLobby : MonoBehaviour
 
     private void OnLobbyUpdate()
     {
+        LobbyManager.OnLobbyUpdate(getLobbyData());
+    }
+
+    public static LobbyData getLobbyData()
+    {
         LobbyData lobbyData = new LobbyData();
         lobbyData.metaData = getLobbyMetaData();
         lobbyData.membersData = getLobbyMembersData();
-
-        LobbyManager.OnLobbyUpdate(lobbyData);
+        return lobbyData;
     }
 
     private static List<LobbyMemberData> getLobbyMembersData()
@@ -103,7 +107,7 @@ public class SteamLobby : MonoBehaviour
         return membersData;
     }
 
-    private LobbyMetaData getLobbyMetaData()
+    private static LobbyMetaData getLobbyMetaData()
     {
         LobbyMetaData metaData = new LobbyMetaData();
         metaData.speed = SteamMatchmaking.GetLobbyData(lobbyID, "speed");
@@ -121,7 +125,6 @@ public class SteamLobby : MonoBehaviour
 
     public static void leaveLobby()
     {
-        lobbyReady = false;
         if (SteamManager.Initialized)
         {
             SteamMatchmaking.LeaveLobby(lobbyID);
@@ -133,12 +136,12 @@ public class SteamLobby : MonoBehaviour
         SteamMatchmaking.JoinLobby(pCallback.m_steamIDLobby);
     }
 
-    public static void setInfo(string speed, int playersNumber)
+    public static void setMetaData(LobbyMetaData metaData)
     {
         if (SteamManager.Initialized)
         {
-            SteamMatchmaking.SetLobbyData(lobbyID, "speed", speed);
-            SteamMatchmaking.SetLobbyData(lobbyID, "playersNumber", playersNumber.ToString());
+            SteamMatchmaking.SetLobbyData(lobbyID, "speed", metaData.speed);
+            SteamMatchmaking.SetLobbyData(lobbyID, "playersNumber", metaData.playersNumber.ToString());
         }
     }
 

@@ -29,20 +29,32 @@ class GamesManager(val connections: Set<Connection>) {
     }
     suspend fun startGameFromLobby(lobby: Lobby)
     {
-        val ids = lobby.users.toList()
-        val firstUserId = ids[0]
-        val secondUserId = ids[1]
+        val userIds = lobby.users.toList()
+        if (userIds.map { getGameForUser(it) }.any { it != null }) return
 
-        val firstUserConnection = connections.firstOrNull { it.userId == firstUserId }
-        val secondUserConnection = connections.firstOrNull { it.userId == secondUserId }
-        if ((!isActiveConnection(firstUserConnection) or (!isActiveConnection(secondUserConnection)))) {
+        val userConnections = userIds.map {id ->  connections.firstOrNull { con -> con.userId == id } }
+        if (!userConnections.map {isActiveConnection(it)}.all { it }) {
             return
         }
-        val game = Game(spareGameId++, firstUserId, secondUserId, lobby.gameProperties, updateTime)
-        val firstUserMessage = createPrepareGameJSONString(game, Side.LEFT)
-        val secondUserMessage = createPrepareGameJSONString(game, Side.RIGHT)
-        firstUserConnection!!.session.send(firstUserMessage)
-        secondUserConnection!!.session.send(secondUserMessage)
+
+        val game: Game
+        when (lobby.nMembers) {
+            1 -> {
+                game = Game(spareGameId++, userIds[0], userIds[0], lobby.gameProperties, updateTime)
+                val firstUserMessage = createPrepareGameJSONString(game, Side.RIGHT)
+                userConnections[0]!!.session.send(firstUserMessage)
+            }
+            2 -> {
+                game = Game(spareGameId++, userIds[0], userIds[1], lobby.gameProperties, updateTime)
+                val firstUserMessage = createPrepareGameJSONString(game, Side.LEFT)
+                val secondUserMessage = createPrepareGameJSONString(game, Side.RIGHT)
+                userConnections[0]!!.session.send(firstUserMessage)
+                userConnections[1]!!.session.send(secondUserMessage)
+            }
+            else -> {
+                return
+            }
+        }
 
         games.add(game)
         game.toInitialState()

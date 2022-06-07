@@ -11,7 +11,7 @@ import kotlinx.serialization.json.JsonElement
 data class APIRequest(val path: String, val body: JsonElement)
 
 @Serializable
-data class APILobby(val lobbyID: LobbyID, val gameProperties: GameProperties)
+data class APILobby(val lobbyID: LobbyID, val nMembers: Int, val gameProperties: GameProperties)
 
 @Serializable
 data class APIMakeMove(val move: JsonElement)

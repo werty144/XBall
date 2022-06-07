@@ -33,7 +33,11 @@ class APIHandler(
                 when (request.path) {
                     "lobbyReady" -> {
                         val requestBody = tryJsonParse(APILobby.serializer(), request.body) ?: return
-                        lobbyManager.lobbyReady(requestBody.lobbyID, userId, requestBody.gameProperties)
+                        lobbyManager.lobbyReady(
+                            requestBody.lobbyID,
+                            userId,
+                            requestBody.nMembers,
+                            requestBody.gameProperties)
                     }
                     "makeMove" -> {
                         val requestBody = tryJsonParse(APIMakeMove.serializer(), request.body) ?: return

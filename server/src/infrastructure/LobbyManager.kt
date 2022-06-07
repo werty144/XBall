@@ -15,15 +15,15 @@ class LobbyManager(val gamesManager: GamesManager) {
     val lobbies: MutableSet<Lobby> = Collections.synchronizedSet(LinkedHashSet())
     val lobbyOutDateTime = 20_000L
 
-    fun lobbyReady(lobbyID: LobbyID, userId: UserId, gameProperties: GameProperties) {
+    fun lobbyReady(lobbyID: LobbyID, userId: UserId, nMembers: Int, gameProperties: GameProperties) {
         if (!lobbies.any { it.id == lobbyID }) {
-            val newLobby = Lobby(lobbyID, gameProperties)
+            val newLobby = Lobby(lobbyID, nMembers, gameProperties)
             lobbies.add(newLobby)
         }
 
         val lobby = lobbies.find { it.id == lobbyID }!!
         lobby.users.add(userId)
-        if (lobby.users.size == 2) {
+        if (lobby.users.size == nMembers) {
             GlobalScope.launch { gamesManager.startGameFromLobby(lobby) }
             lobbies.remove(lobby)
         }
@@ -37,6 +37,7 @@ class LobbyManager(val gamesManager: GamesManager) {
 
 class Lobby(
     val id: LobbyID,
+    val nMembers: Int,
     val gameProperties: GameProperties,
     val users: MutableSet<UserId> = mutableSetOf(),
     val timeStamp: Timestamp = Timestamp(System.currentTimeMillis())

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using NativeWebSocket;
+using System.Threading.Tasks;
 
 
 using static GameInfo;
@@ -14,12 +15,17 @@ using static Constants;
 
 public class SocketConnection : MonoBehaviour
 {
-	WebSocket websocket = new WebSocket("ws://" + Constants.serverURL);
+	WebSocket websocket;
 	bool firstMessageSent = false;
 	public static Queue<string> messages = new Queue<string>();
 	string password;
 
-	public async void StartConnection(string password_)
+	void Awake()
+	{
+		websocket = new WebSocket("ws://" + Constants.serverURL);
+	}
+
+	public async Task StartConnection(string password_)
 	{
 		password = password_;
 		websocket.OnOpen += () =>
@@ -42,6 +48,11 @@ public class SocketConnection : MonoBehaviour
 		InvokeRepeating("SendWebSocketMessage", 0.0f, 0.05f);
 
 		await websocket.Connect();
+	}
+
+	public bool isOpen()
+	{
+		return websocket.State == WebSocketState.Open;
 	}
 
 	void Update()

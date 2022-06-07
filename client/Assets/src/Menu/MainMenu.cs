@@ -4,6 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using System.Net;
 using System;
+using UnityEngine.SceneManagement;
 
 
 using static SocketConnection;
@@ -67,16 +68,6 @@ public class MainMenu : MonoBehaviour
         InviteReceiver.receiveInvite(invite);
     }
 
-    public static void OnLobbyUpdate(LobbyData lobbyData)
-    {
-        GameObject.Find("Lobby").GetComponent<LobbyViewContoller>().OnLobbyUpdate(lobbyData);
-    }
-
-    public static void leaveLobby()
-    {
-        LobbyManager.leaveLobby();
-    }
-
     public static void acceptInvite(int inviteId)
     {
         string request = JsonConvert.SerializeObject(
@@ -92,13 +83,9 @@ public class MainMenu : MonoBehaviour
         SocketConnection.messages.Enqueue(request);
     }
 
-    public static void setLobbyReady(bool ready)
+    public static void lobbyReady(ulong lobbyID, int nMembers, string speed, int playersNumber)
     {
-        LobbyManager.setLobbyReady(ready);
-    }
-
-    public static void lobbyReady(ulong lobbyID, string speed, int playersNumber)
-    {
+        print("Lobby ready call");
         string request = JsonConvert.SerializeObject(
             new 
             {
@@ -106,6 +93,7 @@ public class MainMenu : MonoBehaviour
                 body = new 
                 {
                     lobbyID = lobbyID,
+                    nMembers = nMembers,
                     gameProperties = new
                     {
                         speed = speed,
@@ -119,11 +107,15 @@ public class MainMenu : MonoBehaviour
 
     public static void test()
     {
-        lobbyReady(1, "FAST", 3);
+        SceneManager.LoadScene("GameScene");
     }
 
     public static void log(string log)
     {
-        GameObject.Find("LoggerContent").GetComponent<LoggerViewController>().addLog(log);
+        var logger = GameObject.Find("LoggerContent");
+        if (logger != null)
+        {   
+            logger.GetComponent<LoggerViewController>().addLog(log);
+        }
     }
 }
