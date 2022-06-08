@@ -46,6 +46,7 @@ public class SteamLobby : MonoBehaviour
     {
         lobbyID = new CSteamID(pCallback.m_ulSteamIDLobby);
         MainMenu.log(string.Format("Lobby ID: {0}", pCallback.m_ulSteamIDLobby));
+        LobbyManager.enterLobby();
     }
     
     public static void createLobby()
@@ -66,8 +67,16 @@ public class SteamLobby : MonoBehaviour
 
     private void OnLobbyDataUpdate(LobbyDataUpdate_t pCallback)
     {
-        lobbyID = new CSteamID(pCallback.m_ulSteamIDLobby);
-        OnLobbyUpdate();
+        // This one is really weired. If the statement is true, it means 
+        // that it is lobby what is changed, not the member data.
+        // But when you do setLobbyMemberData, it triggers twice:
+        // Once for member change and once for lobby change. So you 
+        // really need only one scenario...
+        if (pCallback.m_ulSteamIDMember == pCallback.m_ulSteamIDLobby)
+        {
+            lobbyID = new CSteamID(pCallback.m_ulSteamIDLobby);
+            OnLobbyUpdate();
+        }
     }
 
     private void OnLobbyChatUpdate(LobbyChatUpdate_t pCallback)
@@ -77,6 +86,7 @@ public class SteamLobby : MonoBehaviour
 
     private void OnLobbyUpdate()
     {
+        MainMenu.log("Update");
         LobbyManager.OnLobbyUpdate(getLobbyData());
     }
 
@@ -174,8 +184,6 @@ public class SteamLobby : MonoBehaviour
             }
 
             bool allIn = membersData.Count == SteamMatchmaking.GetLobbyMemberLimit(lobbyID);
-
-            MainMenu.log(string.Format("Starting game: {0}", (everyBodyReady && allIn)));
 
             return everyBodyReady && allIn;
         }

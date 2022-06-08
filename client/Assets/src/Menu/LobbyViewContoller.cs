@@ -11,7 +11,6 @@ using static LobbyManager;
 public class LobbyViewContoller : MonoBehaviour
 {
     [SerializeField] private GameObject memberBarPrefab;
-    private bool ready = false;
     private Color32 green = new Color32(72, 236, 70, 225);
     private Color32 red = new Color32(224, 0, 26, 225);
     private GameObject infoText;
@@ -111,8 +110,7 @@ public class LobbyViewContoller : MonoBehaviour
 
     public void OnReadyButton()
     {
-        ready = !ready;
-        LobbyManager.setLobbyReady(ready);
+        LobbyManager.lobbyChangeReady();
     }
 
     private void clean()

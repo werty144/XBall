@@ -31,12 +31,11 @@ public class MainMenu : MonoBehaviour
 
     private static void OnLeave()
     {
-        LobbyManager.setLobbyReady(false);
+        LobbyManager.setReadyFalse();
     }
 
     public static void lobbyReady(ulong lobbyID, int nMembers, string speed, int playersNumber)
     {
-        print("Lobby ready call");
         string request = JsonConvert.SerializeObject(
             new 
             {
@@ -68,5 +67,11 @@ public class MainMenu : MonoBehaviour
         {   
             logger.GetComponent<LoggerViewController>().addLog(log);
         }
+    }
+
+    public void OnExit()
+    {
+        print("Exiting");
+        Application.Quit();
     }
 }

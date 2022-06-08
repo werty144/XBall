@@ -11,6 +11,7 @@ using static MainMenu;
 public class LobbyManager : MonoBehaviour
 {
     private static bool inLobby = false;
+    private static bool ready = false;
 
 
     public static async void createLobby(LobbyMetaData metaData)
@@ -31,9 +32,14 @@ public class LobbyManager : MonoBehaviour
         }
         SteamLobby.lobbyCreated = false;
         
-        inLobby = true;
         setMetaData(metaData);
+    }
+
+    public static void enterLobby()
+    {
+        inLobby = true;
         SteamLobby.setLobbyReady(false);
+        ready = false;
     }
 
     public static void setMetaData(LobbyMetaData metaData)
@@ -85,12 +91,19 @@ public class LobbyManager : MonoBehaviour
         SteamLobby.leaveLobby();
     }
 
-    public static void setLobbyReady(bool ready)
+    public static void lobbyChangeReady()
     {
         if (inLobby) 
         {
+            ready = !ready;
             SteamLobby.setLobbyReady(ready);
         }
+    }
+
+    public static void setReadyFalse()
+    {
+        ready = false;
+        SteamLobby.setLobbyReady(ready);
     }
 }
 
