@@ -96,18 +96,13 @@ public class SocketConnection : MonoBehaviour
 				dynamic json = JsonConvert.DeserializeObject(message);
 				switch ((string) json.path)
 				{
-					case "invite":
-						print("Got invite");
-						var invite = JsonConvert.DeserializeObject<ApiInvite>(message).body;
-						MainMenu.receiveInvite(invite);
-						break;
 					case "game":
 						var gameInfo = JsonConvert.DeserializeObject<ApiGameInfo>(message).body;
 						GameManager.setGameInfo(gameInfo);
 						break;
 					case "prepareGame":
 						var body = JsonConvert.DeserializeObject<ApiPrepareGame>(message).body;
-						GameManager.prepareGame(body.game.state, body.side);
+						MainMenu.prepareGame(body.game.state, body.side);
 						break;
 					default:
 						break;
@@ -120,12 +115,6 @@ public class SocketConnection : MonoBehaviour
 	}
 }
 
-
-public class ApiInvite
-{
-  public string path;
-  public Invite body;
-}
 
 public class ApiGameInfo
 {
@@ -144,15 +133,3 @@ public class PrepareGameBody
 	public Side side;
 	public GameInfo game;
 }
-
-
-// Should make separate manager
-public class Invite
-{
-  public int inviteId;
-  public long inviterId;
-  public long invitedId;
-  public GameProperties gameProperties;
-}
-
-

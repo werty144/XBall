@@ -87,7 +87,10 @@ public class LobbyManager : MonoBehaviour
 
     public static void setLobbyReady(bool ready)
     {
-        SteamLobby.setLobbyReady(ready);
+        if (inLobby) 
+        {
+            SteamLobby.setLobbyReady(ready);
+        }
     }
 }
 
