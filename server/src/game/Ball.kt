@@ -1,6 +1,5 @@
 package com.example.game
 
-import io.ktor.sessions.*
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient

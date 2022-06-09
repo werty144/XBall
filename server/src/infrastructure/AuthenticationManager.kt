@@ -1,6 +1,6 @@
 package com.example.infrastructure
 
-import io.ktor.http.cio.websocket.*
+import io.ktor.websocket.*
 import java.net.URI
 import java.net.URLEncoder
 import java.net.http.HttpClient
@@ -14,7 +14,7 @@ import java.io.File
 class AuthenticationManager {
     private val client: HttpClient = HttpClient.newBuilder().build()
     private val passwordsToUsers: MutableMap<String, UserId> = mutableMapOf()
-    private val steamworksWebApiKey: String = File("SteamworksWebApiKey").readText(Charsets.UTF_8)
+    private val steamworksWebApiKey: String = File("/app/SteamworksWebApiKey").readText(Charsets.UTF_8)
     fun generatePasswordForUser(steamId: UserId): String {
         passwordsToUsers[steamId.toString()] = steamId
         return steamId.toString()

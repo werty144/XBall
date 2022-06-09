@@ -5,9 +5,8 @@ import com.example.routing.APIMove
 import com.example.routing.Connection
 import com.example.routing.createGameJSONString
 import com.example.routing.createPrepareGameJSONString
-import io.ktor.http.cio.websocket.*
+import io.ktor.websocket.*
 import kotlinx.coroutines.*
-import java.sql.Timestamp
 import java.util.Collections
 
 class GamesManager(val connections: Set<Connection>) {

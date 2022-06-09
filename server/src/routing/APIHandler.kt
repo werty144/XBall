@@ -1,7 +1,7 @@
 package com.example.routing
 
 import com.example.infrastructure.*
-import io.ktor.http.cio.websocket.*
+import io.ktor.websocket.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.DeserializationStrategy
 

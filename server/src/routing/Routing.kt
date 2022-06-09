@@ -1,12 +1,12 @@
 package com.example.routing
 
 import com.example.infrastructure.*
-import io.ktor.application.*
 import io.ktor.http.*
-import io.ktor.http.cio.websocket.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.isActive
 import java.util.concurrent.atomic.AtomicInteger
@@ -51,6 +51,10 @@ fun Application.configureRouting(gamesManager: GamesManager,
 
         get("/stop_games") {
             gamesManager.stopAll()
+        }
+
+        get("/test") {
+            call.respond("Poshel nahuy")
         }
     }
 }
