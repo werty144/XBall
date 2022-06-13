@@ -14,20 +14,24 @@ using System.Security.Cryptography;
 using static SteamAuth;
 using static SocketConnection;
 using static MainMenu;
+using static Constants;
 
 
 public class Auth : MonoBehaviour
 {
     static private HttpClient client = new HttpClient();
-    static string serverURL = "http://localhost:8080";
+    static string serverURL = "http://" + Constants.serverURL;
 
     // Start is called before the first frame update
-    void Start()
+    async Task Start()
     {
-        Authenticate();
+        var vs = GameObject.Find("Global/Connection").GetComponent<SocketConnection>();
+        if (!vs.isOpen()) {
+            await Authenticate();
+        }
     }
 
-    async void Authenticate()
+    async Task Authenticate()
     {
         SteamAuth.Authenticate();
 
@@ -43,17 +47,16 @@ public class Auth : MonoBehaviour
                 return;
             }
         }
-
-        var password = SendTicketGetKey(SteamAuth.ticket);
+        var password = await SendTicketGetKey(SteamAuth.ticket);
 
         if (password != null)
         {
             var connection = GameObject.Find("Connection");
-            connection.GetComponent<SocketConnection>().StartConnection(password);
+            await connection.GetComponent<SocketConnection>().StartConnection(password);
         } 
     }
 
-    public static string SendTicketGetKey(string ticket)
+    public static async Task<string> SendTicketGetKey(string ticket)
     {
         var credentials = new Credentials();
         credentials.ticket = ticket;
@@ -63,11 +66,11 @@ public class Auth : MonoBehaviour
         credentials.publicKey = publicKey;
         
         string json = JsonConvert.SerializeObject(credentials);
-        var response = client.PostAsync
+        var response= await client.PostAsync
         (
             serverURL + "/auth", 
             new StringContent(json, Encoding.UTF8, "application/json")
-        ).Result;
+        );
 
         if (response.StatusCode == HttpStatusCode.OK)
         {

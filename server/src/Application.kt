@@ -3,10 +3,10 @@ package com.example
 import com.example.infrastructure.*
 import com.example.routing.Connection
 import com.example.routing.configureRouting
-import io.ktor.application.*
-import io.ktor.features.*
-import io.ktor.serialization.*
-import io.ktor.websocket.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.websocket.*
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.LinkedHashSet
@@ -23,15 +23,16 @@ fun Application.module(testing: Boolean = false) {
     }
 
     val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
-    val invitesManager = InvitesManager()
     val gamesManager = GamesManager(connections)
+    val lobbyManager = LobbyManager(gamesManager)
     val authenticationManager = AuthenticationManager()
 
-    configureRouting(gamesManager, invitesManager, authenticationManager, connections)
+    configureRouting(gamesManager, lobbyManager, authenticationManager, connections)
 
-    val logger = Logger(invitesManager, gamesManager, connections)
+    val logger = Logger(lobbyManager, gamesManager, connections)
     launch { logger.logPeriodically() }
 
-    val cleaner = Cleaner(invitesManager, gamesManager, connections)
+    val cleaner = Cleaner(lobbyManager, gamesManager, connections)
     launch { cleaner.cleanPeriodically() }
+//    UDPHandling().init()
 }

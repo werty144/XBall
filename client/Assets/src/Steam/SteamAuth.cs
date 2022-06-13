@@ -49,9 +49,13 @@ public class SteamAuth : MonoBehaviour
 		getTicket();
 	}
 
-	public static ulong GetSteamID()
+	public static ulong? GetSteamID()
 	{
-		return SteamUser.GetSteamID().m_SteamID;
+		if (SteamManager.Initialized) 
+		{
+			return SteamUser.GetSteamID().m_SteamID;
+		}
+		return null;
 	}
 
 	private void OnApplicationQuit()

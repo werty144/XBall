@@ -6,12 +6,13 @@ import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
-import io.ktor.application.*
+
 import io.ktor.http.*
-import io.ktor.http.cio.websocket.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.isActive
 import java.math.BigInteger
@@ -25,11 +26,11 @@ import javax.crypto.Cipher
 typealias Connections = MutableSet<Connection>
 
 fun Application.configureRouting(gamesManager: GamesManager,
-                                 invitesManager: InvitesManager,
+                                 lobbyManager: LobbyManager,
                                  authenticationManager: AuthenticationManager,
                                  connections: Connections) {
 
-    val apiHandler = APIHandler(gamesManager, invitesManager, connections)
+    val apiHandler = APIHandler(gamesManager, lobbyManager, connections)
 
     routing {
         post("/auth") {
@@ -66,6 +67,10 @@ fun Application.configureRouting(gamesManager: GamesManager,
 
         get("/stop_games") {
             gamesManager.stopAll()
+        }
+
+        get("/test") {
+            call.respond("Poshel nahuy")
         }
     }
 }

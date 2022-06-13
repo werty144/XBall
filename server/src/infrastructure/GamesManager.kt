@@ -5,16 +5,13 @@ import com.example.routing.APIMove
 import com.example.routing.Connection
 import com.example.routing.createGameJSONString
 import com.example.routing.createPrepareGameJSONString
-import io.ktor.http.cio.websocket.*
+import io.ktor.websocket.*
 import kotlinx.coroutines.*
-import java.sql.Timestamp
 import java.util.Collections
 
 class GamesManager(val connections: Set<Connection>) {
     private var spareGameId: GameId = 0
     val games: MutableSet<Game> = Collections.synchronizedSet(LinkedHashSet())
-    val preparedGames: MutableSet<PreparedGame> = Collections.synchronizedSet(LinkedHashSet())
-    val preparedGameOutDateTime = 15_000L
     private val updateTime = 5L
     private val gameCoroutineScope: CoroutineScope = CoroutineScope(CoroutineName("Game scope"))
     private val runningGames: MutableSet<Pair<GameId, Job>> = Collections.synchronizedSet(LinkedHashSet())
@@ -29,59 +26,39 @@ class GamesManager(val connections: Set<Connection>) {
         val game = gameById(gameId)
         game?.makeMove(move, actorId)
     }
+    suspend fun startGameFromLobby(lobby: Lobby)
+    {
+        val userIds = lobby.users.toList()
+        if (userIds.map { getGameForUser(it) }.any { it != null }) return
 
-    suspend fun acceptInvite(invite: Invite) {
-        val firstUserId = invite.inviterId
-        val secondUserId = invite.invitedId
-        val firstUserConnection = connections.firstOrNull { it.userId == firstUserId }
-        val secondUserConnection = connections.firstOrNull { it.userId == secondUserId }
-
-        if ((!isActiveConnection(firstUserConnection) or (!isActiveConnection(secondUserConnection)))) {
+        val userConnections = userIds.map {id ->  connections.firstOrNull { con -> con.userId == id } }
+        if (!userConnections.map {isActiveConnection(it)}.all { it }) {
             return
         }
 
-        val game = Game(spareGameId++, firstUserId, secondUserId, invite.gameProperties, updateTime)
-
-        val firstUserMessage = createPrepareGameJSONString(game, Side.LEFT)
-        val secondUserMessage = createPrepareGameJSONString(game, Side.RIGHT)
-
-        firstUserConnection!!.session.send(firstUserMessage)
-        secondUserConnection!!.session.send(secondUserMessage)
-
-        preparedGames.add(PreparedGame(game, firstUserId, secondUserId))
-    }
-
-    suspend fun acceptBotInvite(userId: UserId, gameProperties: GameProperties) {
-        val botId = -userId - 1
-
-        val userConnection = connections.firstOrNull { it.userId == userId }
-        if (!isActiveConnection(userConnection)) {
-            return
+        val game: Game
+        when (lobby.nMembers) {
+            1 -> {
+                game = Game(spareGameId++, userIds[0], userIds[0], lobby.gameProperties, updateTime)
+                val firstUserMessage = createPrepareGameJSONString(game, Side.RIGHT)
+                userConnections[0]!!.session.send(firstUserMessage)
+            }
+            2 -> {
+                game = Game(spareGameId++, userIds[0], userIds[1], lobby.gameProperties, updateTime)
+                val firstUserMessage = createPrepareGameJSONString(game, Side.LEFT)
+                val secondUserMessage = createPrepareGameJSONString(game, Side.RIGHT)
+                userConnections[0]!!.session.send(firstUserMessage)
+                userConnections[1]!!.session.send(secondUserMessage)
+            }
+            else -> {
+                return
+            }
         }
 
-        val game = Game(spareGameId++, userId, botId, gameProperties, updateTime)
-
-        val firstUserMessage = createPrepareGameJSONString(game, Side.LEFT)
-        userConnection!!.session.send(firstUserMessage)
-
-        val preparedGame = PreparedGame(game, userId, botId)
-        preparedGame.ready[botId] = true
-        preparedGames.add(preparedGame)
-    }
-
-    fun userReady(userId: UserId) {
-        val preparedGame = preparedGames.firstOrNull {(it.firstUserId == userId) or (it.secondUserId == userId)} ?: return
-
-        preparedGame.ready[userId] = true
-
-        if (preparedGame.ready[preparedGame.firstUserId]!! and preparedGame.ready[preparedGame.secondUserId]!!) {
-            preparedGames.remove(preparedGame)
-            val game = preparedGame.game
-            games.add(game)
-            game.toInitialState()
-            val gameJob = gameCoroutineScope.launch { runGame(game) }
-            runningGames.add(Pair(game.gameId, gameJob))
-        }
+        games.add(game)
+        game.toInitialState()
+        val gameJob = gameCoroutineScope.launch { runGame(game) }
+        runningGames.add(Pair(game.gameId, gameJob))
     }
 
     suspend fun runGame(game: Game) {
@@ -125,12 +102,6 @@ class GamesManager(val connections: Set<Connection>) {
     }
 
     fun clean() {
-        val currentTimeStamp = Timestamp(System.currentTimeMillis())
-        preparedGames.removeIf { currentTimeStamp.time - it.timeStamp.time > preparedGameOutDateTime }
-    }
-}
 
-data class PreparedGame(val game: Game, val firstUserId: UserId, val secondUserId: UserId) {
-    val timeStamp: Timestamp = Timestamp(System.currentTimeMillis())
-    val ready = mutableMapOf(firstUserId to false, secondUserId to false)
+    }
 }

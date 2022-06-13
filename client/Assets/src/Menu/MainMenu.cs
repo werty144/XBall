@@ -4,79 +4,49 @@ using UnityEngine;
 using Newtonsoft.Json;
 using System.Net;
 using System;
+using UnityEngine.SceneManagement;
 
 
 using static SocketConnection;
-using static InviteReceiver;
 using static SteamAuth;
-
+using static LobbyViewContoller;
+using static GameManager;
 
 
 public class MainMenu : MonoBehaviour
 {
-    public static ulong myID;
 
 
     void Start()
     {
-        myID = SteamAuth.GetSteamID();
-        print(myID);
     }
 
-
-    public void autoInvite()
+    public static void prepareGame(GameState state, Side side)
     {
-        sendInvite(myID, "FAST", 3);
+        OnLeave();
+        GameManager.prepareGame(state, side);
     }
 
-    public static void sendInvite(ulong invitedId, string speed, int playersNumber)
+    private static void OnLeave()
     {
-        string request = JsonConvert.SerializeObject(
-            new 
-            {
-                path = "invite", 
-                body = new
-                {
-                    invitedId = invitedId.ToString(),
-                    speed = speed,
-                    playersNumber = playersNumber
-                }
-            }
-            );
-        SocketConnection.messages.Enqueue(request);
+        LobbyManager.setReadyFalse();
     }
 
-    public static void sendInviteBot(string speed, int playersNumber)
+    public static void lobbyReady(ulong lobbyID, int nMembers, string speed, int playersNumber)
     {
         string request = JsonConvert.SerializeObject(
             new 
             {
-                path = "inviteBot", 
-                body = new
-                {
-                    invitedId = -1,
-                    speed = speed,
-                    playersNumber = playersNumber
-                }
-            }
-            );
-        SocketConnection.messages.Enqueue(request);
-    }
-
-    public static void receiveInvite(Invite invite)
-    {
-        InviteReceiver.receiveInvite(invite);
-    }
-
-    public static void acceptInvite(int inviteId)
-    {
-        string request = JsonConvert.SerializeObject(
-            new 
-            {
-                path = "acceptInvite",
+                path = "lobbyReady",
                 body = new 
                 {
-                    inviteId = inviteId
+                    lobbyID = lobbyID,
+                    nMembers = nMembers,
+                    gameProperties = new
+                    {
+                        speed = speed,
+                        playersNumber = playersNumber
+                    }
                 }
             }
             );
@@ -85,6 +55,21 @@ public class MainMenu : MonoBehaviour
 
     public static void test()
     {
-        // SteamAuth.authenticate();
+        GameObject.Find("Global/Server").GetComponent<ServerManager>().startServer();
+    }
+
+    public static void log(string log)
+    {
+        var logger = GameObject.Find("LoggerContent");
+        if (logger != null)
+        {   
+            logger.GetComponent<LoggerViewController>().addLog(log);
+        }
+    }
+
+    public void OnExit()
+    {
+        print("Exiting");
+        Application.Quit();
     }
 }

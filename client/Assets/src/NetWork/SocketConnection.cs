@@ -4,22 +4,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using NativeWebSocket;
+using System.Threading.Tasks;
 
 
 using static GameInfo;
 using static GameManager;
 using static Side;
+using static Constants;
 
 
 public class SocketConnection : MonoBehaviour
 {
-	WebSocket websocket = new WebSocket("ws://localhost:8080");
-	// WebSocket websocket = new WebSocket("ws://xball-server.herokuapp.com/");
+	WebSocket websocket;
 	bool firstMessageSent = false;
 	public static Queue<string> messages = new Queue<string>();
 	string password;
 
-	public async void StartConnection(string password_)
+	void Awake()
+	{
+		websocket = new WebSocket("ws://" + Constants.serverURL);
+	}
+
+	public async Task StartConnection(string password_)
 	{
 		password = password_;
 		websocket.OnOpen += () =>
@@ -42,6 +48,11 @@ public class SocketConnection : MonoBehaviour
 		InvokeRepeating("SendWebSocketMessage", 0.0f, 0.05f);
 
 		await websocket.Connect();
+	}
+
+	public bool isOpen()
+	{
+		return websocket.State == WebSocketState.Open;
 	}
 
 	void Update()
@@ -85,18 +96,13 @@ public class SocketConnection : MonoBehaviour
 				dynamic json = JsonConvert.DeserializeObject(message);
 				switch ((string) json.path)
 				{
-					case "invite":
-						print("Got invite");
-						var invite = JsonConvert.DeserializeObject<ApiInvite>(message).body;
-						MainMenu.receiveInvite(invite);
-						break;
 					case "game":
 						var gameInfo = JsonConvert.DeserializeObject<ApiGameInfo>(message).body;
 						GameManager.setGameInfo(gameInfo);
 						break;
 					case "prepareGame":
 						var body = JsonConvert.DeserializeObject<ApiPrepareGame>(message).body;
-						GameManager.prepareGame(body.game.state, body.side);
+						MainMenu.prepareGame(body.game.state, body.side);
 						break;
 					default:
 						break;
@@ -109,12 +115,6 @@ public class SocketConnection : MonoBehaviour
 	}
 }
 
-
-public class ApiInvite
-{
-  public string path;
-  public Invite body;
-}
 
 public class ApiGameInfo
 {
@@ -133,15 +133,3 @@ public class PrepareGameBody
 	public Side side;
 	public GameInfo game;
 }
-
-
-// Should make separate manager
-public class Invite
-{
-  public int inviteId;
-  public long inviterId;
-  public long invitedId;
-  public GameProperties gameProperties;
-}
-
-

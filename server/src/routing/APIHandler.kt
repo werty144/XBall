@@ -1,17 +1,8 @@
 package com.example.routing
 
-import com.example.game.GameProperties
-import com.example.infrastructure.InvitesManager
-import com.example.infrastructure.GamesManager
-import com.example.infrastructure.Invite
-import com.example.infrastructure.UserId
-import io.ktor.application.*
-import io.ktor.http.cio.websocket.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.serialization.encodeToString
+import com.example.infrastructure.*
+import io.ktor.websocket.*
 import kotlinx.serialization.json.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.DeserializationStrategy
 
 
@@ -29,10 +20,10 @@ fun <T>tryJsonParse(serializer: DeserializationStrategy<T>, input: Any): T? {
 
 class APIHandler(
     private val gamesManager: GamesManager,
-    private val invitesManager: InvitesManager,
+    private val lobbyManager: LobbyManager,
     private val connections: Set<Connection>
 ) {
-    suspend fun handle(frame: Frame, connection: Connection) {
+    fun handle(frame: Frame, connection: Connection) {
         when (frame) {
             is Frame.Text -> {
                 val userId = connection.userId
@@ -40,24 +31,13 @@ class APIHandler(
                 val request = tryJsonParse(APIRequest.serializer(), requestString) ?: return
 
                 when (request.path) {
-                    "invite" -> {
-                        if (gamesManager.userHasGames(userId)) return
-                        val invite = tryJsonParse(APIInvite.serializer(), request.body) ?: return
-                        val newInvite = invitesManager.formNewInvite(userId, invite) ?: return
-                        connections.find { it.userId == invite.invitedId }?.session?.send(
-                            Json.encodeToString(APIRequest("invite", Json.encodeToJsonElement(newInvite)))
-                        )
-                    }
-                    "acceptInvite" -> {
-                        if (gamesManager.userHasGames(userId)) return
-                        val requestBody = tryJsonParse(APIAcceptInvite.serializer(), request.body) ?: return
-                        val inviteId = requestBody.inviteId
-                        val invite = invitesManager.getInviteById(inviteId) ?: return
-                        gamesManager.acceptInvite(invite)
-                        invitesManager.removeInviteById(inviteId)
-                    }
-                    "ready" -> {
-                        gamesManager.userReady(userId)
+                    "lobbyReady" -> {
+                        val requestBody = tryJsonParse(APILobby.serializer(), request.body) ?: return
+                        lobbyManager.lobbyReady(
+                            requestBody.lobbyID,
+                            userId,
+                            requestBody.nMembers,
+                            requestBody.gameProperties)
                     }
                     "makeMove" -> {
                         val requestBody = tryJsonParse(APIMakeMove.serializer(), request.body) ?: return
@@ -65,14 +45,6 @@ class APIHandler(
 
                         val move: APIMove = tryJsonParse(APIMove.serializer(), requestBody.move) ?: return
                         gamesManager.makeMove(gameId, move, userId)
-                    }
-                    "inviteBot" -> {
-                        if (gamesManager.userHasGames(userId)) return
-                        val invite = tryJsonParse(APIInvite.serializer(), request.body) ?: return
-                        gamesManager.acceptBotInvite(
-                            userId,
-                            GameProperties(invite.playersNumber, invite.speed)
-                            )
                     }
                 }
             }
