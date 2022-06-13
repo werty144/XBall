@@ -15,12 +15,10 @@ using static GameManager;
 
 public class MainMenu : MonoBehaviour
 {
-    public static ulong myID;
 
 
     void Start()
     {
-        myID = SteamAuth.GetSteamID();
     }
 
     public static void prepareGame(GameState state, Side side)
@@ -57,7 +55,7 @@ public class MainMenu : MonoBehaviour
 
     public static void test()
     {
-        SceneManager.LoadScene("GameScene");
+        GameObject.Find("Global/Server").GetComponent<ServerManager>().startServer();
     }
 
     public static void log(string log)
