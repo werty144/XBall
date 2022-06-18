@@ -48,7 +48,7 @@ public class SteamP2P : MonoBehaviour
     {
         SteamNetworkingIdentity identity = new SteamNetworkingIdentity();
         identity.SetSteamID(steamID);
-        // need to end null symbol in order to parse on the other end
+        // need to end null symbol in order to parse
         byte[] sendData = Encoding.UTF8.GetBytes(msg + "\0");
         GCHandle pinnedArray = GCHandle.Alloc(sendData, GCHandleType.Pinned);
         IntPtr pointer = pinnedArray.AddrOfPinnedObject();

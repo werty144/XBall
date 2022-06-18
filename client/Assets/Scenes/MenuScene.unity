@@ -4867,7 +4867,7 @@ GameObject:
   - component: {fileID: 1769180304}
   - component: {fileID: 1769180303}
   m_Layer: 0
-  m_Name: UDPTest
+  m_Name: P2P Test
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4882,7 +4882,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1769180302}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab5c041e72f0184a5b7ba0773ec05467, type: 3}
+  m_Script: {fileID: 11500000, guid: a7f12ab921d9ebba4906e273aa09e8e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!4 &1769180304
