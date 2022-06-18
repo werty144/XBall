@@ -61,7 +61,7 @@ public class MainMenu : MonoBehaviour
     {
         foreach (var member in SteamLobby.getOtherMembers())
         {
-            SteamP2P.sendMessage("Hello", member);
+            SteamP2P.receiveMessages(1);
         }
     }
 

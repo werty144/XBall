@@ -27,10 +27,9 @@ public class SteamP2P : MonoBehaviour
     {
         bool res = SteamNetworkingMessages.AcceptSessionWithUser(ref pCallback.m_identityRemote);
         MainMenu.log(string.Format("Accepted: {0}", res));
-        receiveMessages(1);
     }
 
-    void receiveMessages(int nMaxMessages)
+    public static void receiveMessages(int nMaxMessages)
     {
         IntPtr[] messages = new IntPtr[nMaxMessages];
         int nMessages = SteamNetworkingMessages.ReceiveMessagesOnChannel(channelToUse, messages, nMaxMessages);

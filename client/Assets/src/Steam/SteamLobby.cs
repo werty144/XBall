@@ -53,7 +53,7 @@ public class SteamLobby : MonoBehaviour
     {
         if (SteamManager.Initialized)
         {
-            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 1);
+            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 2);
         }
     }
 
@@ -203,10 +203,10 @@ public class SteamLobby : MonoBehaviour
         for (int i = 0; i < SteamMatchmaking.GetNumLobbyMembers(lobbyID); i++)
         {
             CSteamID userID = SteamMatchmaking.GetLobbyMemberByIndex(lobbyID, i);
-            // if (userID != myID)
-            // {
+            if (userID != myID)
+            {
                 otherMembers.Add(userID);
-            // }
+            }
         }
         return otherMembers;
     }
