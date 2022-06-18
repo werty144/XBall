@@ -105,6 +105,11 @@ public class LobbyManager : MonoBehaviour
         ready = false;
         SteamLobby.setLobbyReady(ready);
     }
+
+    void OnApplicationQuit()
+    {
+        leaveLobby();
+    }
 }
 
 

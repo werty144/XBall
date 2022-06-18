@@ -1,16 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using Newtonsoft.Json;
 using System.Net;
 using System;
+
+
 using UnityEngine.SceneManagement;
+using UnityEngine;
+using Newtonsoft.Json;
 
 
 using static SocketConnection;
 using static SteamAuth;
 using static LobbyViewContoller;
 using static GameManager;
+using static SteamLobby;
+using static SteamP2P;
 
 
 public class MainMenu : MonoBehaviour
@@ -55,7 +59,10 @@ public class MainMenu : MonoBehaviour
 
     public static void test()
     {
-        GameObject.Find("Global/Server").GetComponent<ServerManager>().startServer();
+        foreach (var member in SteamLobby.getOtherMembers())
+        {
+            SteamP2P.sendMessage("Hello", member);
+        }
     }
 
     public static void log(string log)
