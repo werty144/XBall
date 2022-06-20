@@ -2,7 +2,6 @@ package com.example.routing
 
 import com.example.game.GameProperties
 import com.example.infrastructure.LobbyID
-import com.example.infrastructure.UserId
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 

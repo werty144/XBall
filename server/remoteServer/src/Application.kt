@@ -1,4 +1,4 @@
-package com.example
+package com.example.remoteserver
 
 import com.example.infrastructure.*
 import com.example.routing.Connection
@@ -34,5 +34,4 @@ fun Application.module(testing: Boolean = false) {
 
     val cleaner = Cleaner(lobbyManager, gamesManager, connections)
     launch { cleaner.cleanPeriodically() }
-//    UDPHandling().init()
 }

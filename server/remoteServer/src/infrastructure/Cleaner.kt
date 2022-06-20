@@ -3,7 +3,6 @@ package com.example.infrastructure
 import com.example.routing.Connections
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import java.sql.Timestamp
 
 class Cleaner(val lobbyManager: LobbyManager, val gamesManager: GamesManager, val connections: Connections) {
 

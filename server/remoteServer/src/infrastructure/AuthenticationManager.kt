@@ -1,14 +1,9 @@
 package com.example.infrastructure
 
 import io.ktor.websocket.*
-import java.net.URI
 import java.net.URLEncoder
 import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
 import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
-import java.io.File
 
 
 class AuthenticationManager {

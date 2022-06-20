@@ -72,6 +72,7 @@ fun Application.configureRouting(gamesManager: GamesManager,
         get("/test") {
             call.respond("Poshel nahuy")
         }
+
     }
 }
 

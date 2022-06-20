@@ -17,4 +17,7 @@ client/Temp
 *.sln
 *.csproj
 .vscode/
-server/SteamworksWebApiKey
+server/remoteServer/SteamworksWebApiKey
+server/remoteServer/build
+server/localServer/build
+

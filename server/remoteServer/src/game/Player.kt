@@ -1,6 +1,5 @@
 package com.example.game
 
-import com.example.infrastructure.UserId
 import com.example.routing.APIMove
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable

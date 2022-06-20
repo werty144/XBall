@@ -1,7 +1,6 @@
 package com.example.infrastructure
 
 import com.example.game.GameProperties
-import com.example.game.Speed
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.sql.Timestamp
