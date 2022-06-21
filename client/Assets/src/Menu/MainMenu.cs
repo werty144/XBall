@@ -15,6 +15,7 @@ using static LobbyViewContoller;
 using static GameManager;
 using static SteamLobby;
 using static SteamP2P;
+using static ServerManager;
 
 
 public class MainMenu : MonoBehaviour
@@ -36,33 +37,45 @@ public class MainMenu : MonoBehaviour
         LobbyManager.setReadyFalse();
     }
 
-    public static void lobbyReady(ulong lobbyID, int nMembers, string speed, int playersNumber)
+    public static async void lobbyReady(LobbyData lobbyData)
     {
-        string request = JsonConvert.SerializeObject(
-            new 
+        ServerManager.startServer();
+
+        var timePassed = 0;
+        while (!ServerManager.serverReady)
+        {
+            await System.Threading.Tasks.Task.Delay(25);
+            timePassed += 25;   
+
+            if (timePassed > 10000)
             {
-                path = "lobbyReady",
-                body = new 
-                {
-                    lobbyID = lobbyID,
-                    nMembers = nMembers,
-                    gameProperties = new
-                    {
-                        speed = speed,
-                        playersNumber = playersNumber
-                    }
-                }
+                print("Can't start server");
+                return;
             }
-            );
-        SocketConnection.messages.Enqueue(request);
+        }
+        print("Server started");
+
+        RequestCreator.lobbyReady(lobbyData);
     }
 
     public static void test()
     {
-        foreach (var member in SteamLobby.getOtherMembers())
-        {
-            SteamP2P.receiveMessages(1);
-        }
+        // LobbyData lobbyData = new LobbyData();
+
+        // lobbyData.ID = 0;
+
+        // LobbyMemberData memberData = new LobbyMemberData();
+        // memberData.ID = 0;
+        // memberData.isReady = true;
+        // memberData.name = "Antoha";
+        // lobbyData.membersData = new List<LobbyMemberData> {memberData};
+
+        // LobbyMetaData metaData = new LobbyMetaData();
+        // metaData.playersNumber = 3;
+        // metaData.speed = "FAST";
+        // lobbyData.metaData = metaData;
+
+        // ServerManager.lobbyReady(lobbyData);
     }
 
     public static void log(string log)

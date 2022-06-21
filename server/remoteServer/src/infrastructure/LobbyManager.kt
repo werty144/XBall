@@ -1,8 +1,9 @@
-package com.example.infrastructure
+package com.xballserver.remoteserver.infrastructure
 
 import com.example.game.GameProperties
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Transient
 import java.sql.Timestamp
 import java.util.*
 import kotlin.collections.LinkedHashSet
@@ -21,8 +22,8 @@ class LobbyManager(val gamesManager: GamesManager) {
         }
 
         val lobby = lobbies.find { it.id == lobbyID }!!
-        lobby.users.add(userId)
-        if (lobby.users.size == nMembers) {
+        lobby.members.add(userId)
+        if (lobby.members.size == nMembers) {
             GlobalScope.launch { gamesManager.startGameFromLobby(lobby) }
             lobbies.remove(lobby)
         }
@@ -38,9 +39,9 @@ class Lobby(
     val id: LobbyID,
     val nMembers: Int,
     val gameProperties: GameProperties,
-    val users: MutableSet<UserId> = mutableSetOf(),
+    val members: MutableSet<UserId> = mutableSetOf(),
     val timeStamp: Timestamp = Timestamp(System.currentTimeMillis())
     )
 {
-    override fun toString(): String = "Lobby(users: ${users})"
+    override fun toString(): String = "Lobby(users: ${members})"
 }

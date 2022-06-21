@@ -1,4 +1,4 @@
-package com.example.infrastructure
+package com.xballserver.remoteserver.infrastructure
 
 import io.ktor.websocket.*
 import java.net.URLEncoder

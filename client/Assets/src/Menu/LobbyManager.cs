@@ -77,10 +77,7 @@ public class LobbyManager : MonoBehaviour
         {
             MainMenu.lobbyReady
             (
-                SteamLobby.getID(),
-                lobbyData.membersData.Count,
-                lobbyData.metaData.speed,
-                lobbyData.metaData.playersNumber
+                lobbyData
             );  
         }
     }
@@ -115,6 +112,7 @@ public class LobbyManager : MonoBehaviour
 
 public class LobbyMemberData
 {
+    public ulong ID;
     public string name;
     public bool isReady;
 }
@@ -127,6 +125,7 @@ public class LobbyMetaData
 
 public class LobbyData
 {
+    public ulong ID;
     public LobbyMetaData metaData;
     public List<LobbyMemberData> membersData;
 }

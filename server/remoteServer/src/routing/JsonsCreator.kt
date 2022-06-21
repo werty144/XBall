@@ -1,18 +1,50 @@
-package com.example.routing
+package com.xballserver.remoteserver.routing
 
 import com.example.game.Game
 import com.example.game.Side
+import com.xballserver.remoteserver.infrastructure.UserId
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 
+
+fun createGameJSONObject(game: Game): JsonObject {
+    return JsonObject(
+                mapOf(
+                    "state" to Json.encodeToJsonElement(game.state),
+                    "score" to Json.encodeToJsonElement(game.score.toString()),
+                    "time" to Json.encodeToJsonElement(game.timer.time),
+                    "status" to Json.encodeToJsonElement(game.getStatus())
+                )
+            )
+}
+
 fun createGameJSONString(game: Game): String {
     return Json.encodeToString(
-        JsonObject(
+        mapOf(
+            "path" to Json.encodeToJsonElement("game"),
+            "body" to createGameJSONObject(game)
+        )
+    )
+}
+
+fun createGameAddresseeJSONString(addressee: UserId, game: Game): String {
+    return Json.encodeToString(
+        mapOf(
+            "path" to Json.encodeToJsonElement("game"),
+            // need cast to string since no serializer for ULong
+            "addressee" to Json.encodeToJsonElement(addressee.toString()),
+            "body" to createGameJSONObject(game)
+        )
+    )
+}
+
+fun createPrepareGameJSONObject(game: Game, side: Side): JsonObject {
+    return JsonObject(
             mapOf(
-                "path" to Json.encodeToJsonElement("game"),
-                "body" to JsonObject(
+                "side" to Json.encodeToJsonElement(side),
+                "game" to JsonObject(
                     mapOf(
                         "state" to Json.encodeToJsonElement(game.state),
                         "score" to Json.encodeToJsonElement(game.score.toString()),
@@ -22,28 +54,32 @@ fun createGameJSONString(game: Game): String {
                 )
             )
         )
-    )
 }
 
 fun createPrepareGameJSONString(game: Game, side: Side): String {
     return Json.encodeToString(
-        JsonObject(
-            mapOf(
-                "path" to Json.encodeToJsonElement("prepareGame"),
-                "body" to JsonObject(
-                    mapOf(
-                        "side" to Json.encodeToJsonElement(side),
-                        "game" to JsonObject(
-                            mapOf(
-                                "state" to Json.encodeToJsonElement(game.state),
-                                "score" to Json.encodeToJsonElement(game.score.toString()),
-                                "time" to Json.encodeToJsonElement(game.timer.time),
-                                "status" to Json.encodeToJsonElement(game.getStatus())
-                            )
-                        )
-                    )
-                )
-            )
+        mapOf(
+            "path" to Json.encodeToJsonElement("prepareGame"),
+            "body" to createPrepareGameJSONObject(game, side)
+        )
+    )
+}
+
+fun createPrepareGameAddresseeJSONString(addressee: UserId, game: Game, side: Side): String {
+    return Json.encodeToString(
+        mapOf(
+            "path" to Json.encodeToJsonElement("prepareGame"),
+            // need cast to string since no serializer for ULong
+            "addressee" to Json.encodeToJsonElement(addressee.toString()),
+            "body" to createPrepareGameJSONObject(game, side)
+        )
+    )
+}
+
+fun createServerReadyJSONString(): String {
+    return Json.encodeToString(
+        mapOf(
+            "path" to "serverReady"
         )
     )
 }

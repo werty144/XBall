@@ -1,7 +1,7 @@
-package com.example.routing
+package com.xballserver.remoteserver.routing
 
 import com.example.game.GameProperties
-import com.example.infrastructure.LobbyID
+import com.xballserver.remoteserver.infrastructure.LobbyID
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 

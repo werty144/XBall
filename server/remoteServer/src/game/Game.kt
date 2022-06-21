@@ -1,8 +1,8 @@
 package com.example.game
 
-import com.example.routing.APIMove
-import com.example.infrastructure.UserId
-import com.example.routing.tryJsonParse
+import com.xballserver.remoteserver.routing.APIMove
+import com.xballserver.remoteserver.infrastructure.UserId
+import com.xballserver.remoteserver.routing.tryJsonParse
 import kotlinx.serialization.Serializable
 import java.util.LinkedList
 import kotlin.math.*

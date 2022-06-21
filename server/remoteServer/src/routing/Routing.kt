@@ -1,11 +1,11 @@
-package com.example.routing
+package com.xballserver.remoteserver.routing
 
-import com.example.infrastructure.*
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
+import com.xballserver.remoteserver.infrastructure.*
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -28,7 +28,8 @@ typealias Connections = MutableSet<Connection>
 fun Application.configureRouting(gamesManager: GamesManager,
                                  lobbyManager: LobbyManager,
                                  authenticationManager: AuthenticationManager,
-                                 connections: Connections) {
+                                 connections: Connections
+) {
 
     val apiHandler = APIHandler(gamesManager, lobbyManager, connections)
 

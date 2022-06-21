@@ -1,6 +1,6 @@
-package com.example.infrastructure
+package com.xballserver.remoteserver.infrastructure
 
-import com.example.routing.Connections
+import com.xballserver.remoteserver.routing.Connections
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext

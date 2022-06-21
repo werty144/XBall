@@ -1,6 +1,7 @@
-package com.example.routing
+package com.xballserver.remoteserver.routing
 
-import com.example.infrastructure.*
+import com.xballserver.remoteserver.infrastructure.GamesManager
+import com.xballserver.remoteserver.infrastructure.LobbyManager
 import io.ktor.websocket.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.DeserializationStrategy

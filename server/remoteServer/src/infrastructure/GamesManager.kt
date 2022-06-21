@@ -1,10 +1,10 @@
-package com.example.infrastructure
+package com.xballserver.remoteserver.infrastructure
 
 import com.example.game.*
-import com.example.routing.APIMove
-import com.example.routing.Connection
-import com.example.routing.createGameJSONString
-import com.example.routing.createPrepareGameJSONString
+import com.xballserver.remoteserver.routing.APIMove
+import com.xballserver.remoteserver.routing.Connection
+import com.xballserver.remoteserver.routing.createGameJSONString
+import com.xballserver.remoteserver.routing.createPrepareGameJSONString
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
 import java.util.Collections
@@ -28,7 +28,7 @@ class GamesManager(val connections: Set<Connection>) {
     }
     suspend fun startGameFromLobby(lobby: Lobby)
     {
-        val userIds = lobby.users.toList()
+        val userIds = lobby.members.toList()
         if (userIds.map { getGameForUser(it) }.any { it != null }) return
 
         val userConnections = userIds.map {id ->  connections.firstOrNull { con -> con.userId == id } }
@@ -82,7 +82,7 @@ class GamesManager(val connections: Set<Connection>) {
             }
 
             if (game.getStatus() == GameStatus.ENDED) {
-                games.remove(game)
+                stopGame(game.gameId)
                 return
             }
         }

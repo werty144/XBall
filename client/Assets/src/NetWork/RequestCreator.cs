@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-using static SocketConnection;
+// using static SocketConnection;
+using static ServerManager;
 using Newtonsoft.Json;
 
 
@@ -23,19 +24,13 @@ public class RequestCreator
         string request = JsonConvert.SerializeObject(
             new 
             {
-                path = makeMove, 
-                body = new
-                {
-                    move = new
-                    {
-                        playerId = player.GetComponent<PlayerController>().id,
-                        action = action,
-                        actionData = actionData
-                    }
-                }
+                addressant = SteamAuth.GetSteamID().ToString(),
+                playerId = player.GetComponent<PlayerController>().id,
+                action = action,
+                actionData = actionData
             }
             );
-        SocketConnection.messages.Enqueue(request);
+        ServerManager.messages.Enqueue(new Message(makeMove, request));
     }
 
     public void moveRequest(GameObject player, Point point)
@@ -73,16 +68,48 @@ public class RequestCreator
         createMoveRequest(player, stop, new {});    
     }
 
-    public void readyRequest()
+    // public void readyRequest()
+    // {
+    //     string request = JsonConvert.SerializeObject(
+    //         new
+    //         {
+    //             path = "ready",
+    //             body = new {}
+    //         }
+    //     );
+    //     // SocketConnection.messages.Enqueue(request);
+    //     ServerManager.messages.Enqueue(request);
+    // }
+
+    public static void lobbyReady(LobbyData lobbyData)
     {
         string request = JsonConvert.SerializeObject(
-            new
+            new 
             {
-                path = "ready",
-                body = new {}
+                id = lobbyData.ID.ToString(),
+                nMembers = lobbyData.membersData.Count,
+                gameProperties = new
+                {
+                    speed = lobbyData.metaData.speed,
+                    playersNumber = lobbyData.metaData.playersNumber
+                },
+                members = lobbyData.membersData.ConvertAll(data => data.ID.ToString())
             }
-        );
-        SocketConnection.messages.Enqueue(request);
+            );
+        ServerManager.messages.Enqueue(new Message("lobbyReady", request));
+    }
+}
+
+
+public class Message
+{
+    public string endPoint;
+    public string content;
+
+    public Message(string endPoint_, string content_)
+    {
+        this.endPoint = endPoint_;
+        this.content = content_;
     }
 }
 

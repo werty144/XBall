@@ -29,7 +29,7 @@ public class GameManager
 		side = side_;
 		state = state_;
         SceneManager.LoadScene("GameScene");
-        requestCreator.readyRequest();
+        // requestCreator.readyRequest();
     }
 }
 

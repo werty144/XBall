@@ -1,8 +1,8 @@
-package com.example.remoteserver
+package com.xballserver.remoteserver
 
-import com.example.infrastructure.*
-import com.example.routing.Connection
-import com.example.routing.configureRouting
+import com.xballserver.remoteserver.routing.Connection
+import com.xballserver.remoteserver.routing.configureRouting
+import com.xballserver.remoteserver.infrastructure.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*

@@ -1,6 +1,6 @@
 package com.example.game
 
-import com.example.routing.APIMove
+import com.xballserver.remoteserver.routing.APIMove
 import kotlinx.serialization.json.Json
 import java.util.*
 import kotlin.math.*
