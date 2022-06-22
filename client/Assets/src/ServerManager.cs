@@ -10,13 +10,14 @@ using UnityEditor;
 using Newtonsoft.Json;
 
 using static GameManager;
-using static RequestCreator;
+using static MainMenu;
 
 
 public class ServerManager : MonoBehaviour
 {
     private static Process serverProcess = null;
     private static Task dispatchMessagesTask = null;
+    private static int port;
     private static HttpClient client = new HttpClient();
     public static bool serverReady = false;
     public static Queue<Message> messages = new Queue<Message>();
@@ -77,6 +78,7 @@ public class ServerManager : MonoBehaviour
             switch ((string) json.path)
             {
                 case "serverReady":
+                    port = json.port;
                     serverReady = true;
                     break;
                 case "game":
@@ -109,10 +111,11 @@ public class ServerManager : MonoBehaviour
             while (messages.Count > 0)
             {
                 var message = messages.Dequeue();
+                var url = string.Format("http://localhost:{0}/{1}", port, message.endPoint);
                 await client.PostAsync(
-                "http://localhost:8080/" + message.endPoint,
-                new StringContent(message.content, Encoding.UTF8, "application/json")
-            );
+                    url,
+                    new StringContent(message.content, Encoding.UTF8, "application/json")
+                );
             }
         }
     }

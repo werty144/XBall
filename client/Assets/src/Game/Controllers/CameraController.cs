@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+
+
 using UnityEngine;
 
 
@@ -12,7 +14,6 @@ public class CameraController : MonoBehaviour
     float movingSpeed = 15f;
     Vector3 movingDirection = Vector3.zero;
 
-    // Start is called before the first frame update
     void Start()
     {
         if (GameManager.side == Side.LEFT)
@@ -26,7 +27,6 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
         performMovement();

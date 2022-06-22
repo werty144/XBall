@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+
+
 using UnityEngine;
+
 
 using static GameManager;
 
@@ -12,7 +15,6 @@ public class PlayerController : MonoBehaviour
     Outline highlight;
     Renderer markerRenderer;
 
-    // Start is called before the first frame update
     void Start()
     {
         highlight = highlightCircle.GetComponent<Outline>();
@@ -20,7 +22,6 @@ public class PlayerController : MonoBehaviour
         ResetHighlight();
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (GameManager.state != null)
@@ -52,5 +53,4 @@ public class PlayerController : MonoBehaviour
         highlight.OutlineWidth = 0;
         markerRenderer.enabled = false;
     }
-
 }

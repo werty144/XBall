@@ -1,25 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System;
 
 
-using static SocketConnection;
+using UnityEngine;
+
+
 using static RequestCreator;
+using static GameEntities;
 
 
-public class InputProcessor
+public class InputProcessor : MonoBehaviour
 {
-    GameObject selectedPlayer = null; // instead of GameObject, could use custom type like ControllableUnit
-    RequestCreator requestCreator = new RequestCreator();
+    static GameObject selectedPlayer = null; // instead of GameObject, could use custom type like ControllableUnit
 
-    bool wantThrow = false;
-    bool wantOrient = false;
-    bool wantBend = false;
-    CameraController cameraController = Camera.main.GetComponent<CameraController>();
-    GameEntities gameEntities = GameObject.FindWithTag("GameEntities").GetComponent<GameEntities>();
+    static bool wantThrow = false;
+    static bool wantOrient = false;
+    static bool wantBend = false;
+    static CameraController cameraController = null;
 
-    public void selectPlayer(GameObject player)
+    void Start()
+    {
+        cameraController = Camera.main.GetComponent<CameraController>();
+    }
+
+    public static void selectPlayer(GameObject player)
     {
         unselectPlayer();
 
@@ -27,18 +32,18 @@ public class InputProcessor
         selectedPlayer.GetComponent<PlayerController>().SetHighlight();
     }
 
-    public void selectPlayer(int playerId)
+    public static void selectPlayer(int playerId)
     {
-        if (playerId > gameEntities.myPlayers.Count)
+        if (playerId > GameEntities.myPlayers.Count)
         	return;
 
         unselectPlayer();
 
-        selectedPlayer = gameEntities.myPlayers[playerId - 1];
+        selectedPlayer = GameEntities.myPlayers[playerId - 1];
         selectedPlayer.GetComponent<PlayerController>().SetHighlight();
     }
 
-    public void fieldLeftClick(Vector3 point)
+    public static void fieldLeftClick(Vector3 point)
     {
         if (selectedPlayer == null) 
         {
@@ -56,24 +61,24 @@ public class InputProcessor
 
         if (wantThrow)
         {
-            requestCreator.throwRequest(selectedPlayer, point2D);
+            RequestCreator.throwRequest(selectedPlayer, point2D);
             wantThrow = false;
         }
 
         if (wantOrient)
         {
-            requestCreator.orientationRequest(selectedPlayer, point2D);
+            RequestCreator.orientationRequest(selectedPlayer, point2D);
             wantOrient = false;
         }
 
         if (wantBend)
         {
-            requestCreator.bendRequest(selectedPlayer, point2D);
+            RequestCreator.bendRequest(selectedPlayer, point2D);
             wantBend = false;
         }
     }
 
-    public void unselectPlayer()
+    public static void unselectPlayer()
     {
         if (selectedPlayer != null)
         {
@@ -82,7 +87,7 @@ public class InputProcessor
         selectedPlayer = null;
     }
 
-    public void fieldRightClick(Vector3 point)
+    public static void fieldRightClick(Vector3 point)
     {
         if (selectedPlayer == null) 
         {
@@ -92,70 +97,70 @@ public class InputProcessor
         Point point2D = new Point();
         point2D.x = point.x;
         point2D.y = point.z;
-        requestCreator.moveRequest(selectedPlayer, point2D);
+        RequestCreator.moveRequest(selectedPlayer, point2D);
     }
 
-    public void grab()
+    public static void grab()
     {
         if (selectedPlayer == null) 
         {
             return;
         }
 
-        requestCreator.grabRequest(selectedPlayer);
+        RequestCreator.grabRequest(selectedPlayer);
     }
 
-    public void throwIntention()
+    public static void throwIntention()
     {
         cancelIntentions();
         wantThrow = true;
     }
 
-    public void turnIntention()
+    public static void turnIntention()
     {
         cancelIntentions();
         wantOrient = true;
     }
 
-    public void bendIntention()
+    public static void bendIntention()
     {
         cancelIntentions();
         wantBend = true;
     }
 
-    public void cancelIntentions()
+    public static void cancelIntentions()
     {
         wantThrow = false;
         wantOrient = false;
         wantBend = false;
     }
 
-    public bool anyIntention()
+    public static bool anyIntention()
     {
         return wantBend || wantOrient || wantThrow;
     }
 
-    public void attack()
+    public static void attack()
     {
         if (selectedPlayer == null) 
         {
             return;
         }
 
-        requestCreator.attackRequest(selectedPlayer);
+        RequestCreator.attackRequest(selectedPlayer);
     }
 
-    public void stop()
+    public static void stop()
     {
         if (selectedPlayer == null) 
         {
             return;
         }
 
-        requestCreator.stopRequest(selectedPlayer);
+        RequestCreator.stopRequest(selectedPlayer);
     }
 
-    public void processMousePosition(Vector3 mousePosition)
+    public static void processMousePosition(Vector3 mousePosition)
     {
         if (mousePosition.y >= Screen.height * 0.95)
         {
@@ -167,18 +172,18 @@ public class InputProcessor
         }
     }
 
-    public void switchPlayer()
+    public static void switchPlayer()
     {
         if (selectedPlayer != null)
         {
-            var currentSelectedPlayerIndex = gameEntities.myPlayers.IndexOf(selectedPlayer);
-            var playersNumber = gameEntities.myPlayers.Count;
-            var newPlayerToSelect = gameEntities.myPlayers[(currentSelectedPlayerIndex + 1) % playersNumber];
+            var currentSelectedPlayerIndex = GameEntities.myPlayers.IndexOf(selectedPlayer);
+            var playersNumber = GameEntities.myPlayers.Count;
+            var newPlayerToSelect = GameEntities.myPlayers[(currentSelectedPlayerIndex + 1) % playersNumber];
             unselectPlayer();
             selectPlayer(newPlayerToSelect);
         } else
         {
-            selectPlayer(gameEntities.myPlayers[0]);
+            selectPlayer(GameEntities.myPlayers[0]);
         }
     }
 }

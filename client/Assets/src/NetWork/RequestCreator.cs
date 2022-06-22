@@ -1,25 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
+
+
 using UnityEngine;
-
-
-// using static SocketConnection;
-using static ServerManager;
 using Newtonsoft.Json;
+
+
+using static ServerManager;
 
 
 public class RequestCreator
 {
-    string makeMove = "makeMove";
-    string movement = "movement";
-    string grab = "grab";
-    string throwString = "throw";
-    string attack = "attack";
-    string orientation = "orientation";
-    string stop = "stop";
-    string bend = "bend";
+    const string makeMove = "makeMove";
+    const string movement = "movement";
+    const string grab = "grab";
+    const string throwString = "throw";
+    const string attack = "attack";
+    const string orientation = "orientation";
+    const string stop = "stop";
+    const string bend = "bend";
 
-    public void createMoveRequest(GameObject player, string action, dynamic actionData)
+    public static void createMoveRequest(GameObject player, string action, dynamic actionData)
     {
         string request = JsonConvert.SerializeObject(
             new 
@@ -33,42 +34,42 @@ public class RequestCreator
         ServerManager.messages.Enqueue(new Message(makeMove, request));
     }
 
-    public void moveRequest(GameObject player, Point point)
+    public static void moveRequest(GameObject player, Point point)
     {
         createMoveRequest(player, movement, point);
     }
 
-    public void grabRequest(GameObject player)
+    public static void grabRequest(GameObject player)
     {
         createMoveRequest(player, grab, new{});
     }
 
-    public void throwRequest(GameObject player, Point point)
+    public static void throwRequest(GameObject player, Point point)
     {
         createMoveRequest(player, throwString, point);
     }
 
-    public void orientationRequest(GameObject player, Point point)
+    public static void orientationRequest(GameObject player, Point point)
     {
         createMoveRequest(player, orientation, point);
     }
 
-    public void attackRequest(GameObject player)
+    public static void attackRequest(GameObject player)
     {
         createMoveRequest(player, attack, new {});
     }
 
-    public void bendRequest(GameObject player, Point point)
+    public static void bendRequest(GameObject player, Point point)
     {
         createMoveRequest(player, bend, point);
     }
 
-    public void stopRequest(GameObject player)
+    public static void stopRequest(GameObject player)
     {
         createMoveRequest(player, stop, new {});    
     }
 
-    // public void readyRequest()
+    // public static void readyRequest()
     // {
     //     string request = JsonConvert.SerializeObject(
     //         new
@@ -86,6 +87,7 @@ public class RequestCreator
         string request = JsonConvert.SerializeObject(
             new 
             {
+                // Can't deserialize ulong on the server
                 id = lobbyData.ID.ToString(),
                 nMembers = lobbyData.membersData.Count,
                 gameProperties = new
@@ -93,6 +95,7 @@ public class RequestCreator
                     speed = lobbyData.metaData.speed,
                     playersNumber = lobbyData.metaData.playersNumber
                 },
+                // Can't deserialize ulong on the server
                 members = lobbyData.membersData.ConvertAll(data => data.ID.ToString())
             }
             );

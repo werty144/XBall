@@ -3,9 +3,33 @@ package com.xballserver.localserver
 import com.xballserver.remoteserver.routing.createServerReadyJSONString
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.CoroutineContext
 
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+
+var server: NettyApplicationEngine? = null
+
+fun main(args: Array<String>) {
+    server = embeddedServer(Netty, environment = applicationEngineEnvironment {
+        module {
+            module()
+            events()
+        }
+
+        connector {
+            port = 0
+            host = "127.0.0.1"
+        }
+    }
+    )
+    server!!.start(wait = true)
+}
 
 
 @Suppress("unused") // Referenced in application.conf
@@ -15,8 +39,7 @@ fun Application.module(testing: Boolean = false) {
         json()
     }
 
-    val printer = Printer()
-    val gameManager = GameManager(printer)
+    val gameManager = GameManager()
 
     configureRouting(gameManager)
 }
@@ -26,5 +49,8 @@ fun Application.events() {
 }
 
 fun onStarted(application: Application) {
-    println(createServerReadyJSONString())
+    CoroutineScope(CoroutineName("Initial message")).launch {
+        val port = server!!.resolvedConnectors().first().port
+        Printer.print(createServerReadyJSONString(port))
+    }
 }

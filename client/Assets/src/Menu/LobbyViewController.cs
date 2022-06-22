@@ -1,16 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+
+
 using UnityEngine;
 using UnityEngine.UI;
 
 
-using static MainMenu;
 using static LobbyManager;
 
 
-public class LobbyViewContoller : MonoBehaviour
+public class LobbyViewController : MonoBehaviour
 {
     [SerializeField] private GameObject memberBarPrefab;
+    // In the future can use script on prefab if needed
     private Color32 green = new Color32(72, 236, 70, 225);
     private Color32 red = new Color32(224, 0, 26, 225);
     private GameObject infoText;

@@ -10,7 +10,7 @@ import com.xballserver.remoteserver.routing.createGameAddresseeJSONString
 import com.xballserver.remoteserver.routing.createPrepareGameAddresseeJSONString
 import kotlinx.coroutines.*
 
-class GameManager(val printer: Printer) {
+class GameManager() {
     var gameJob: Job? = null
     var game: Game? = null
     private val updateTime = 5L
@@ -23,14 +23,14 @@ class GameManager(val printer: Printer) {
             1 -> {
                 game = Game(0, memberIDs[0], memberIDs[0], lobby.gameProperties, updateTime)
                 val firstMemberMessage = createPrepareGameAddresseeJSONString(memberIDs[0], game!!, Side.RIGHT)
-                printer.print(firstMemberMessage)
+                Printer.print(firstMemberMessage)
             }
             2 -> {
                 game = Game(0, memberIDs[0], memberIDs[1], lobby.gameProperties, updateTime)
                 val firstMemberMessage = createPrepareGameAddresseeJSONString(memberIDs[0], game!!, Side.LEFT)
                 val secondMemberMessage = createPrepareGameAddresseeJSONString(memberIDs[1], game!!, Side.RIGHT)
-                printer.print(firstMemberMessage)
-                printer.print(secondMemberMessage)
+                Printer.print(firstMemberMessage)
+                Printer.print(secondMemberMessage)
             }
             else -> {
                 return
@@ -45,8 +45,8 @@ class GameManager(val printer: Printer) {
         while (true) {
             delay(updateTime)
             game.nextState()
-            printer.print(createGameAddresseeJSONString(game.user1Id, game))
-            printer.print(createGameAddresseeJSONString(game.user2Id, game))
+            Printer.print(createGameAddresseeJSONString(game.user1Id, game))
+            Printer.print(createGameAddresseeJSONString(game.user2Id, game))
 
             if (game.getStatus() == GameStatus.ENDED) {
                 stopGame()

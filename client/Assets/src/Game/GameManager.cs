@@ -1,10 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
-
-using static RequestCreator;
 
 
 public class GameManager 
@@ -13,8 +12,6 @@ public class GameManager
     public static long time;
     public static string score;
 	public static Side side;
-
-	static RequestCreator requestCreator = new RequestCreator();
 
 
     public static void setGameInfo(GameInfo gameInfo)
@@ -28,8 +25,6 @@ public class GameManager
     {
 		side = side_;
 		state = state_;
-        SceneManager.LoadScene("GameScene");
-        // requestCreator.readyRequest();
     }
 }
 

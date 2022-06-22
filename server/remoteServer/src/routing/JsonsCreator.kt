@@ -76,10 +76,11 @@ fun createPrepareGameAddresseeJSONString(addressee: UserId, game: Game, side: Si
     )
 }
 
-fun createServerReadyJSONString(): String {
+fun createServerReadyJSONString(port: Int): String {
     return Json.encodeToString(
         mapOf(
-            "path" to "serverReady"
+            "path" to Json.encodeToJsonElement("serverReady"),
+            "port" to Json.encodeToJsonElement(port)
         )
     )
 }

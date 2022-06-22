@@ -9,27 +9,19 @@ using UnityEngine;
 using Newtonsoft.Json;
 
 
-using static SocketConnection;
-using static SteamAuth;
-using static LobbyViewContoller;
 using static GameManager;
-using static SteamLobby;
-using static SteamP2P;
 using static ServerManager;
+using static LobbyManager;
 
 
 public class MainMenu : MonoBehaviour
 {
-
-
-    void Start()
-    {
-    }
-
     public static void prepareGame(GameState state, Side side)
     {
         OnLeave();
         GameManager.prepareGame(state, side);
+        SceneManager.LoadScene("GameScene");
+        // RequestCreator.readyRequest();
     }
 
     private static void OnLeave()
@@ -47,13 +39,13 @@ public class MainMenu : MonoBehaviour
             await System.Threading.Tasks.Task.Delay(25);
             timePassed += 25;   
 
-            if (timePassed > 10000)
+            if (timePassed > 5000)
             {
-                print("Can't start server");
+                log("Can't start server");
                 return;
             }
         }
-        print("Server started");
+        log("Server started");
 
         RequestCreator.lobbyReady(lobbyData);
     }
@@ -89,7 +81,7 @@ public class MainMenu : MonoBehaviour
 
     public void OnExit()
     {
-        print("Exiting");
+        log("Exiting");
         Application.Quit();
     }
 }

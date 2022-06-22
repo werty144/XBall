@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+
+
 using UnityEngine;
 using Steamworks;
 using UnityEngine.UI;
@@ -36,7 +38,6 @@ public class SteamLobby : MonoBehaviour
     {
         if (pCallback.m_eResult == EResult.k_EResultOK)
         {
-            lobbyID = new CSteamID(pCallback.m_ulSteamIDLobby);
             SteamMatchmaking.SetLobbyJoinable(lobbyID, true);
             lobbyCreated = true;
         }
@@ -74,7 +75,6 @@ public class SteamLobby : MonoBehaviour
         // really need only one scenario...
         if (pCallback.m_ulSteamIDMember == pCallback.m_ulSteamIDLobby)
         {
-            lobbyID = new CSteamID(pCallback.m_ulSteamIDLobby);
             OnLobbyUpdate();
         }
     }
@@ -92,7 +92,7 @@ public class SteamLobby : MonoBehaviour
     public static LobbyData getLobbyData()
     {
         LobbyData lobbyData = new LobbyData();
-        lobbyData.ID = getID();
+        lobbyData.ID = getLobbyID();
         lobbyData.metaData = getLobbyMetaData();
         lobbyData.membersData = getLobbyMembersData();
         return lobbyData;
@@ -192,7 +192,7 @@ public class SteamLobby : MonoBehaviour
         return false;
     }
 
-    public static ulong getID()
+    public static ulong getLobbyID()
     {
         return lobbyID.m_SteamID;
     }

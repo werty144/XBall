@@ -1,29 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System;
 using System.Net.WebSockets;
 
 
-using static SocketConnection;
+using UnityEngine;
+
+
 using static InputProcessor;
 using static SettingsManager;
 
 
 public class InputGetter : MonoBehaviour
 {
-
-    InputProcessor inputProcessor;
     Dictionary<string, KeyCode> actionsToKey;    
 
-    // Start is called before the first frame update
     void Start()
     {
-        inputProcessor = new InputProcessor();
         actionsToKey = SettingsManager.actionsToKey;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -36,10 +32,10 @@ public class InputGetter : MonoBehaviour
                 {
                 case "Player":
                     var selectedPlayer = hit.transform.gameObject; // if using custom type, cast the result to type here
-                    inputProcessor.selectPlayer(selectedPlayer);
+                    InputProcessor.selectPlayer(selectedPlayer);
                     break;
                 case "Field":
-                    inputProcessor.fieldLeftClick(hit.point);
+                    InputProcessor.fieldLeftClick(hit.point);
                     break;
                 default:
                     break;
@@ -53,60 +49,60 @@ public class InputGetter : MonoBehaviour
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if(Physics.Raycast(ray, out hit) && hit.collider.tag == "Field")
             {
-                inputProcessor.fieldRightClick(hit.point);
+                InputProcessor.fieldRightClick(hit.point);
             }
         }
 
         if (Input.GetKey(actionsToKey["grab"]))
         {
-            inputProcessor.grab();
+            InputProcessor.grab();
         }
 
         if (Input.GetKey(actionsToKey["throw"]))
         {
-            inputProcessor.throwIntention();
+            InputProcessor.throwIntention();
         }
 
         if (Input.GetKey(actionsToKey["attack"]))
         {
-            inputProcessor.attack();
+            InputProcessor.attack();
         }
 
         if (Input.GetKey(actionsToKey["turn"]))
         {
-            inputProcessor.turnIntention();
+            InputProcessor.turnIntention();
         }
 
         if (Input.GetKey(actionsToKey["stop"]))
         {
-            inputProcessor.stop();
+            InputProcessor.stop();
         }
 
         if (Input.GetKey(actionsToKey["bend"]))
         {
-            inputProcessor.bendIntention();
+            InputProcessor.bendIntention();
         }
 
         if (Input.GetKeyUp(actionsToKey["switchPlayer"]))
         {
-            inputProcessor.switchPlayer();
+            InputProcessor.switchPlayer();
         }
 
         if (Input.GetKey(actionsToKey["choosePlayer1"]))
         {
-            inputProcessor.selectPlayer(1);
+            InputProcessor.selectPlayer(1);
         }
 
         if (Input.GetKey(actionsToKey["choosePlayer2"]))
         {
-            inputProcessor.selectPlayer(2);
+            InputProcessor.selectPlayer(2);
         }
 
         if (Input.GetKey(actionsToKey["choosePlayer3"]))
         {
-            inputProcessor.selectPlayer(3);
+            InputProcessor.selectPlayer(3);
         }
 
-        inputProcessor.processMousePosition(Input.mousePosition);
+        InputProcessor.processMousePosition(Input.mousePosition);
     }
 }

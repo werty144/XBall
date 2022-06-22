@@ -15,7 +15,8 @@ apply plugin: 'application'
 
 group 'com.xballserver'
 version '0.0.1'
-mainClassName = "io.ktor.server.netty.EngineMain"
+//mainClassName = "io.ktor.server.netty.EngineMain"
+mainClassName = "com.xballserver.localserver.ApplicationKt"
 
 sourceSets {
     main.kotlin.srcDirs = main.java.srcDirs = ['src']

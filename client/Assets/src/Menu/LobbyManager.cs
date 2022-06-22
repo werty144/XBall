@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
+
 using UnityEngine;
 
 
@@ -12,7 +14,13 @@ public class LobbyManager : MonoBehaviour
 {
     private static bool inLobby = false;
     private static bool ready = false;
+    private static LobbyViewController lobbyViewController;
 
+
+    void Start()
+    {
+        lobbyViewController = GameObject.Find("Lobby").GetComponent<LobbyViewController>();
+    }
 
     public static async void createLobby(LobbyMetaData metaData)
     {
@@ -38,8 +46,7 @@ public class LobbyManager : MonoBehaviour
     public static void enterLobby()
     {
         inLobby = true;
-        SteamLobby.setLobbyReady(false);
-        ready = false;
+        setReadyFalse();
     }
 
     public static void setMetaData(LobbyMetaData metaData)
@@ -52,7 +59,10 @@ public class LobbyManager : MonoBehaviour
 
     public static void inviteToLobby()
     {
-        SteamLobby.inviteToLobby();
+        if (inLobby)
+        {
+            SteamLobby.inviteToLobby();
+        }
     }
 
     public static LobbyData getLobbyData()
@@ -67,25 +77,24 @@ public class LobbyManager : MonoBehaviour
 
     public static void OnLobbyUpdate(LobbyData lobbyData)
     {
-        var lobbyView = GameObject.Find("Lobby");
-        if (lobbyView != null)
+        if (lobbyViewController != null) 
         {
-            lobbyView.GetComponent<LobbyViewContoller>().OnLobbyUpdate(lobbyData);
+            lobbyViewController.OnLobbyUpdate(lobbyData);
         }
 
         if (SteamLobby.allInAndReady())
         {
-            MainMenu.lobbyReady
-            (
-                lobbyData
-            );  
+            MainMenu.lobbyReady(lobbyData);  
         }
     }
 
     public static void leaveLobby()
     {
-        inLobby = false;
-        SteamLobby.leaveLobby();
+        if (inLobby)
+        {
+            inLobby = false;
+            SteamLobby.leaveLobby();
+        }
     }
 
     public static void lobbyChangeReady()
@@ -99,8 +108,11 @@ public class LobbyManager : MonoBehaviour
 
     public static void setReadyFalse()
     {
-        ready = false;
-        SteamLobby.setLobbyReady(ready);
+        if (inLobby)
+        {
+            ready = false;
+            SteamLobby.setLobbyReady(ready);
+        }
     }
 
     void OnApplicationQuit()

@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+
+
 using UnityEngine;
+
 
 using static GameManager;
 using static GameConstants;
@@ -8,13 +11,20 @@ using static GameConstants;
 
 public class GameEntities : MonoBehaviour
 {
-    public List<GameObject> myPlayers = new List<GameObject>();
+    public static List<GameObject> myPlayers;
     public GameObject ball;
     public GameObject blueSkin;
     public GameObject redSkin;
-    // Start is called before the first frame update
+
     void Start()
     {
+        initPlayers();
+        initBall();
+    }
+
+    void initPlayers()
+    {
+        myPlayers = new List<GameObject>();
         for (int i = 0; i < GameManager.state.players.Count; i++) 
         {
             GameObject player;
@@ -27,20 +37,15 @@ public class GameEntities : MonoBehaviour
                 player = (GameObject) Instantiate(redSkin, new Vector3(0, 0, 0), Quaternion.identity);
             }
 
-            // player.transform.localScale = new Vector3(20 * GameConstants.playerRadius, 10F, 20 * GameConstants.playerRadius);
             player.tag = "Player";
             player.GetComponent<PlayerController>().id = GameManager.state.players[i].id;
         }
+    }
 
+    void initBall()
+    {
         ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         ball.AddComponent<BallController>();
         ball.transform.localScale = new Vector3(GameConstants.ballRadius * 2, GameConstants.ballRadius * 2, GameConstants.ballRadius * 2);
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 }
