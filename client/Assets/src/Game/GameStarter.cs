@@ -15,6 +15,8 @@ public class GameStarter
 {
     public static void lobbyReady(LobbyData lobbyData)
     {
+        P2PReceiver.startReceivingMessages();
+
         if (LobbyManager.IAmLobbyOwner())
         {
             prepareToBeHost(lobbyData);

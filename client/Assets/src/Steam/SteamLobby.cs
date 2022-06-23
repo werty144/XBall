@@ -54,7 +54,7 @@ public class SteamLobby : MonoBehaviour
     {
         if (SteamManager.Initialized)
         {
-            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 1);
+            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 2);
         }
     }
 
