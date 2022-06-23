@@ -84,7 +84,7 @@ public class LobbyManager : MonoBehaviour
 
         if (SteamLobby.allInAndReady())
         {
-            MainMenu.lobbyReady(lobbyData);  
+            GameStarter.lobbyReady(lobbyData);  
         }
     }
 
@@ -113,6 +113,16 @@ public class LobbyManager : MonoBehaviour
             ready = false;
             SteamLobby.setLobbyReady(ready);
         }
+    }
+
+    public static bool IAmLobbyOwner()
+    {
+        return inLobby && (SteamLobby.IAmLobbyOwner());
+    }
+
+    public static bool isMember(ulong ID)
+    {
+        return inLobby && (SteamLobby.isMember(ID));
     }
 
     void OnApplicationQuit()

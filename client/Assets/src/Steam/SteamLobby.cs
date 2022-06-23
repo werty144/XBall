@@ -212,4 +212,19 @@ public class SteamLobby : MonoBehaviour
         }
         return otherMembers;
     }
+
+    public static bool IAmLobbyOwner()
+    {
+        return SteamUser.GetSteamID() == SteamMatchmaking.GetLobbyOwner(lobbyID);
+    }
+
+    public static bool isMember(CSteamID ID)
+    {
+        return (ID == SteamUser.GetSteamID()) || getOtherMembers().Contains(ID);
+    }
+
+    public static bool isMember(ulong ID)
+    {
+        return isMember(new CSteamID(ID));
+    }
 }

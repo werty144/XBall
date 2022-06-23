@@ -2,8 +2,7 @@ package com.xballserver.localserver
 
 import com.example.game.GameProperties
 import com.xballserver.remoteserver.infrastructure.Lobby
-import com.xballserver.remoteserver.infrastructure.LobbyID
-import com.xballserver.remoteserver.routing.APIMove
+import com.xballserver.remoteserver.routing.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -15,15 +14,31 @@ import kotlinx.serialization.json.JsonElement
 fun Application.configureRouting(gameManager: GameManager)
 {
     routing {
-        post("/lobbyReady") {
-            val lobby = call.receive<SerializableLobby>().toLobby()
-            gameManager.startGameFromLobby(lobby)
-            call.respond(HttpStatusCode.OK)
-        }
+//        post("/lobbyReady") {
+//            val lobby = call.receive<SerializableLobby>().toLobby()
+//            gameManager.startGameFromLobby(lobby)
+//            call.respond(HttpStatusCode.OK)
+//        }
+//
+//        post("/makeMove") {
+//            val move = call.receive<APIMoveAddressantS>().toAPIMoveAddressant()
+//            gameManager.makeMove(move.getAPIMove(), move.addressant)
+//        }
 
-        post("/makeMove") {
-            val move = call.receive<APIMoveAddressantS>().toAPIMoveAddressant()
-            gameManager.makeMove(move.getAPIMove(), move.addressant)
+        post("/") {
+            val request = call.receive<APIRequest>()
+
+            when (request.path) {
+                "lobbyReady" -> {
+                    val serializableLobby = tryJsonParse(SerializableLobby.serializer(), request.body) ?: return@post
+                    gameManager.startGameFromLobby(serializableLobby.toLobby())
+                }
+                "makeMove" -> {
+                    val serializableMove = tryJsonParse(APIMoveAddressantS.serializer(), request.body) ?: return@post
+                    val move = serializableMove.toAPIMoveAddressant()
+                    gameManager.makeMove(move.getAPIMove(), move.addressant)
+                }
+            }
         }
 
         get("/test") {

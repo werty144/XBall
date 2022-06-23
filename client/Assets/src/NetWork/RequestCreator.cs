@@ -11,6 +11,8 @@ using static ServerManager;
 
 public class RequestCreator
 {
+    public static bool isHost;
+
     const string makeMove = "makeMove";
     const string movement = "movement";
     const string grab = "grab";
@@ -25,13 +27,17 @@ public class RequestCreator
         string request = JsonConvert.SerializeObject(
             new 
             {
-                addressant = SteamAuth.GetSteamID().ToString(),
-                playerId = player.GetComponent<PlayerController>().id,
-                action = action,
-                actionData = actionData
+                path = makeMove,
+                body = new
+                {
+                    addressant = SteamAuth.GetSteamID().ToString(),
+                    playerId = player.GetComponent<PlayerController>().id,
+                    action = action,
+                    actionData = actionData
+                }
             }
             );
-        ServerManager.messages.Enqueue(new Message(makeMove, request));
+        sendRequest(request);
     }
 
     public static void moveRequest(GameObject player, Point point)
@@ -87,19 +93,34 @@ public class RequestCreator
         string request = JsonConvert.SerializeObject(
             new 
             {
-                // Can't deserialize ulong on the server
-                id = lobbyData.ID.ToString(),
-                nMembers = lobbyData.membersData.Count,
-                gameProperties = new
+                path = "lobbyReady",
+                body = new
                 {
-                    speed = lobbyData.metaData.speed,
-                    playersNumber = lobbyData.metaData.playersNumber
-                },
-                // Can't deserialize ulong on the server
-                members = lobbyData.membersData.ConvertAll(data => data.ID.ToString())
+                    // Can't deserialize ulong on the server
+                    id = lobbyData.ID.ToString(),
+                    nMembers = lobbyData.membersData.Count,
+                    gameProperties = new
+                    {
+                        speed = lobbyData.metaData.speed,
+                        playersNumber = lobbyData.metaData.playersNumber
+                    },
+                    // Can't deserialize ulong on the server
+                    members = lobbyData.membersData.ConvertAll(data => data.ID.ToString())
+                }
             }
             );
-        ServerManager.messages.Enqueue(new Message("lobbyReady", request));
+        sendRequest(request);
+    }
+
+    private static void sendRequest(string request)
+    {
+        if (isHost)
+        {
+            ServerManager.messages.Enqueue(request);
+        } else 
+        {
+            SteamP2P.sendMessage(request);
+        }
     }
 }
 

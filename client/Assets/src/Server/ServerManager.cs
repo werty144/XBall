@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 using UnityEngine;
 using UnityEditor;
-using Newtonsoft.Json;
+
 
 using static GameManager;
 using static MainMenu;
@@ -20,7 +20,7 @@ public class ServerManager : MonoBehaviour
     private static int port;
     private static HttpClient client = new HttpClient();
     public static bool serverReady = false;
-    public static Queue<Message> messages = new Queue<Message>();
+    public static Queue<string> messages = new Queue<string>();
 
 
     public static void startServer()
@@ -42,6 +42,12 @@ public class ServerManager : MonoBehaviour
     private static void serverExited(object sender, System.EventArgs e)
     {
         print(string.Format("Server process exited with code: {0}", serverProcess.ExitCode));
+    }
+
+    public static void setServerReady(int port_)
+    {
+        port = port_;
+        serverReady = true;
     }
 
     public void killServer()
@@ -70,37 +76,7 @@ public class ServerManager : MonoBehaviour
             // Process terminated
             return;
         }
-        try 
-        {
-            // If compiler not working on this line you just need to set the Api Compatibility Level to .Net 4.x in your Player Settings
-            dynamic json = JsonConvert.DeserializeObject(output);
-            ulong addressee;
-            switch ((string) json.path)
-            {
-                case "serverReady":
-                    port = json.port;
-                    serverReady = true;
-                    break;
-                case "game":
-                    var gameMessage = JsonConvert.DeserializeObject<ApiGameInfoAddressee>(output);
-                    var gameInfo = gameMessage.body;
-                    addressee = gameMessage.addressee;
-                    GameManager.setGameInfo(gameInfo);
-                    break;
-                case "prepareGame":
-                    var prepareGameMessage = JsonConvert.DeserializeObject<ApiPrepareGameAddressee>(output);
-                    var body = prepareGameMessage.body;
-                    addressee = prepareGameMessage.addressee;
-                    UnityMainThreadDispatcher.Instance().Enqueue(() => MainMenu.prepareGame(body.game.state, body.side));
-                    break;
-                default:
-                    break;
-            }
-        } catch (Exception e)
-        {
-            print(string.Format("Error when parsing {0}! {1}", output, e));
-        }
-        
+        ServerMessageProcessor.processServerMessage(output);
     }
 
     private static async void dispatchMessages()
@@ -111,10 +87,10 @@ public class ServerManager : MonoBehaviour
             while (messages.Count > 0)
             {
                 var message = messages.Dequeue();
-                var url = string.Format("http://localhost:{0}/{1}", port, message.endPoint);
+                var url = string.Format("http://localhost:{0}/", port);
                 await client.PostAsync(
                     url,
-                    new StringContent(message.content, Encoding.UTF8, "application/json")
+                    new StringContent(message, Encoding.UTF8, "application/json")
                 );
             }
         }

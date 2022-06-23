@@ -12,6 +12,7 @@ using static MainMenu;
 public class SteamP2P : MonoBehaviour
 {
     const int channelToUse = 0;
+    private static CSteamID interlocutor;
     void OnEnable()
     {
         Callback<SteamNetworkingMessagesSessionRequest_t>.Create(OnFirstMessage);
@@ -25,8 +26,11 @@ public class SteamP2P : MonoBehaviour
 
     void OnFirstMessage(SteamNetworkingMessagesSessionRequest_t pCallback)
     {
-        bool res = SteamNetworkingMessages.AcceptSessionWithUser(ref pCallback.m_identityRemote);
-        MainMenu.log(string.Format("Accepted: {0}", res));
+        if (P2PReceiver.acceptSessionRequest(pCallback.m_identityRemote.GetSteamID().m_SteamID))
+        {
+            interlocutor = pCallback.m_identityRemote.GetSteamID();
+            SteamNetworkingMessages.AcceptSessionWithUser(ref pCallback.m_identityRemote);
+        }
     }
 
     public static void receiveMessages(int nMaxMessages)
@@ -38,7 +42,7 @@ public class SteamP2P : MonoBehaviour
         {
             SteamNetworkingMessage_t msgStruct = (SteamNetworkingMessage_t) Marshal.PtrToStructure(messages[i], typeof(SteamNetworkingMessage_t));
             string msg = Marshal.PtrToStringAuto(msgStruct.m_pData);
-            MainMenu.log(string.Format("Message: {0}", msg));
+            P2PReceiver.receiveMessage(msg);
             SteamNetworkingMessage_t.Release(messages[i]);
         }
     }
@@ -52,6 +56,10 @@ public class SteamP2P : MonoBehaviour
         GCHandle pinnedArray = GCHandle.Alloc(sendData, GCHandleType.Pinned);
         IntPtr pointer = pinnedArray.AddrOfPinnedObject();
         EResult res = SteamNetworkingMessages.SendMessageToUser(ref identity, pointer, (uint)sendData.Length, 0, channelToUse);
-        MainMenu.log(string.Format("Message sent: {0}", (res)));
+    }
+
+    public static void sendMessage(string msg)
+    {
+        sendMessage(msg, interlocutor);
     }
 }
