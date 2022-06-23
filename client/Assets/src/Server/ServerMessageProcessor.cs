@@ -8,13 +8,13 @@ using Newtonsoft.Json;
 
 public class ServerMessageProcessor 
 {
+    public static bool isHost;
     public static void processServerMessage(string message)
     {   
         try 
         {
             // If compiler not working on this line you just need to set the Api Compatibility Level to .Net 4.x in your Player Settings
             dynamic json = JsonConvert.DeserializeObject(message);
-            ulong addressee;
             switch ((string) json.path)
             {
                 case "serverReady":
@@ -23,15 +23,25 @@ public class ServerMessageProcessor
                     break;
                 case "game":
                     var gameMessage = JsonConvert.DeserializeObject<ApiGameInfoAddressee>(message);
-                    var gameInfo = gameMessage.body;
-                    addressee = gameMessage.addressee;
-                    GameManager.setGameInfo(gameInfo);
+                    if (SteamAuth.isMe(gameMessage.addressee))
+                    {
+                        var gameInfo = gameMessage.body;
+                        GameManager.setGameInfo(gameInfo);
+                    } else
+                    {
+                        SteamP2P.sendMessage(message, gameMessage.addressee);
+                    }
                     break;
                 case "prepareGame":
                     var prepareGameMessage = JsonConvert.DeserializeObject<ApiPrepareGameAddressee>(message);
-                    var body = prepareGameMessage.body;
-                    addressee = prepareGameMessage.addressee;
-                    UnityMainThreadDispatcher.Instance().Enqueue(() => MainMenu.prepareGame(body.game.state, body.side));
+                    if (SteamAuth.isMe(prepareGameMessage.addressee))
+                    {
+                        var body = prepareGameMessage.body;
+                        UnityMainThreadDispatcher.Instance().Enqueue(() => MainMenu.prepareGame(body.game.state, body.side));
+                    } else 
+                    {
+                        SteamP2P.sendMessage(message, prepareGameMessage.addressee);
+                    }
                     break;
                 default:
                     break;

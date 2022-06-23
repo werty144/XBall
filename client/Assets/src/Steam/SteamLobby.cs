@@ -227,4 +227,9 @@ public class SteamLobby : MonoBehaviour
     {
         return isMember(new CSteamID(ID));
     }
+
+    public static ulong getLobbyOwner()
+    {
+        return SteamMatchmaking.GetLobbyOwner(lobbyID).m_SteamID;
+    }
 }

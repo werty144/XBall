@@ -58,8 +58,19 @@ public class SteamP2P : MonoBehaviour
         EResult res = SteamNetworkingMessages.SendMessageToUser(ref identity, pointer, (uint)sendData.Length, 0, channelToUse);
     }
 
+    public static void sendMessage(string msg, ulong ID)
+    {
+        sendMessage(msg, new CSteamID(ID));
+    }
+
     public static void sendMessage(string msg)
     {
         sendMessage(msg, interlocutor);
+    }
+
+    public static void sendInitialMessage(ulong lobbyOwnerID)
+    {
+        interlocutor = new CSteamID(lobbyOwnerID);
+        sendMessage("ping");
     }
 }

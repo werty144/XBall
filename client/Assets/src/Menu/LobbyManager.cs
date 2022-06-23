@@ -120,6 +120,11 @@ public class LobbyManager : MonoBehaviour
         return inLobby && (SteamLobby.IAmLobbyOwner());
     }
 
+    public static ulong getLobbyOwner()
+    {
+        return SteamLobby.getLobbyOwner();
+    }
+
     public static bool isMember(ulong ID)
     {
         return inLobby && (SteamLobby.isMember(ID));

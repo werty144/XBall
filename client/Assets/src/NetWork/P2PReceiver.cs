@@ -8,6 +8,10 @@ public class P2PReceiver
 
     public static void receiveMessage(string message)
     {
+        if (message == "ping")
+        {
+            return;
+        }
         if (isHost)
         {
             processMessageHost(message);

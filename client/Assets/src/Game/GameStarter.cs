@@ -28,6 +28,8 @@ public class GameStarter
     {
         P2PReceiver.isHost = true;
         RequestCreator.isHost = true;
+        ServerMessageProcessor.isHost = true;
+
         if (await startServer())
         {
             RequestCreator.lobbyReady(lobbyData);
@@ -41,6 +43,9 @@ public class GameStarter
     {
         P2PReceiver.isHost = false;
         RequestCreator.isHost = false;
+        ServerMessageProcessor.isHost = false;
+
+        SteamP2P.sendInitialMessage(LobbyManager.getLobbyOwner());
     }
 
     static async Task<bool> startServer()

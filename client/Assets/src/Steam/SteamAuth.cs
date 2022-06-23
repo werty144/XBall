@@ -58,6 +58,16 @@ public class SteamAuth : MonoBehaviour
 		return null;
 	}
 
+	public static bool isMe(CSteamID ID)
+	{
+		return ID == SteamUser.GetSteamID();
+	}
+
+	public static bool isMe(ulong ID)
+	{
+		return isMe(new CSteamID(ID));
+	}
+
 	private void OnApplicationQuit()
 	{
 		if (SteamManager.Initialized) 
