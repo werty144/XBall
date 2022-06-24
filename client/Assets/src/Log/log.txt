@@ -1,0 +1,2 @@
+﻿17:11:50,424 DEBUG LogTest:12 - My first debug
+17:11:51,017 DEBUG RestApi:0 - No user defined URIs in '/home/anton/.plastic4/webapi.conf'. Will use default URIs.
