@@ -16,7 +16,7 @@ class GameManager() {
     private val updateTime = 5L
     private val gameCoroutineScope: CoroutineScope = CoroutineScope(CoroutineName("Game scope"))
 
-    fun startGameFromLobby(lobby: Lobby) {
+    suspend fun startGameFromLobby(lobby: Lobby) {
         val memberIDs = lobby.members.toList()
 
         when (lobby.nMembers) {

@@ -4,15 +4,20 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
 
+
 using UnityEngine;
 using Steamworks;
+using log4net;
+
 
 using static MainMenu;
+
 
 public class SteamP2P : MonoBehaviour
 {
     const int channelToUse = 0;
     private static CSteamID interlocutor;
+    public static readonly ILog Log = LogManager.GetLogger(typeof(SteamP2P));
     void OnEnable()
     {
         Callback<SteamNetworkingMessagesSessionRequest_t>.Create(OnFirstMessage);
@@ -21,7 +26,7 @@ public class SteamP2P : MonoBehaviour
 
     void OnConnectionFailed(SteamNetworkingMessagesSessionFailed_t pCallbcak)
     {
-        MainMenu.log(string.Format("End reason: {0}", pCallbcak.m_info.m_eEndReason));
+        Log.Error(string.Format("P2P connection failed. End reason: {0}", pCallbcak.m_info.m_eEndReason));
     }
 
     void OnFirstMessage(SteamNetworkingMessagesSessionRequest_t pCallback)

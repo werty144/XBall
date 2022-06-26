@@ -7,6 +7,7 @@ using System;
 using UnityEngine.SceneManagement;
 using UnityEngine;
 using Newtonsoft.Json;
+using log4net;
 
 
 using static GameManager;
@@ -16,6 +17,7 @@ using static LobbyManager;
 
 public class MainMenu : MonoBehaviour
 {
+    public static readonly ILog Log = LogManager.GetLogger(typeof(MainMenu));
     public static void prepareGame(GameState state, Side side)
     {
         OnLeave();
@@ -31,21 +33,21 @@ public class MainMenu : MonoBehaviour
 
     public static void test()
     {
-
+        ServerManager.killServer();
     }
 
-    public static void log(string log)
-    {
-        var logger = GameObject.Find("LoggerContent");
-        if (logger != null)
-        {   
-            logger.GetComponent<LoggerViewController>().addLog(log);
-        }
-    }
+    // public static void log(string log)
+    // {
+    //     var logger = GameObject.Find("LoggerContent");
+    //     if (logger != null)
+    //     {   
+    //         logger.GetComponent<LoggerViewController>().addLog(log);
+    //     }
+    // }
 
     public void OnExit()
     {
-        log("Exiting");
+        Log.Info("Exiting");
         Application.Quit();
     }
 }

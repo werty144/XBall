@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 
 using UnityEngine;
+using log4net;
 
 
 using static P2PReceiver;
@@ -13,6 +14,7 @@ using static RequestCreator;
 
 public class GameStarter
 {
+    public static readonly ILog Log = LogManager.GetLogger(typeof(GameStarter));
     public static void lobbyReady(LobbyData lobbyData)
     {
         P2PReceiver.startReceivingMessages();
@@ -37,7 +39,7 @@ public class GameStarter
             RequestCreator.lobbyReady(lobbyData);
         } else 
         {
-            Debug.Log("Can't start server");
+            Log.Error("Can't start server");
         }
     }
 

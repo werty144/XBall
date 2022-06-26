@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Linq;
+
+
 using UnityEngine;
 using Steamworks;
-using System.Linq;
 using Newtonsoft.Json;
+using log4net;
 
 
 public class SteamAuth : MonoBehaviour
@@ -15,6 +18,7 @@ public class SteamAuth : MonoBehaviour
 	protected static UInt32 ticketSize;
 	public static bool ticketReady = false;
 	public static string ticket;
+	public static readonly ILog Log = LogManager.GetLogger(typeof(SteamAuth));
 
 
 	private void OnEnable()

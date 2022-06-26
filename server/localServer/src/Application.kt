@@ -6,6 +6,7 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.websocket.*
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -35,6 +36,7 @@ fun main(args: Array<String>) {
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
+    install(WebSockets)
     install(ContentNegotiation) {
         json()
     }
@@ -51,6 +53,6 @@ fun Application.events() {
 fun onStarted(application: Application) {
     CoroutineScope(CoroutineName("Initial message")).launch {
         val port = server!!.resolvedConnectors().first().port
-        Printer.print(createServerReadyJSONString(port))
+        println(createServerReadyJSONString(port))
     }
 }

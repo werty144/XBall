@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using UnityEngine;
 using UnityEditor;
+using log4net;
 
 
 using static GameManager;
@@ -16,12 +17,11 @@ using static MainMenu;
 public class ServerManager : MonoBehaviour
 {
     private static Process serverProcess = null;
-    private static Task dispatchMessagesTask = null;
     private static int port;
     private static HttpClient client = new HttpClient();
     public static bool serverReady = false;
     public static Queue<string> messages = new Queue<string>();
-
+    public static readonly ILog Log = LogManager.GetLogger(typeof(ServerManager));
 
     public static void startServer()
     {
@@ -35,33 +35,44 @@ public class ServerManager : MonoBehaviour
         serverProcess.OutputDataReceived += (sender, args) => processServerOutput(args.Data);
         serverProcess.Start();
         serverProcess.BeginOutputReadLine();
-        dispatchMessagesTask = new Task(dispatchMessages);
-        dispatchMessagesTask.Start();
     }
 
     private static void serverExited(object sender, System.EventArgs e)
     {
-        print(string.Format("Server process exited with code: {0}", serverProcess.ExitCode));
+        Log.Info(string.Format("Server process exited with code: {0}", serverProcess.ExitCode));
     }
 
-    public static void setServerReady(int port_)
+    public static void OnServerReady(int port)
     {
-        port = port_;
+        SocketConnection.Connect(port);
+    }
+
+    public static void OnConnectionOpen()
+    {
         serverReady = true;
     }
 
-    public void killServer()
+    public static async void killServer()
     {
+        SocketConnection.Close();
+
+        var timeSpent = 0;
+        while (!SocketConnection.isClosedOrNull())
+        {
+            await Task.Delay(25);
+            timeSpent += 25;
+            if (timeSpent > 5000)
+            {
+                Log.Error("Server doesn't close the connection, killing");
+                break;
+            }
+        }
+
         if ((serverProcess != null) && (!serverProcess.HasExited))
         {
             serverProcess.Kill();
         }
         serverReady = false;
-        if (dispatchMessagesTask != null)
-        {
-            dispatchMessagesTask.Dispose();
-            dispatchMessagesTask = null;
-        }
     }
 
     void OnApplicationQuit()
@@ -79,21 +90,9 @@ public class ServerManager : MonoBehaviour
         ServerMessageProcessor.processServerMessage(output);
     }
 
-    private static async void dispatchMessages()
+    public static void sendMessageToServer(string message)
     {
-        while (true)
-        {
-            await Task.Delay(5);
-            while (messages.Count > 0)
-            {
-                var message = messages.Dequeue();
-                var url = string.Format("http://localhost:{0}/", port);
-                await client.PostAsync(
-                    url,
-                    new StringContent(message, Encoding.UTF8, "application/json")
-                );
-            }
-        }
+        SocketConnection.messages.Enqueue(message);
     }
 }
 

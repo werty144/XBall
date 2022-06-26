@@ -49,7 +49,7 @@ public class SteamLobby : MonoBehaviour
     public void OnLobbyEnter(LobbyEnter_t pCallback)
     {
         lobbyID = new CSteamID(pCallback.m_ulSteamIDLobby);
-        Log.Debug(string.Format("Lobby ID: {0}", pCallback.m_ulSteamIDLobby));
+        Log.Info(string.Format("Lobby ID: {0}", pCallback.m_ulSteamIDLobby));
         LobbyManager.enterLobby();
     }
     

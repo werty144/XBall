@@ -116,7 +116,7 @@ public class RequestCreator
     {
         if (isHost)
         {
-            ServerManager.messages.Enqueue(request);
+            ServerManager.sendMessageToServer(request);
         } else 
         {
             SteamP2P.sendMessage(request);

@@ -8,35 +8,30 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.websocket.*
+import io.ktor.websocket.*
 import kotlinx.serialization.json.JsonElement
 
 
 fun Application.configureRouting(gameManager: GameManager)
 {
     routing {
-//        post("/lobbyReady") {
-//            val lobby = call.receive<SerializableLobby>().toLobby()
-//            gameManager.startGameFromLobby(lobby)
-//            call.respond(HttpStatusCode.OK)
-//        }
-//
-//        post("/makeMove") {
-//            val move = call.receive<APIMoveAddressantS>().toAPIMoveAddressant()
-//            gameManager.makeMove(move.getAPIMove(), move.addressant)
-//        }
+        webSocket("/") {
+            Printer.session = this
+            for (frame in incoming) {
+                val message = (frame as Frame.Text).readText()
+                val request = tryJsonParse(APIRequest.serializer(), message) ?: continue
 
-        post("/") {
-            val request = call.receive<APIRequest>()
-
-            when (request.path) {
-                "lobbyReady" -> {
-                    val serializableLobby = tryJsonParse(SerializableLobby.serializer(), request.body) ?: return@post
-                    gameManager.startGameFromLobby(serializableLobby.toLobby())
-                }
-                "makeMove" -> {
-                    val serializableMove = tryJsonParse(APIMoveAddressantS.serializer(), request.body) ?: return@post
-                    val move = serializableMove.toAPIMoveAddressant()
-                    gameManager.makeMove(move.getAPIMove(), move.addressant)
+                when (request.path) {
+                    "lobbyReady" -> {
+                        val serializableLobby = tryJsonParse(SerializableLobby.serializer(), request.body) ?: continue
+                        gameManager.startGameFromLobby(serializableLobby.toLobby())
+                    }
+                    "makeMove" -> {
+                        val serializableMove = tryJsonParse(APIMoveAddressantS.serializer(), request.body) ?: continue
+                        val move = serializableMove.toAPIMoveAddressant()
+                        gameManager.makeMove(move.getAPIMove(), move.addressant)
+                    }
                 }
             }
         }

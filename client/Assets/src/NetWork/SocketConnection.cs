@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Newtonsoft.Json;
 using NativeWebSocket;
+using log4net;
+
 
 using static GameInfo;
 using static GameManager;
@@ -16,48 +18,67 @@ using static Constants;
 
 public class SocketConnection : MonoBehaviour
 {
-	WebSocket websocket;
-	bool firstMessageSent = false;
+	static WebSocket websocket = null;
 	public static Queue<string> messages = new Queue<string>();
 	string password;
+	public static readonly ILog Log = LogManager.GetLogger(typeof(SocketConnection));
 
-	void Awake()
-	{
-		websocket = new WebSocket("ws://" + Constants.serverURL);
-	}
 
-	public async Task StartConnection(string password_)
+	public static async void Connect(int port)
 	{
-		password = password_;
+		string url = string.Format("ws://localhost:{0}/", port);
+		websocket = new WebSocket(url);
+
+
 		websocket.OnOpen += () =>
 		{
-			Debug.Log("Connection open!");
+			Log.Info("Socket connection opened");
+			ServerManager.OnConnectionOpen();
 		};
 
 		websocket.OnError += (e) =>
 		{
-			Debug.Log("Error! " + e);
+			Log.Error("Socket connection error: " + e);
 		};
 
 		websocket.OnClose += (e) =>
 		{
-			Debug.Log("Connection closed!");
+			Log.Info("Socket connection closed");
 		};
 
 		websocket.OnMessage += (bytes) => ProcessMessage(bytes);
 
-		InvokeRepeating("SendWebSocketMessage", 0.0f, 0.05f);
-
 		await websocket.Connect();
 	}
 
-	public bool isOpen()
+	public static bool isOpen()
 	{
+		if (websocket == null)
+		{
+			return false;
+		}
 		return websocket.State == WebSocketState.Open;
+	}
+
+	public static bool isClosedOrNull()
+	{
+		return (websocket == null) || (websocket.State == WebSocketState.Closed);
+	}
+
+	public static async void Close()
+	{
+		if (websocket != null)
+		{
+			await websocket.Close();
+		}
 	}
 
 	void Update()
 	{
+		if (websocket == null) return;
+
+		SendWebSocketMessage();
+
 		#if !UNITY_WEBGL || UNITY_EDITOR
 			websocket.DispatchMessageQueue();
 		#endif
@@ -65,16 +86,8 @@ public class SocketConnection : MonoBehaviour
 
 	async void SendWebSocketMessage()
 	{
-		if (websocket.State == WebSocketState.Open)
+		if (isOpen())
 		{
-			// Separate manager?..
-			if (!firstMessageSent)
-			{
-				await websocket.SendText(password);
-				firstMessageSent = true;
-				return;
-			}
-
 			while (messages.Count > 0)
 			{
 				await websocket.SendText(messages.Dequeue());
@@ -82,36 +95,16 @@ public class SocketConnection : MonoBehaviour
 		}
 	}
 
-	private async void OnApplicationQuit()
+	private void OnApplicationQuit()
 	{
-		await websocket.Close();
+		Close();
 	}
 
-	private void ProcessMessage(byte[] bytes)
+	private static void ProcessMessage(byte[] bytes)
 	{
 		{
 			var message = System.Text.Encoding.UTF8.GetString(bytes);
-			try
-			{
-				// If compiler not working on this line you just need to set the Api Compatibility Level to .Net 4.x in your Player Settings
-				dynamic json = JsonConvert.DeserializeObject(message);
-				switch ((string) json.path)
-				{
-					case "game":
-						var gameInfo = JsonConvert.DeserializeObject<ApiGameInfo>(message).body;
-						GameManager.setGameInfo(gameInfo);
-						break;
-					case "prepareGame":
-						var body = JsonConvert.DeserializeObject<ApiPrepareGame>(message).body;
-						MainMenu.prepareGame(body.game.state, body.side);
-						break;
-					default:
-						break;
-				}
-			} catch (Exception e) 
-			{
-				Debug.Log("Error when parsing! " + e);
-			}
+			ServerMessageProcessor.processServerMessage(message);
 		}
 	}
 }

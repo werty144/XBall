@@ -4,11 +4,22 @@ using System.Threading.Tasks;
 
 
 using UnityEngine;
+using log4net;
+
 
 public class P2PReceiver : MonoBehaviour
 {
     public static bool isHost;
-    private static Task receiveMessagesTask = null;
+    private static bool receivingMessages = false;
+    public static readonly ILog Log = LogManager.GetLogger(typeof(P2PReceiver));
+
+    void Update()
+    {
+        if (receivingMessages)
+        {
+            SteamP2P.receiveMessages(8);
+        }
+    }
 
     public static void receiveMessage(string message)
     {
@@ -32,7 +43,7 @@ public class P2PReceiver : MonoBehaviour
 
     private static void processMessageHost(string message)
     {
-        ServerManager.messages.Enqueue(message);
+        ServerManager.sendMessageToServer(message);
     }
 
     private static void processMessageClient(string message)
@@ -42,26 +53,11 @@ public class P2PReceiver : MonoBehaviour
 
     public static void startReceivingMessages()
     {
-        receiveMessagesTask = new Task(receivingMessages);
-        receiveMessagesTask.Start();
-    }
-
-    private static async void receivingMessages()
-    {
-        while (true)
-        {
-            await Task.Delay(5);
-            SteamP2P.receiveMessages(8);
-        }
+        receivingMessages = true;
     }
 
     public static void stopReceivingMessages()
     {
-        receiveMessagesTask.Dispose();
-    }
-
-    void OnApplicationQuit()
-    {
-        stopReceivingMessages();
+        receivingMessages = false;
     }
 }

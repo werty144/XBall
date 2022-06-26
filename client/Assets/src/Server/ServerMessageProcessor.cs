@@ -5,10 +5,13 @@ using System;
 
 using UnityEngine;
 using Newtonsoft.Json;
+using log4net;
+
 
 public class ServerMessageProcessor 
 {
     public static bool isHost;
+    public static readonly ILog Log = LogManager.GetLogger(typeof(ServerMessageProcessor));
     public static void processServerMessage(string message)
     {   
         try 
@@ -19,7 +22,8 @@ public class ServerMessageProcessor
             {
                 case "serverReady":
                     int port = json.port;
-                    ServerManager.setServerReady(port);
+                    Log.Info(string.Format("Server started at port: {0}", port));
+                    ServerManager.OnServerReady(port);
                     break;
                 case "game":
                     var gameMessage = JsonConvert.DeserializeObject<ApiGameInfoAddressee>(message);
@@ -48,7 +52,7 @@ public class ServerMessageProcessor
             }
         } catch (Exception e)
         {
-            Debug.Log(string.Format("Error when parsing {0}! {1}", message, e));
+            Log.Error(string.Format("Error when parsing {0}! {1}", message, e));
         }
     }
 }
