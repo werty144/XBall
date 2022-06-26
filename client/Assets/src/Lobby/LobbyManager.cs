@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 
 using UnityEngine;
+using log4net;
 
 
 using static SteamLobby;
@@ -15,6 +16,7 @@ public class LobbyManager : MonoBehaviour
     private static bool inLobby = false;
     private static bool ready = false;
     private static LobbyViewController lobbyViewController;
+    public static readonly ILog Log = LogManager.GetLogger(typeof(LobbyManager));
 
 
     void Start()
@@ -34,7 +36,7 @@ public class LobbyManager : MonoBehaviour
 
             if (timeSpent > 5000)
             {
-                Debug.Log("Can't create lobby");
+                Log.Error("Can't create lobby");
                 return;
             }
         }

@@ -1,4 +1,5 @@
 using System.IO;
+using System.Diagnostics;
 
 
 using log4net;
@@ -10,9 +11,13 @@ public class LoggingConfiguration
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Configure()
     {
-        log4net.GlobalContext.Properties["LogFileName"] = $"{Application.dataPath}/src/Log/log.txt";
-        XmlConfigurator.Configure(new FileInfo($"{Application.dataPath}/src/Log/log4net.xml"));
-        // XmlConfigurator.Configure(new FileInfo("/home/anton/coding/XBall/client/Assets/src/Log/log4net.xml"));
+        log4net.GlobalContext.Properties["LogFileName"] = $"{Application.streamingAssetsPath}/log.txt";
+        XmlConfigurator.Configure(new FileInfo($"{Application.streamingAssetsPath}/log4net.xml"));
+
+        if(!log4net.LogManager.GetRepository().Configured)
+        {
+            UnityEngine.Debug.Log("Not configured");
+        }
     }
     
 }

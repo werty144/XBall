@@ -7,10 +7,12 @@ using UnityEngine;
 using Steamworks;
 using UnityEngine.UI;
 using Newtonsoft.Json;
+using log4net;
 
 
 using static LobbyManager;
 using static MainMenu;
+
 
 
 public class SteamLobby : MonoBehaviour
@@ -20,6 +22,7 @@ public class SteamLobby : MonoBehaviour
     private static CSteamID lobbyID;
     private const string trueString = "true";
     private const string falseString = "false";
+    public static readonly ILog Log = LogManager.GetLogger(typeof(SteamLobby));
 
 
     private void OnEnable()
@@ -46,7 +49,7 @@ public class SteamLobby : MonoBehaviour
     public void OnLobbyEnter(LobbyEnter_t pCallback)
     {
         lobbyID = new CSteamID(pCallback.m_ulSteamIDLobby);
-        MainMenu.log(string.Format("Lobby ID: {0}", pCallback.m_ulSteamIDLobby));
+        Log.Debug(string.Format("Lobby ID: {0}", pCallback.m_ulSteamIDLobby));
         LobbyManager.enterLobby();
     }
     
