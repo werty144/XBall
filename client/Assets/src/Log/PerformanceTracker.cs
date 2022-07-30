@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 
 using UnityEngine;
@@ -12,9 +13,11 @@ public class PerformanceTracker : MonoBehaviour
 
     public static int MessagesFromServer = 0;
     public static int FPS = 0;
+    public static int P2PSent = 0;
+    public static List<int> P2PReceived = new List<int>();
 
     static int seconds = 0;
-    static string msg = "[Seconds:{0},MessagesFromServer:{1},FPS:{2}]";
+    static string msg = "[Seconds:{0},MessagesFromServer:{1},FPS:{2},P2PReceived:{3},AvgP2PMessageBucket:{4}]";
 
     void Start()
     {
@@ -24,7 +27,14 @@ public class PerformanceTracker : MonoBehaviour
     void logStats()
     {
         seconds += 1;
-        Log.Info(string.Format(msg, seconds, MessagesFromServer, FPS));
+        Log.Info(string.Format(
+            msg,
+            seconds,
+            MessagesFromServer,
+            FPS,
+            P2PReceived.Sum(),
+            P2PReceived.Average()
+        ));
         zeroAll();
     }
 
@@ -32,5 +42,6 @@ public class PerformanceTracker : MonoBehaviour
     {
         MessagesFromServer = 0;
         FPS = 0;
+        P2PReceived.Clear();
     }
 }
