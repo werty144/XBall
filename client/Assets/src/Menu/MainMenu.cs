@@ -33,17 +33,7 @@ public class MainMenu : MonoBehaviour
 
     public static void test()
     {
-        ServerManager.killServer();
     }
-
-    // public static void log(string log)
-    // {
-    //     var logger = GameObject.Find("LoggerContent");
-    //     if (logger != null)
-    //     {   
-    //         logger.GetComponent<LoggerViewController>().addLog(log);
-    //     }
-    // }
 
     public void OnExit()
     {

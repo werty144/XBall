@@ -46,7 +46,11 @@ public class SocketConnection : MonoBehaviour
 			Log.Info("Socket connection closed");
 		};
 
-		websocket.OnMessage += (bytes) => ProcessMessage(bytes);
+		websocket.OnMessage += (bytes) => 
+		{
+			PerformanceTracker.MessagesFromServer += 1;
+			ProcessMessage(bytes);
+		};
 
 		await websocket.Connect();
 	}

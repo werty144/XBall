@@ -13,7 +13,7 @@ import kotlinx.coroutines.*
 class GameManager() {
     var gameJob: Job? = null
     var game: Game? = null
-    private val updateTime = 5L
+    private val updateTime = 15L
     private val gameCoroutineScope: CoroutineScope = CoroutineScope(CoroutineName("Game scope"))
 
     suspend fun startGameFromLobby(lobby: Lobby) {
@@ -46,7 +46,9 @@ class GameManager() {
             delay(updateTime)
             game.nextState()
             Printer.print(createGameAddresseeJSONString(game.user1Id, game))
-            Printer.print(createGameAddresseeJSONString(game.user2Id, game))
+            if (game.user1Id != game.user2Id) {
+                Printer.print(createGameAddresseeJSONString(game.user2Id, game))
+            }
 
             if (game.getStatus() == GameStatus.ENDED) {
                 stopGame()
