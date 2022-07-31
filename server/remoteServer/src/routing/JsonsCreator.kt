@@ -15,7 +15,7 @@ fun createGameJSONObject(game: Game): JsonObject {
                     "state" to Json.encodeToJsonElement(game.state),
                     "score" to Json.encodeToJsonElement(game.score.toString()),
                     "time" to Json.encodeToJsonElement(game.timer.time),
-                    "status" to Json.encodeToJsonElement(game.getStatus())
+                    "status" to Json.encodeToJsonElement(game.getStatus()),
                 )
             )
 }

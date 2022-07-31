@@ -19,6 +19,7 @@ using static Constants;
 public class SocketConnection : MonoBehaviour
 {
 	static WebSocket websocket = null;
+	static byte[] lastMessage;
 	public static Queue<string> messages = new Queue<string>();
 	string password;
 	public static readonly ILog Log = LogManager.GetLogger(typeof(SocketConnection));
@@ -49,7 +50,8 @@ public class SocketConnection : MonoBehaviour
 		websocket.OnMessage += (bytes) => 
 		{
 			PerformanceTracker.MessagesFromServer += 1;
-			ProcessMessage(bytes);
+			lastMessage = bytes;
+			// ProcessMessage(bytes);
 		};
 
 		await websocket.Connect();
@@ -86,6 +88,11 @@ public class SocketConnection : MonoBehaviour
 		#if !UNITY_WEBGL || UNITY_EDITOR
 			websocket.DispatchMessageQueue();
 		#endif
+
+		if (lastMessage != null)
+		{
+			ProcessMessage(lastMessage);
+		}
 	}
 
 	async void SendWebSocketMessage()
@@ -130,4 +137,10 @@ public class PrepareGameBody
 {
 	public Side side;
 	public GameInfo game;
+}
+
+public class ApiServerReady
+{
+	public string path;
+	public int port;
 }

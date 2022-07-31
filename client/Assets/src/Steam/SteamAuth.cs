@@ -16,6 +16,8 @@ public class SteamAuth : MonoBehaviour
 	protected static byte[] ticketBytes = new byte[1024];
 	protected static HAuthTicket ticketHandle;
 	protected static UInt32 ticketSize;
+	protected static ulong SteamID;
+	protected static bool SteamIDInitialized = false;
 	public static bool ticketReady = false;
 	public static string ticket;
 	public static readonly ILog Log = LogManager.GetLogger(typeof(SteamAuth));
@@ -27,6 +29,11 @@ public class SteamAuth : MonoBehaviour
 		{
 			ticketResponse = Callback<GetAuthSessionTicketResponse_t>.Create(OnTicketResponse);
 		}
+	}
+
+	void Start()
+	{
+		GetSteamID();
 	}
 
 	private static void OnTicketResponse(GetAuthSessionTicketResponse_t pCallback)
@@ -55,21 +62,26 @@ public class SteamAuth : MonoBehaviour
 
 	public static ulong? GetSteamID()
 	{
-		if (SteamManager.Initialized) 
+		if (SteamIDInitialized)
 		{
-			return SteamUser.GetSteamID().m_SteamID;
-		}
-		return null;
-	}
-
-	public static bool isMe(CSteamID ID)
-	{
-		return ID == SteamUser.GetSteamID();
+			return SteamID;
+		} else
+		{
+			if (SteamManager.Initialized)
+			{
+				SteamID = SteamUser.GetSteamID().m_SteamID;
+				SteamIDInitialized = true;
+				return SteamID;
+			} else 
+			{
+				return null;
+			}
+		}	
 	}
 
 	public static bool isMe(ulong ID)
 	{
-		return isMe(new CSteamID(ID));
+		return ID == GetSteamID();
 	}
 
 	private void OnApplicationQuit()

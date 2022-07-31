@@ -33,7 +33,7 @@ public class PerformanceTracker : MonoBehaviour
             MessagesFromServer,
             FPS,
             P2PReceived.Sum(),
-            P2PReceived.Average()
+            AvgOrZero()
         ));
         zeroAll();
     }
@@ -43,5 +43,11 @@ public class PerformanceTracker : MonoBehaviour
         MessagesFromServer = 0;
         FPS = 0;
         P2PReceived.Clear();
+    }
+
+    double AvgOrZero()
+    {
+        if (P2PReceived.Count == 0) return 0.0d;
+        return P2PReceived.Average();
     }
 }

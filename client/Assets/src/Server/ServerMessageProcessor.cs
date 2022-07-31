@@ -12,18 +12,19 @@ public class ServerMessageProcessor
 {
     public static bool isHost;
     public static readonly ILog Log = LogManager.GetLogger(typeof(ServerMessageProcessor));
+
+
     public static void processServerMessage(string message)
     {   
         try 
         {
-            // If compiler not working on this line you just need to set the Api Compatibility Level to .Net 4.x in your Player Settings
-            dynamic json = JsonConvert.DeserializeObject(message);
-            switch ((string) json.path)
+            string path = message.Split(new string[] { "path\":\"" }, StringSplitOptions.None)[1].Split('\"')[0];
+            switch (path)
             {
                 case "serverReady":
-                    int port = json.port;
-                    Log.Info(string.Format("Server started at port: {0}", port));
-                    ServerManager.OnServerReady(port);
+                    var readyMessage = JsonConvert.DeserializeObject<ApiServerReady>(message);
+                    Log.Info(string.Format("Server started at port: {0}", readyMessage.port));
+                    ServerManager.OnServerReady(readyMessage.port);
                     break;
                 case "game":
                     var gameMessage = JsonConvert.DeserializeObject<ApiGameInfoAddressee>(message);
