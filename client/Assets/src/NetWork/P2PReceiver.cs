@@ -17,22 +17,19 @@ public class P2PReceiver : MonoBehaviour
     {
         if (receivingMessages)
         {
-            SteamP2P.receiveMessages(8);
+            Queue<string> messageQueue = SteamP2P.receiveMessages(8);
+            receiveMessages(messageQueue);
         }
     }
 
-    public static void receiveMessage(string message)
+    public static void receiveMessages(Queue<string> messages)
     {
-        if (message == "ping")
-        {
-            return;
-        }
         if (isHost)
         {
-            processMessageHost(message);
+            processMessagesHost(messages);
         } else
         {
-            processMessageClient(message);
+            processMessagesClient(messages);
         }
     }
 
@@ -41,14 +38,22 @@ public class P2PReceiver : MonoBehaviour
         return LobbyManager.isMember(inviterID);
     }
 
-    private static void processMessageHost(string message)
+    private static void processMessagesHost(Queue<string> messages)
     {
-        ServerManager.sendMessageToServer(message);
+        while (messages.Count > 0)
+        {
+            string message = messages.Dequeue();
+            if (message == "ping")
+            {
+                continue;
+            }
+            ServerManager.sendMessageToServer(message);
+        }
     }
 
-    private static void processMessageClient(string message)
+    private static void processMessagesClient(Queue<string> messages)
     {
-        ServerMessageProcessor.processServerMessage(message);
+        ServerMessageProcessor.processServerMessages(messages);
     }
 
     public static void startReceivingMessages()

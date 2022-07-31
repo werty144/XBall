@@ -8,7 +8,7 @@ def extract_info(line):
 	stats = dict()
 	for stat in stats_s:
 		key = stat.split(':')[0]
-		value = int(stat.split(':')[1])
+		value = float(stat.split(':')[1])
 		stats[key] = value
 	return stats
 

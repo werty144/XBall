@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 
 using UnityEngine;
@@ -19,8 +20,8 @@ using static Constants;
 public class SocketConnection : MonoBehaviour
 {
 	static WebSocket websocket = null;
-	static byte[] lastMessage;
-	public static Queue<string> messages = new Queue<string>();
+	static Queue<byte[]> messagesFromServer = new Queue<byte[]>();
+	public static Queue<string> messagesToServer = new Queue<string>();
 	string password;
 	public static readonly ILog Log = LogManager.GetLogger(typeof(SocketConnection));
 
@@ -50,8 +51,7 @@ public class SocketConnection : MonoBehaviour
 		websocket.OnMessage += (bytes) => 
 		{
 			PerformanceTracker.MessagesFromServer += 1;
-			lastMessage = bytes;
-			// ProcessMessage(bytes);
+			messagesFromServer.Enqueue(bytes);
 		};
 
 		await websocket.Connect();
@@ -83,25 +83,29 @@ public class SocketConnection : MonoBehaviour
 	{
 		if (websocket == null) return;
 
-		SendWebSocketMessage();
+		SendMessagesToServer();
 
 		#if !UNITY_WEBGL || UNITY_EDITOR
 			websocket.DispatchMessageQueue();
 		#endif
 
-		if (lastMessage != null)
-		{
-			ProcessMessage(lastMessage);
-		}
+		ProcessMessagesFromServer();
 	}
 
-	async void SendWebSocketMessage()
+	void ProcessMessagesFromServer()
+	{
+		var messages = messagesFromServer.Select(b => System.Text.Encoding.UTF8.GetString(b));
+		ServerMessageProcessor.processServerMessages(messages);
+		messagesFromServer.Clear();
+	}
+
+	async void SendMessagesToServer()
 	{
 		if (isOpen())
 		{
-			while (messages.Count > 0)
+			while (messagesToServer.Count > 0)
 			{
-				await websocket.SendText(messages.Dequeue());
+				await websocket.SendText(messagesToServer.Dequeue());
 			}
 		}
 	}
@@ -109,14 +113,6 @@ public class SocketConnection : MonoBehaviour
 	private void OnApplicationQuit()
 	{
 		Close();
-	}
-
-	private static void ProcessMessage(byte[] bytes)
-	{
-		{
-			var message = System.Text.Encoding.UTF8.GetString(bytes);
-			ServerMessageProcessor.processServerMessage(message);
-		}
 	}
 }
 

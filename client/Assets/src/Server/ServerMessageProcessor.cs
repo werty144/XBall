@@ -13,12 +13,32 @@ public class ServerMessageProcessor
     public static bool isHost;
     public static readonly ILog Log = LogManager.GetLogger(typeof(ServerMessageProcessor));
 
+    public static void processServerMessages(IEnumerable<string> messages)
+    {
+        string lastGameMessage = null;
+        foreach (string message in messages)
+        {
+            var path = getPath(message);
+            if (path == "game")
+            {
+                lastGameMessage = message;
+            } else
+            {
+                processServerMessage(message);
+            }
+        }
+        if (lastGameMessage != null)
+        {
+            processServerMessage(lastGameMessage);
+        }
+    }
+
 
     public static void processServerMessage(string message)
     {   
         try 
         {
-            string path = message.Split(new string[] { "path\":\"" }, StringSplitOptions.None)[1].Split('\"')[0];
+            string path = getPath(message);
             switch (path)
             {
                 case "serverReady":
@@ -55,5 +75,39 @@ public class ServerMessageProcessor
         {
             Log.Error(string.Format("Error when parsing {0}! {1}", message, e));
         }
+    }
+
+    static string getPath(string message)
+    {
+        string key = "path";
+        int curMatch = 0;
+        int keyEnd = -1;
+        for (int i = 0; i < message.Length; i++)
+        {
+            if (message[i] == key[curMatch])
+            {
+                curMatch += 1;
+                if (curMatch == key.Length)
+                {
+                    keyEnd = i;
+                    break;
+                }
+            }
+        }
+
+        int valueStart = keyEnd + 4;
+        int valueEnd = -1;
+        for (int i = valueStart; i < message.Length; i++)
+        {
+            if (message[i] == '\"')
+            {
+                valueEnd = i;
+                break;
+            }
+        }
+
+        int valueLength = valueEnd - valueStart;
+        string path = message.Substring(valueStart, valueLength); 
+        return path;
     }
 }

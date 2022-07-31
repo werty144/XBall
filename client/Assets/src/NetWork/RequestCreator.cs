@@ -75,19 +75,6 @@ public class RequestCreator
         createMoveRequest(player, stop, new {});    
     }
 
-    // public static void readyRequest()
-    // {
-    //     string request = JsonConvert.SerializeObject(
-    //         new
-    //         {
-    //             path = "ready",
-    //             body = new {}
-    //         }
-    //     );
-    //     // SocketConnection.messages.Enqueue(request);
-    //     ServerManager.messages.Enqueue(request);
-    // }
-
     public static void lobbyReady(LobbyData lobbyData)
     {
         string request = JsonConvert.SerializeObject(

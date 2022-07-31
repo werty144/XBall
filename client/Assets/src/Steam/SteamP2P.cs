@@ -38,20 +38,22 @@ public class SteamP2P : MonoBehaviour
         }
     }
 
-    public static void receiveMessages(int nMaxMessages)
+    public static Queue<string> receiveMessages(int nMaxMessages)
     {
         
         IntPtr[] messages = new IntPtr[nMaxMessages];
         int nMessages = SteamNetworkingMessages.ReceiveMessagesOnChannel(channelToUse, messages, nMaxMessages);
         PerformanceTracker.P2PReceived.Add(nMessages);
         
+        Queue<string> messageQueue = new Queue<string>();
         for (int i = 0; i < nMessages; i++)
         {
             SteamNetworkingMessage_t msgStruct = (SteamNetworkingMessage_t) Marshal.PtrToStructure(messages[i], typeof(SteamNetworkingMessage_t));
             string msg = Marshal.PtrToStringAuto(msgStruct.m_pData);
-            P2PReceiver.receiveMessage(msg);
+            messageQueue.Enqueue(msg);
             SteamNetworkingMessage_t.Release(messages[i]);
         }
+        return messageQueue;
     }
 
     public static void sendMessage(string msg, CSteamID steamID)

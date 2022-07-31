@@ -92,7 +92,7 @@ public class ServerManager : MonoBehaviour
 
     public static void sendMessageToServer(string message)
     {
-        SocketConnection.messages.Enqueue(message);
+        SocketConnection.messagesToServer.Enqueue(message);
     }
 }
 
