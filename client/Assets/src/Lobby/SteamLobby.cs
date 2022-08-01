@@ -6,7 +6,6 @@ using System;
 using UnityEngine;
 using Steamworks;
 using UnityEngine.UI;
-using Newtonsoft.Json;
 using log4net;
 
 

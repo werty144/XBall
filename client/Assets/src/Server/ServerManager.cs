@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEditor;
 using log4net;
+using MessagePack;
 
 
 using static GameManager;
@@ -96,18 +97,5 @@ public class ServerManager : MonoBehaviour
     }
 }
 
-public class ApiGameInfoAddressee
-{
-  public string path;
-  public ulong addressee;
-  public GameInfo body;
-}
-
-public class ApiPrepareGameAddressee
-{
-	public string path;
-    public ulong addressee;
-	public PrepareGameBody body;
-}
 
 

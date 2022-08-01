@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 
 using UnityEngine;
-using Newtonsoft.Json;
+using MessagePack;
 
 
 using static ServerManager;
@@ -21,10 +21,11 @@ public class RequestCreator
     const string orientation = "orientation";
     const string stop = "stop";
     const string bend = "bend";
+    static object empty = new {};
 
     public static void createMoveRequest(GameObject player, string action, dynamic actionData)
     {
-        string request = JsonConvert.SerializeObject(
+        byte[] bin = MessagePackSerializer.Serialize(
             new 
             {
                 path = makeMove,
@@ -35,8 +36,10 @@ public class RequestCreator
                     action = action,
                     actionData = actionData
                 }
-            }
+            },
+            MessagePack.Resolvers.ContractlessStandardResolver.Options
             );
+        string request = MessagePackSerializer.ConvertToJson(bin);
         sendRequest(request);
     }
 
@@ -47,7 +50,7 @@ public class RequestCreator
 
     public static void grabRequest(GameObject player)
     {
-        createMoveRequest(player, grab, new{});
+        createMoveRequest(player, grab, empty);
     }
 
     public static void throwRequest(GameObject player, Point point)
@@ -62,7 +65,7 @@ public class RequestCreator
 
     public static void attackRequest(GameObject player)
     {
-        createMoveRequest(player, attack, new {});
+        createMoveRequest(player, attack, empty);
     }
 
     public static void bendRequest(GameObject player, Point point)
@@ -72,12 +75,12 @@ public class RequestCreator
 
     public static void stopRequest(GameObject player)
     {
-        createMoveRequest(player, stop, new {});    
+        createMoveRequest(player, stop, empty);    
     }
 
     public static void lobbyReady(LobbyData lobbyData)
     {
-        string request = JsonConvert.SerializeObject(
+        byte[] bin = MessagePackSerializer.Serialize(
             new 
             {
                 path = "lobbyReady",
@@ -94,8 +97,10 @@ public class RequestCreator
                     // Can't deserialize ulong on the server
                     members = lobbyData.membersData.ConvertAll(data => data.ID.ToString())
                 }
-            }
+            },
+            MessagePack.Resolvers.ContractlessStandardResolver.Options
             );
+        string request = MessagePackSerializer.ConvertToJson(bin);
         sendRequest(request);
     }
 

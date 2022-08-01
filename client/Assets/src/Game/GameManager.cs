@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 
+
 public class GameManager 
 {
     public static GameState state;
@@ -26,66 +27,4 @@ public class GameManager
 		side = side_;
 		state = state_;
     }
-}
-
-
-public class GameInfo
-{
-	public GameState state;
-	public string score;
-	public long time;
-	public string status;
-}
-
-public class GameProperties 
-{
-	public int playersNumber;
-	public string speed;
-}
-
-public class GameState
-{
-	public List<Player> players;
-	public BallState ballState;
-}
-
-public class Point
-{
-	public float x;
-	public float y;
-}
-
-public class Player
-{
-	public int id;
-	public Side side;
-	public PlayerState state;
-}
-
-public class PlayerState
-{
-	public float x;
-	public float y;
-	public float z;
-	public float rotationAngle;
-	}
-
-public class BallState
-{
-	public int? ownerId;
-	public float x;
-	public float y;
-	public float z;
-}
-
-public class Vector
-{
-	public float x;
-	public float y;
-}
-
-public enum Side
-{
-	LEFT,
-	RIGHT
 }

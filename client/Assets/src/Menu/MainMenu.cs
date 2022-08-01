@@ -6,7 +6,6 @@ using System;
 
 using UnityEngine.SceneManagement;
 using UnityEngine;
-using Newtonsoft.Json;
 using log4net;
 
 

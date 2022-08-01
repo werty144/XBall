@@ -6,9 +6,9 @@ using System.Linq;
 
 
 using UnityEngine;
-using Newtonsoft.Json;
 using NativeWebSocket;
 using log4net;
+using MessagePack;
 
 
 using static GameInfo;
@@ -114,29 +114,4 @@ public class SocketConnection : MonoBehaviour
 	{
 		Close();
 	}
-}
-
-
-public class ApiGameInfo
-{
-  public string path;
-  public GameInfo body;
-}
-
-public class ApiPrepareGame
-{
-	public string path;
-	public PrepareGameBody body;
-}
-
-public class PrepareGameBody
-{
-	public Side side;
-	public GameInfo game;
-}
-
-public class ApiServerReady
-{
-	public string path;
-	public int port;
 }
