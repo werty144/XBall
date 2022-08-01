@@ -1,5 +1,9 @@
 package com.example.game
 
+import com.xballserver.remoteserver.game.attackRandom
+import com.xballserver.remoteserver.game.bendRandom
+import com.xballserver.remoteserver.game.grabRandom
+import com.xballserver.remoteserver.game.throwRandom
 import com.xballserver.remoteserver.routing.APIMove
 import com.xballserver.remoteserver.infrastructure.UserId
 import com.xballserver.remoteserver.routing.tryJsonParse

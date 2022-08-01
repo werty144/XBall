@@ -1,13 +1,12 @@
 package com.example.game
 
+import com.xballserver.remoteserver.game.targetAttempt
+import com.xballserver.remoteserver.infrastructure.logToFile
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import java.util.LinkedList
-import kotlin.math.abs
-import kotlin.math.ceil
-import kotlin.math.min
-import kotlin.math.sqrt
+import kotlin.math.*
 
 @Serializable
 data class BallState(var x: Double, var y: Double) {
@@ -21,7 +20,7 @@ data class BallState(var x: Double, var y: Double) {
     @Transient
     private var destinations = LinkedList<Point>()
     @Transient
-    private var needsLift = false
+    private var verticalSpeed = 0.0
 
     @Transient
     var position: Point = Point(0.0, 0.0)
@@ -49,19 +48,12 @@ data class BallState(var x: Double, var y: Double) {
             return
         }
 
-        val verticalSpeed = game.properties.ballSpeed * game.deltaTime
-
-        if (needsLift) {
-            z += quadraticDecreasingStep(
-                z,
-                properties.minZ,
-                game.properties.flyHeight,
-                properties.verticalMovementWorldTime.toInt()/game.worldUpdateTime.toInt()
-            )
-            if (z >= game.properties.flyHeight) {
-                needsLift = false
-                if (intersectTargetIfPlacedTo(game, position)) targetAttempt(game)
-            }
+        z += verticalSpeed * game.deltaTime
+        z = clip(z, properties.minZ, game.properties.flyHeight)
+        if (((z == properties.minZ) && (verticalSpeed < 0)) || (z == game.properties.flyHeight)) {
+            verticalSpeed = 0.0
+        } else {
+            verticalSpeed -= 9.8 * game.deltaTime
             return
         }
 
@@ -69,7 +61,7 @@ data class BallState(var x: Double, var y: Double) {
             val destination = destinations.first
             val nextPoint = nextPoint(game)
 
-            if (active and intersectTargetIfPlacedTo(game, nextPoint)) {
+            if ((z == game.properties.flyHeight) and intersectTargetIfPlacedTo(game, nextPoint) and active) {
                 stickBallToTarget(game)
                 targetAttempt(game)
                 return
@@ -85,13 +77,8 @@ data class BallState(var x: Double, var y: Double) {
             x = nextPoint.x
             y = nextPoint.y
         } else {
-            if (z > properties.minZ) {
-                z -= quadraticDecreasingStep(
-                    z,
-                    game.properties.flyHeight,
-                    properties.minZ,
-                    properties.verticalMovementWorldTime.toInt()/game.worldUpdateTime.toInt()
-                )
+            if (z == game.properties.flyHeight) {
+                z -= 0.01
             }
         }
     }
@@ -109,7 +96,7 @@ data class BallState(var x: Double, var y: Double) {
     }
 
     fun startLift() {
-        needsLift = true
+        verticalSpeed = properties.initialVerticalSpeed
     }
 
     fun nextPoint(game: Game): Point {
@@ -152,7 +139,7 @@ data class BallState(var x: Double, var y: Double) {
 
 class BallProperties {
     val minZ = 1.0
-    val verticalMovementWorldTime = 1000L
+    val initialVerticalSpeed = 15.0
 }
 
 
@@ -171,3 +158,5 @@ fun quadraticDecreasingStep(currentValue: Double, startValue: Double, endValue: 
     val nextValue = a*nextStep*nextStep + b*nextStep + c
     return min(abs(currentValue - endValue), (currentValue - nextValue))
 }
+
+fun clip(x: Double, lowerBound: Double, upperBound: Double) = min(upperBound, max(lowerBound, x))

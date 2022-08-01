@@ -1,5 +1,7 @@
-package com.example.game
+package com.xballserver.remoteserver.game
 
+import com.example.game.*
+import com.example.game.Vector
 import com.xballserver.remoteserver.routing.APIMove
 import kotlinx.serialization.json.Json
 import java.util.*
