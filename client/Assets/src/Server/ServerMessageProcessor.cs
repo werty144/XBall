@@ -34,13 +34,20 @@ public class ServerMessageProcessor
         string lastGameMessage = null;
         foreach (string message in messages)
         {
-            var path = getPath(message);
-            if (path == "game")
+            var addressee = Convert.ToUInt64(getStringProperty(message, "addressee"));
+            if (SteamAuth.isMe(addressee))
             {
-                lastGameMessage = message;
+                var path = getStringProperty(message, "path");
+                if (path == "game")
+                {
+                    lastGameMessage = message;
+                } else
+                {
+                    processServerMessage(message);
+                }
             } else
             {
-                processServerMessage(message);
+                SteamP2P.sendMessage(message, addressee);
             }
         }
         if (lastGameMessage != null)
@@ -54,7 +61,7 @@ public class ServerMessageProcessor
     {   
         try 
         {
-            string path = getPath(message);
+            string path = getStringProperty(message, "path");
             byte[] bin = MessagePackSerializer.ConvertFromJson(message);
             ulong addressee;
             switch (path)
@@ -97,9 +104,8 @@ public class ServerMessageProcessor
         }
     }
 
-    static string getPath(string message)
+    static string getStringProperty(string message, string key)
     {
-        string key = "path";
         int curMatch = 0;
         int keyEnd = -1;
         for (int i = 0; i < message.Length; i++)

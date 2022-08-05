@@ -5,13 +5,7 @@ using System;
 
 using UnityEngine;
 using Steamworks;
-using UnityEngine.UI;
 using log4net;
-
-
-using static LobbyManager;
-using static MainMenu;
-
 
 
 public class SteamLobby : MonoBehaviour

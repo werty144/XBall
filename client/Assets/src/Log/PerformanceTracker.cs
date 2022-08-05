@@ -21,7 +21,7 @@ public class PerformanceTracker : MonoBehaviour
 
     void Start()
     {
-        // InvokeRepeating("logStats", 2.0f, 1.0f);
+        InvokeRepeating("logStats", 2.0f, 1.0f);
     }
 
     void logStats()

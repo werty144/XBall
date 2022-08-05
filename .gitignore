@@ -21,4 +21,5 @@ server/remoteServer/SteamworksWebApiKey
 server/remoteServer/build
 server/localServer/build
 log.txt*
+build/
 
