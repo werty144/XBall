@@ -34,16 +34,16 @@ public class ServerMessageProcessor
         string lastGameMessage = null;
         foreach (string message in messages)
         {
-            var addressee = Convert.ToUInt64(getStringProperty(message, "addressee"));
+            var addressee = Convert.ToUInt64(getJSONStringProperty(message, "addressee"));
             if (SteamAuth.isMe(addressee))
             {
-                var path = getStringProperty(message, "path");
+                var path = getJSONStringProperty(message, "path");
                 if (path == "game")
                 {
                     lastGameMessage = message;
                 } else
                 {
-                    processServerMessage(message);
+                    processServerMessageToMe(message);
                 }
             } else
             {
@@ -52,48 +52,33 @@ public class ServerMessageProcessor
         }
         if (lastGameMessage != null)
         {
-            processServerMessage(lastGameMessage);
+            processServerMessageToMe(lastGameMessage);
         }
     }
 
 
-    public static void processServerMessage(string message)
+    public static void processServerMessageToMe(string message)
     {   
         try 
         {
-            string path = getStringProperty(message, "path");
+            string path = getJSONStringProperty(message, "path");
             byte[] bin = MessagePackSerializer.ConvertFromJson(message);
-            ulong addressee;
             switch (path)
             {
                 case "serverReady":
-                    var readyMessage = MessagePackSerializer.Deserialize<ApiServerReady>(bin, options);
+                    var readyMessage = MessagePackSerializer.Deserialize<ApiServerReady>(bin);
                     Log.Info(string.Format("Server started at port: {0}", readyMessage.port));
                     ServerManager.OnServerReady(readyMessage.port);
                     break;
                 case "game":
-                    var gameMessage = MessagePackSerializer.Deserialize<ApiGameInfoAddressee>(bin, options);
-                    addressee = Convert.ToUInt64(gameMessage.addressee);
-                    if (SteamAuth.isMe(addressee))
-                    {
-                        var gameInfo = gameMessage.body;
-                        GameManager.setGameInfo(gameInfo);
-                    } else
-                    {
-                        SteamP2P.sendMessage(message, addressee);
-                    }
+                    var gameMessage = MessagePackSerializer.Deserialize<ApiGameInfoAddressee>(bin);
+                    var gameInfo = gameMessage.body;
+                    GameManager.setGameInfo(gameInfo);
                     break;
                 case "prepareGame":
-                    var prepareGameMessage = MessagePackSerializer.Deserialize<ApiPrepareGameAddressee>(bin, options);
-                    addressee = Convert.ToUInt64(prepareGameMessage.addressee);
-                    if (SteamAuth.isMe(addressee))
-                    {
-                        var body = prepareGameMessage.body;
-                        UnityMainThreadDispatcher.Instance().Enqueue(() => MainMenu.prepareGame(body.game.state, body.side));
-                    } else 
-                    {
-                        SteamP2P.sendMessage(message, addressee);
-                    }
+                    var prepareGameMessage = MessagePackSerializer.Deserialize<ApiPrepareGameAddressee>(bin);          
+                    var body = prepareGameMessage.body;
+                    UnityMainThreadDispatcher.Instance().Enqueue(() => MainMenu.prepareGame(body.game.state, body.side));
                     break;
                 default:
                     break;
@@ -104,7 +89,7 @@ public class ServerMessageProcessor
         }
     }
 
-    static string getStringProperty(string message, string key)
+    static string getJSONStringProperty(string message, string key)
     {
         int curMatch = 0;
         int keyEnd = -1;

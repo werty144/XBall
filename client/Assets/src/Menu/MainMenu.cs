@@ -17,7 +17,7 @@ using static LobbyManager;
 public class MainMenu : MonoBehaviour
 {
     public static readonly ILog Log = LogManager.GetLogger(typeof(MainMenu));
-    public static void prepareGame(GameState state, Side side)
+    public static void prepareGame(GameState state, string side)
     {
         OnLeave();
         GameManager.prepareGame(state, side);

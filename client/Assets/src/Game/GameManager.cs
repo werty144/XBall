@@ -12,7 +12,7 @@ public class GameManager
     public static GameState state;
     public static long time;
     public static string score;
-	public static Side side;
+	public static string side;
 
 
     public static void setGameInfo(GameInfo gameInfo)
@@ -22,7 +22,7 @@ public class GameManager
         score = gameInfo.score;
     }
 
-    public static void prepareGame(GameState state_, Side side_)
+    public static void prepareGame(GameState state_, string side_)
     {
 		side = side_;
 		state = state_;

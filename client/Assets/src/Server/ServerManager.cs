@@ -88,7 +88,7 @@ public class ServerManager : MonoBehaviour
             // Process terminated
             return;
         }
-        ServerMessageProcessor.processServerMessage(output);
+        ServerMessageProcessor.processServerMessageToMe(output);
     }
 
     public static void sendMessageToServer(string message)

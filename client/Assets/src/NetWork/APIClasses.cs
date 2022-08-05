@@ -21,7 +21,7 @@ public class ApiPrepareGame
 [MessagePackObject(keyAsPropertyName: true)]
 public class PrepareGameBody
 {
-	public Side side;
+	public string side;
 	public GameInfo game;
 }
 
@@ -82,7 +82,7 @@ public class Point
 public class Player
 {
 	public int id;
-	public Side side;
+	public string side;
 	public PlayerState state;
 }
 
@@ -111,8 +111,8 @@ public class Vector
 	public float y;
 }
 
-public enum Side
+public class Side
 {
-	LEFT,
-	RIGHT
+	public static string LEFT = "LEFT";
+	public static string RIGHT = "RIGHT";
 }
