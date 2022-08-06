@@ -6,7 +6,9 @@ using System;
 
 using UnityEngine.SceneManagement;
 using UnityEngine;
+using UnityEngine.UI;
 using log4net;
+using Steamworks;
 
 
 using static GameManager;
@@ -32,6 +34,14 @@ public class MainMenu : MonoBehaviour
 
     public static void test()
     {
+        // var texture = SteamFriendsManager.getAvatar((ulong)SteamAuth.GetSteamID());
+        // if (texture != null)
+        // {
+        //     var image = GameObject.Find("Canvas/TestImage").GetComponent<RawImage>();
+        //     image.texture = texture;
+        // }
+        var friendsList = GameObject.Find("Canvas/MainMenu/FriendsList").GetComponent<FriendsListViewController>();
+        friendsList.addFriend((ulong)SteamAuth.GetSteamID());
     }
 
     public void OnExit()
