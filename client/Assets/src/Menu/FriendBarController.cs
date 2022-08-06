@@ -38,6 +38,14 @@ public class FriendBarController : MonoBehaviour
     {
         var image = this.gameObject.transform.Find("Avatar").GetComponent<RawImage>();
         image.texture = avatar;
-        avatarExists = true;
+        if (image != null)
+        {
+            avatarExists = true;
+        }
+    }
+
+    public void OnInviteButton()
+    {
+        LobbyManager.inviteToLobby(friendSteamID);
     }
 }

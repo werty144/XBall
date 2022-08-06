@@ -62,6 +62,14 @@ public class SteamLobby : MonoBehaviour
         }
     }
 
+    public static void inviteToLobby(ulong userID)
+    {
+        if (SteamManager.Initialized)
+        {
+            SteamMatchmaking.InviteUserToLobby(lobbyID, new CSteamID(userID));
+        }
+    }
+
     private void OnLobbyDataUpdate(LobbyDataUpdate_t pCallback)
     {
         // This one is really weired. If the statement is true, it means 

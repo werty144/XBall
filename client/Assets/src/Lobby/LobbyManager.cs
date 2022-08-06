@@ -64,6 +64,20 @@ public class LobbyManager : MonoBehaviour
         if (inLobby)
         {
             SteamLobby.inviteToLobby();
+        } else
+        {
+            Log.Info("You are not in lobby");
+        }
+    }
+
+    public static void inviteToLobby(ulong userID)
+    {
+        if (inLobby)
+        {
+            SteamLobby.inviteToLobby(userID);
+        } else
+        {
+            Log.Info("You are not in lobby");
         }
     }
 
