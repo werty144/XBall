@@ -1,14 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 
 using UnityEngine;
 using log4net;
-
-
-using static SteamLobby;
-using static MainMenu;
 
 
 public class LobbyManager : MonoBehaviour
@@ -43,6 +38,23 @@ public class LobbyManager : MonoBehaviour
         SteamLobby.lobbyCreated = false;
         
         setMetaData(metaData);
+
+        bool serverLaunched = false;
+        await MainMenu.doWithOverlay(
+            "Starting server...",
+            async () => 
+            {
+                if (await ServerManager.launchServer())
+                {
+                    serverLaunched = true;
+                }
+            }
+        );
+
+        if (!serverLaunched)
+        {
+            leaveLobby();
+        }
     }
 
     public static void enterLobby()
@@ -104,13 +116,21 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
-    public static void leaveLobby()
+    public static async void leaveLobby()
     {
-        if (inLobby)
-        {
-            inLobby = false;
-            SteamLobby.leaveLobby();
-        }
+        await MainMenu.doWithOverlay(
+            "Leaving lobby...",
+            async () => 
+            {
+                await ServerManager.killServer();
+                inLobby = false;
+                SteamLobby.leaveLobby();
+                if (lobbyViewController != null)
+                {
+                    lobbyViewController.clean();
+                }
+            }
+        );
     }
 
     public static void lobbyChangeReady()

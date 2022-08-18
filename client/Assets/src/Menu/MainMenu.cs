@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System;
+using System.Threading.Tasks;
 
 
 using UnityEngine.SceneManagement;
@@ -19,12 +20,19 @@ using static LobbyManager;
 public class MainMenu : MonoBehaviour
 {
     public static readonly ILog Log = LogManager.GetLogger(typeof(MainMenu));
+    private GameObject blockingOverlay;
+
+    void Start()
+    {
+        blockingOverlay = GameObject.Find("Canvas/BlockingOverlay");
+        blockingOverlay.SetActive(false);
+    }
+
     public static void prepareGame(GameState state, string side)
     {
         OnLeave();
         GameManager.prepareGame(state, side);
         SceneManager.LoadScene("GameScene");
-        // RequestCreator.readyRequest();
     }
 
     private static void OnLeave()
@@ -32,16 +40,28 @@ public class MainMenu : MonoBehaviour
         LobbyManager.setReadyFalse();
     }
 
-    public static void test()
+    public void test()
     {
-        // var texture = SteamFriendsManager.getAvatar((ulong)SteamAuth.GetSteamID());
-        // if (texture != null)
-        // {
-        //     var image = GameObject.Find("Canvas/TestImage").GetComponent<RawImage>();
-        //     image.texture = texture;
-        // }
-        var friendsList = GameObject.Find("Canvas/MainMenu/FriendsList").GetComponent<FriendsListViewController>();
-        friendsList.addFriend((ulong)SteamAuth.GetSteamID());
+        Log.Debug("Huy");
+    }
+
+    public void activateOverlayBlock(string message="Blocked")
+    {
+        blockingOverlay.SetActive(true);
+        blockingOverlay.transform.Find("Text").GetComponent<Text>().text = message;
+    }
+
+    public void deactivateOverlayBlock()
+    {
+        blockingOverlay.SetActive(false);
+    }
+
+    public static async Task doWithOverlay(string message, Func<Task> taskContainer)
+    {
+        var menuObject = GameObject.Find("Canvas/MainMenu").GetComponent<MainMenu>();
+        menuObject.activateOverlayBlock(message);
+        await taskContainer();
+        menuObject.deactivateOverlayBlock();
     }
 
     public void OnExit()

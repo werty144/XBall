@@ -106,7 +106,6 @@ public class LobbyViewController : MonoBehaviour
 
     public void leaveLobby()
     {
-        clean();
         LobbyManager.leaveLobby();
     }
 
@@ -115,7 +114,7 @@ public class LobbyViewController : MonoBehaviour
         LobbyManager.lobbyChangeReady();
     }
 
-    private void clean()
+    public void clean()
     {
         infoText.GetComponent<Text>().text = "Info:";
 

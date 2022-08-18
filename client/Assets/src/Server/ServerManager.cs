@@ -1,18 +1,10 @@
-using System;
 using System.Diagnostics;
 using System.Net.Http;
-using System.Text; 
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using UnityEngine;
-using UnityEditor;
 using log4net;
-using MessagePack;
-
-
-using static GameManager;
-using static MainMenu;
 
 
 public class ServerManager : MonoBehaviour
@@ -20,11 +12,11 @@ public class ServerManager : MonoBehaviour
     private static Process serverProcess = null;
     private static int port;
     private static HttpClient client = new HttpClient();
-    public static bool serverReady = false;
+    private static bool serverUp = false;
     public static Queue<string> messages = new Queue<string>();
     public static readonly ILog Log = LogManager.GetLogger(typeof(ServerManager));
 
-    public static void startServer()
+    public static void configureAndStart()
     {
         serverProcess = new Process();
         serverProcess.StartInfo.FileName = "java";
@@ -36,6 +28,24 @@ public class ServerManager : MonoBehaviour
         serverProcess.OutputDataReceived += (sender, args) => processServerOutput(args.Data);
         serverProcess.Start();
         serverProcess.BeginOutputReadLine();
+    }
+
+    public static async Task<bool> launchServer()
+    {
+        configureAndStart();
+
+        var timePassed = 0;
+        while (!isServerUp())
+        {
+            await Task.Delay(25);
+            timePassed += 25;   
+
+            if (timePassed > 5000)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static void serverExited(object sender, System.EventArgs e)
@@ -50,10 +60,15 @@ public class ServerManager : MonoBehaviour
 
     public static void OnConnectionOpen()
     {
-        serverReady = true;
+        serverUp = true;
     }
 
-    public static async void killServer()
+    public static bool isServerUp()
+    {
+        return serverUp;
+    }
+
+    public static async Task killServer()
     {
         SocketConnection.Close();
 
@@ -72,13 +87,19 @@ public class ServerManager : MonoBehaviour
         if ((serverProcess != null) && (!serverProcess.HasExited))
         {
             serverProcess.Kill();
+
+            while (!serverProcess.HasExited)
+            {
+                await Task.Delay(25);
+            }
+            serverProcess = null;
         }
-        serverReady = false;
+        serverUp = false;
     }
 
-    void OnApplicationQuit()
+    async void OnApplicationQuit()
     {
-        killServer();
+        await killServer();
     }
 
     static void processServerOutput(string output)

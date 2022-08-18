@@ -53,6 +53,10 @@ public class FriendsListViewController : MonoBehaviour
 
     public void updateList()
     {
+        if (!SteamManager.Initialized)
+        {
+            return;
+        }
         var currentOnline = SteamFriendsManager.getFriendsOnline();
 
         foreach (Transform child in content.transform)
