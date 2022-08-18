@@ -21,6 +21,11 @@ public class LobbyManager : MonoBehaviour
 
     public static async void createLobby(LobbyMetaData metaData)
     {
+        if (inLobby)
+        {
+            return;
+        }
+        
         SteamLobby.createLobby();
 
         int timeSpent = 0;
