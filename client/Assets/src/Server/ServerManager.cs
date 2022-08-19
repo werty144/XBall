@@ -16,6 +16,25 @@ public class ServerManager : MonoBehaviour
     public static Queue<string> messages = new Queue<string>();
     public static readonly ILog Log = LogManager.GetLogger(typeof(ServerManager));
 
+    async void Start()
+    {
+        bool serverLaunched = false;
+        await MainMenu.doWithOverlay(
+            "Starting server...",
+            async () => 
+            {
+                if (await ServerManager.launchServer())
+                {
+                    serverLaunched = true;
+                }
+            }
+        );
+        if (!serverLaunched)
+        {
+            Log.Error("Server not launched!");
+        }
+    }
+
     public static void configureAndStart()
     {
         serverProcess = new Process();
@@ -88,7 +107,7 @@ public class ServerManager : MonoBehaviour
         {
             serverProcess.Kill();
 
-            while (!serverProcess.HasExited)
+            while ((serverProcess != null) && (!serverProcess.HasExited))
             {
                 await Task.Delay(25);
             }

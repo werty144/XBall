@@ -22,7 +22,7 @@ public class MainMenu : MonoBehaviour
     public static readonly ILog Log = LogManager.GetLogger(typeof(MainMenu));
     private GameObject blockingOverlay;
 
-    void Start()
+    void Awake()
     {
         blockingOverlay = GameObject.Find("Canvas/BlockingOverlay");
         blockingOverlay.SetActive(false);

@@ -111,9 +111,10 @@ public class UnityMainThreadDispatcher : MonoBehaviour {
 		}
 	}
 
-	void OnDestroy() {
-			_instance = null;
-	}
+	// void OnDestroy() {
+	// 	print("Destroying!");
+	// 		_instance = null;
+	// }
 
 
 }

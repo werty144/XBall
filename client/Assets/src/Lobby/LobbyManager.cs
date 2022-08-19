@@ -43,23 +43,6 @@ public class LobbyManager : MonoBehaviour
         SteamLobby.lobbyCreated = false;
         
         setMetaData(metaData);
-
-        bool serverLaunched = false;
-        await MainMenu.doWithOverlay(
-            "Starting server...",
-            async () => 
-            {
-                if (await ServerManager.launchServer())
-                {
-                    serverLaunched = true;
-                }
-            }
-        );
-
-        if (!serverLaunched)
-        {
-            leaveLobby();
-        }
     }
 
     public static void enterLobby()
@@ -121,21 +104,14 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
-    public static async void leaveLobby()
+    public static void leaveLobby()
     {
-        await MainMenu.doWithOverlay(
-            "Leaving lobby...",
-            async () => 
-            {
-                await ServerManager.killServer();
-                inLobby = false;
-                SteamLobby.leaveLobby();
-                if (lobbyViewController != null)
-                {
-                    lobbyViewController.clean();
-                }
-            }
-        );
+        inLobby = false;
+        SteamLobby.leaveLobby();
+        if (lobbyViewController != null)
+        {
+            lobbyViewController.clean();
+        }
     }
 
     public static void lobbyChangeReady()
