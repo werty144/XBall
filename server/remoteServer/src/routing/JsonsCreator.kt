@@ -1,7 +1,7 @@
 package com.xballserver.remoteserver.routing
 
-import com.example.game.Game
-import com.example.game.Side
+import com.xballserver.remoteserver.game.Game
+import com.xballserver.remoteserver.game.Side
 import com.xballserver.remoteserver.infrastructure.UserId
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -81,6 +81,26 @@ fun createServerReadyJSONString(port: Int): String {
         mapOf(
             "path" to Json.encodeToJsonElement("serverReady"),
             "port" to Json.encodeToJsonElement(port)
+        )
+    )
+}
+
+fun createCancelGameJSONString(): String {
+    return Json.encodeToString(
+        (
+            mapOf(
+                "path" to Json.encodeToJsonElement("cancelGame")
+            )
+        )
+    )
+}
+
+fun createStartGameJSONString(): String {
+    return Json.encodeToString(
+        (
+            mapOf(
+                "path" to Json.encodeToJsonElement("startGame")
+            )
         )
     )
 }

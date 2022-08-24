@@ -1,9 +1,6 @@
-package com.example.game
+package com.xballserver.remoteserver.game
 
-import com.xballserver.remoteserver.game.attackRandom
-import com.xballserver.remoteserver.game.bendRandom
-import com.xballserver.remoteserver.game.grabRandom
-import com.xballserver.remoteserver.game.throwRandom
+import com.example.game.*
 import com.xballserver.remoteserver.routing.APIMove
 import com.xballserver.remoteserver.infrastructure.UserId
 import com.xballserver.remoteserver.routing.tryJsonParse
@@ -37,20 +34,24 @@ data class Game(val gameId: GameId, val user1Id: UserId, val user2Id: UserId, va
         val players = ArrayList<Player>()
         var sparePlayersId = 0
         for (i in 1..properties.playersNumber) {
-            players.add(Player(sparePlayersId++, sides[user1Id]!!,
+            players.add(
+                Player(sparePlayersId++, sides[user1Id]!!,
                 PlayerState(
                     properties.fieldWidth * 1/4,
                     properties.fieldHeight / (properties.playersNumber + 1) * i,
                     orientation = Vector(1.0, 0.0)
                 )
-            ))
-            players.add(Player(sparePlayersId++, sides[user2Id]!!,
+            )
+            )
+            players.add(
+                Player(sparePlayersId++, sides[user2Id]!!,
                 PlayerState(
                     properties.fieldWidth * 3/4,
                     properties.fieldHeight / (properties.playersNumber + 1) * i,
                     orientation = Vector(-1.0, 0.0)
                 )
-            ))
+            )
+            )
         }
         val ballState = BallState(properties.fieldWidth / 2, properties.fieldHeight / 2)
         state = GameState(players, ballState)

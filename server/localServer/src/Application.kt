@@ -1,5 +1,6 @@
 package com.xballserver.localserver
 
+import com.xballserver.remoteserver.infrastructure.*
 import com.xballserver.remoteserver.routing.createServerReadyJSONString
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -41,9 +42,12 @@ fun Application.module(testing: Boolean = false) {
         json()
     }
 
-    val gameManager = GameManager()
+    val connectionManager = LocalConnectionManager()
+    val gamesManager = GamesManager(connectionManager)
+    val lobbyManager = LobbyManager(gamesManager)
+    val gameStartManager = GameStartManager(gamesManager, lobbyManager, connectionManager)
 
-    configureRouting(gameManager)
+    configureRouting(gamesManager, connectionManager, gameStartManager)
 }
 
 fun Application.events() {

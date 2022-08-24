@@ -26,12 +26,12 @@ import javax.crypto.Cipher
 typealias Connections = MutableSet<Connection>
 
 fun Application.configureRouting(gamesManager: GamesManager,
-                                 lobbyManager: LobbyManager,
                                  authenticationManager: AuthenticationManager,
-                                 connections: Connections
+                                 connectionManager: ConnectionManager,
+                                 gameStartManager: GameStartManager
 ) {
 
-    val apiHandler = APIHandler(gamesManager, lobbyManager, connections)
+    val apiHandler = APIHandler(gamesManager, gameStartManager)
 
     routing {
         post("/auth") {
@@ -58,10 +58,10 @@ fun Application.configureRouting(gamesManager: GamesManager,
                     } else {
                         val password = (frame as Frame.Text).readText()
                         thisConnection = Connection(this, authenticationManager.userId(password)!!)
-                        connections += thisConnection
+                        connectionManager.addConnection(thisConnection)
                     }
                 } else {
-                    apiHandler.handle(frame, thisConnection!!)
+//                    apiHandler.handle(frame, thisConnection!!.userId)
                 }
             }
         }

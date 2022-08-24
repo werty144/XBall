@@ -118,6 +118,7 @@ public class ServerManager : MonoBehaviour
 
     async void OnApplicationQuit()
     {
+        print("Killing server");
         await killServer();
     }
 

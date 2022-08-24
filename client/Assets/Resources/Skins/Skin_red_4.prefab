@@ -161,6 +161,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 0
   highlightCircle: {fileID: 275475722448424824}
+  marker: {fileID: 5059558746667170150, guid: aa374382cca4cac22ae708b025a086ab, type: 3}
 --- !u!1 &2897020656019550561
 GameObject:
   m_ObjectHideFlags: 0

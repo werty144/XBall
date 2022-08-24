@@ -15,26 +15,15 @@ public class ServerMessageProcessor
     public static bool isHost;
     public static readonly ILog Log = LogManager.GetLogger(typeof(ServerMessageProcessor));
 
-    static IFormatterResolver resolver = MessagePack.Resolvers.CompositeResolver.Create(
-            MessagePack.Resolvers.BuiltinResolver.Instance,
-
-            // replace enum resolver
-            MessagePack.Resolvers.DynamicEnumAsStringResolver.Instance,
-
-            MessagePack.Resolvers.DynamicGenericResolver.Instance,
-
-            // final fallback(last priority)
-            MessagePack.Resolvers.DynamicContractlessObjectResolver.Instance
-        );
-    static MessagePackSerializerOptions options = MessagePackSerializerOptions.Standard.WithResolver(resolver);
-
 
     public static void processServerMessages(IEnumerable<string> messages)
     {
         string lastGameMessage = null;
-        foreach (string message in messages)
+        foreach (string messageWithAddresse in messages)
         {
-            var addressee = Convert.ToUInt64(getJSONStringProperty(message, "addressee"));
+            string[] splitted = messageWithAddresse.Split('\n');
+            var addressee = Convert.ToUInt64(splitted[0]);
+            string message = splitted[1]; 
             if (SteamAuth.isMe(addressee))
             {
                 var path = getJSONStringProperty(message, "path");
@@ -47,7 +36,7 @@ public class ServerMessageProcessor
                 }
             } else
             {
-                SteamP2P.sendMessage(message, addressee);
+                SteamP2P.sendMessage(messageWithAddresse, addressee);
             }
         }
         if (lastGameMessage != null)
@@ -71,14 +60,20 @@ public class ServerMessageProcessor
                     ServerManager.OnServerReady(readyMessage.port);
                     break;
                 case "game":
-                    var gameMessage = MessagePackSerializer.Deserialize<ApiGameInfoAddressee>(bin);
+                    var gameMessage = MessagePackSerializer.Deserialize<ApiGameInfo>(bin);
                     var gameInfo = gameMessage.body;
                     GameManager.setGameInfo(gameInfo);
                     break;
                 case "prepareGame":
-                    var prepareGameMessage = MessagePackSerializer.Deserialize<ApiPrepareGameAddressee>(bin);          
+                    var prepareGameMessage = MessagePackSerializer.Deserialize<ApiPrepareGame>(bin);          
                     var body = prepareGameMessage.body;
-                    UnityMainThreadDispatcher.Instance().Enqueue(() => MainMenu.prepareGame(body.game.state, body.side));
+                    UnityMainThreadDispatcher.Instance().Enqueue(() => GameStarter.prepareGame(body.game.state, body.side));
+                    break;
+                case "startGame":
+                    // GameStarter.startGame();
+                    break;
+                case "cancelGame":
+                    GameStarter.cancelGame();
                     break;
                 default:
                     break;

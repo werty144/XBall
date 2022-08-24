@@ -1,5 +1,7 @@
 package com.example.game
 
+import com.xballserver.remoteserver.game.Game
+import com.xballserver.remoteserver.game.Side
 import com.xballserver.remoteserver.game.grabRandom
 import com.xballserver.remoteserver.routing.APIMove
 import kotlinx.serialization.Required

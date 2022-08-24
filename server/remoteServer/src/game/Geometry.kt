@@ -1,5 +1,6 @@
 package com.example.game
 
+import com.xballserver.remoteserver.game.GameProperties
 import kotlinx.serialization.Serializable
 import java.util.*
 import kotlin.math.*

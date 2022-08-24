@@ -4,7 +4,7 @@ import com.xballserver.remoteserver.routing.Connections
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
-class Cleaner(val lobbyManager: LobbyManager, val gamesManager: GamesManager, val connections: Connections) {
+class Cleaner(val lobbyManager: LobbyManager, val gamesManager: GamesManager, val connectionManager: ConnectionManager) {
 
     private val inviteOutdatedTime = 60000L
 
@@ -13,7 +13,7 @@ class Cleaner(val lobbyManager: LobbyManager, val gamesManager: GamesManager, va
             delay(period)
             lobbyManager.clean()
             gamesManager.clean()
-            connections.removeIf { !it.session.isActive }
+            connectionManager.clean()
         }
     }
 }

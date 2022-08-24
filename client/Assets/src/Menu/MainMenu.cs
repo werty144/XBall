@@ -42,7 +42,7 @@ public class MainMenu : MonoBehaviour
 
     public void test()
     {
-        Log.Debug("Huy");
+        GameObject.Find("Global/ManagerOfScenes/Canvas").SetActive(true);
     }
 
     public void activateOverlayBlock(string message="Blocked")

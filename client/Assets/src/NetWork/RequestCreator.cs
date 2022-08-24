@@ -29,12 +29,30 @@ public class RequestCreator
             new 
             {
                 path = makeMove,
+                userID = SteamAuth.GetSteamID().ToString(),
                 body = new
                 {
-                    addressant = SteamAuth.GetSteamID().ToString(),
                     playerId = player.GetComponent<PlayerController>().id,
                     action = action,
                     actionData = actionData
+                }
+            },
+            MessagePack.Resolvers.ContractlessStandardResolver.Options
+            );
+        string request = MessagePackSerializer.ConvertToJson(bin);
+        sendRequest(request);
+    }
+
+    public static void createGameReadyRequest()
+    {
+        byte[] bin = MessagePackSerializer.Serialize(
+            new 
+            {
+                path = "gameReady",
+                userID = SteamAuth.GetSteamID().ToString(),
+                body = new
+                {
+                    
                 }
             },
             MessagePack.Resolvers.ContractlessStandardResolver.Options
@@ -84,18 +102,17 @@ public class RequestCreator
             new 
             {
                 path = "lobbyReady",
+                userID = SteamAuth.GetSteamID().ToString(),
                 body = new
                 {
                     // Can't deserialize ulong on the server
                     id = lobbyData.ID.ToString(),
-                    nMembers = lobbyData.membersData.Count,
+                    maxCapacity = lobbyData.membersData.Count,
                     gameProperties = new
                     {
                         speed = lobbyData.metaData.speed,
                         playersNumber = lobbyData.metaData.playersNumber
-                    },
-                    // Can't deserialize ulong on the server
-                    members = lobbyData.membersData.ConvertAll(data => data.ID.ToString())
+                    }
                 }
             },
             MessagePack.Resolvers.ContractlessStandardResolver.Options

@@ -22,16 +22,17 @@ fun Application.module(testing: Boolean = false) {
         json()
     }
 
-    val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
-    val gamesManager = GamesManager(connections)
+    val connectionManager = ConnectionManager()
+    val gamesManager = GamesManager(connectionManager)
     val lobbyManager = LobbyManager(gamesManager)
     val authenticationManager = AuthenticationManager()
+    val gameStartManager = GameStartManager(gamesManager, lobbyManager, connectionManager)
 
-    configureRouting(gamesManager, lobbyManager, authenticationManager, connections)
+    configureRouting(gamesManager, authenticationManager, connectionManager, gameStartManager)
 
-    val logger = Logger(lobbyManager, gamesManager, connections)
+    val logger = Logger(lobbyManager, gamesManager, connectionManager)
     launch { logger.logPeriodically() }
 
-    val cleaner = Cleaner(lobbyManager, gamesManager, connections)
+    val cleaner = Cleaner(lobbyManager, gamesManager, connectionManager)
     launch { cleaner.cleanPeriodically() }
 }

@@ -33,22 +33,6 @@ public class ApiServerReady
 }
 
 [MessagePackObject(keyAsPropertyName: true)]
-public class ApiGameInfoAddressee
-{
-  public string path;
-  public string addressee;
-  public GameInfo body;
-}
-
-[MessagePackObject(keyAsPropertyName: true)]
-public class ApiPrepareGameAddressee
-{
-	public string path;
-    public string addressee;
-	public PrepareGameBody body;
-}
-
-[MessagePackObject(keyAsPropertyName: true)]
 public class GameInfo
 {
 	public GameState state;

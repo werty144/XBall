@@ -1,7 +1,8 @@
 package com.example.game
 
+import com.xballserver.remoteserver.game.Game
+import com.xballserver.remoteserver.game.Side
 import com.xballserver.remoteserver.game.targetAttempt
-import com.xballserver.remoteserver.infrastructure.logToFile
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient

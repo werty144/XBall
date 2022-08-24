@@ -7,13 +7,13 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.OutputStream
 
-class Logger(val lobbyManager: LobbyManager, val gamesManager: GamesManager, val connections: Connections) {
+class Logger(val lobbyManager: LobbyManager, val gamesManager: GamesManager, val connectionManager: ConnectionManager) {
     suspend fun logPeriodically(period: Long = 3000L, outputStream: OutputStream = System.out) {
         while (true) {
             delay(period)
             withContext(Dispatchers.IO) {
                 outputStream.write((
-                        "${connections.size} Connections: $connections\n" +
+                        "${connectionManager.connections.size} Connections: ${connectionManager.connections}\n" +
                         "${gamesManager.games.size} Games: ${gamesManager.games}\n" +
                                 "${lobbyManager.lobbies.size} Lobbies: ${lobbyManager.lobbies}\n" +
                                 "\n"
@@ -25,5 +25,5 @@ class Logger(val lobbyManager: LobbyManager, val gamesManager: GamesManager, val
 
 fun logToFile(message: String, fileName: String="serverLog.txt")
 {
-    File(fileName).appendText(message)
+    File(fileName).appendText(message + '\n')
 }

@@ -7,10 +7,9 @@ public class DontDestroy : MonoBehaviour
     static bool instantiated = false;
     void Awake()
     {
-        DontDestroyOnLoad(this);
-
         if (!instantiated)
         {
+            DontDestroyOnLoad(this);
             instantiated = true;
         } else 
         {

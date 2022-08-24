@@ -1,8 +1,8 @@
 package com.xballserver.remoteserver.routing
 
-import com.xballserver.remoteserver.infrastructure.GamesManager
-import com.xballserver.remoteserver.infrastructure.LobbyManager
+import com.xballserver.remoteserver.infrastructure.*
 import io.ktor.websocket.*
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.*
 import kotlinx.serialization.DeserializationStrategy
 
@@ -21,34 +21,24 @@ fun <T>tryJsonParse(serializer: DeserializationStrategy<T>, input: Any): T? {
 
 class APIHandler(
     private val gamesManager: GamesManager,
-    private val lobbyManager: LobbyManager,
-    private val connections: Set<Connection>
+    private val gameStartManager: GameStartManager
 ) {
-    fun handle(frame: Frame, connection: Connection) {
-        when (frame) {
-            is Frame.Text -> {
-                val userId = connection.userId
-                val requestString = frame.readText()
-                val request = tryJsonParse(APIRequest.serializer(), requestString) ?: return
-
-                when (request.path) {
-                    "lobbyReady" -> {
-                        val requestBody = tryJsonParse(APILobby.serializer(), request.body) ?: return
-                        lobbyManager.lobbyReady(
-                            requestBody.lobbyID,
-                            userId,
-                            requestBody.nMembers,
-                            requestBody.gameProperties)
-                    }
-                    "makeMove" -> {
-                        val requestBody = tryJsonParse(APIMakeMove.serializer(), request.body) ?: return
-                        val gameId = gamesManager.getGameForUser(userId)?.gameId ?: return
-
-                        val move: APIMove = tryJsonParse(APIMove.serializer(), requestBody.move) ?: return
-                        gamesManager.makeMove(gameId, move, userId)
-                    }
-                }
+    suspend fun handle(path: String, userId: UserId, body: JsonElement) {
+        when (path) {
+            "lobbyReady" -> {
+                val apiLobby = tryJsonParse(APILobby.serializer(), body) ?: return
+                val lobby = apiLobby.toLobby()
+                gameStartManager.handleLobbyReadyRequest(lobby, userId)
+            }
+            "gameReady" -> {
+                gameStartManager.handleGameReadyRequest(userId)
+            }
+            "makeMove" -> {
+                val move = tryJsonParse(APIMove.serializer(), body) ?: return
+                val gameId = gamesManager.getGameForUser(userId)?.gameId ?: return
+                gamesManager.makeMove(gameId, move, userId)
             }
         }
     }
+
 }

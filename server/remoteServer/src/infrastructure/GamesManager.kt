@@ -1,15 +1,14 @@
 package com.xballserver.remoteserver.infrastructure
 
-import com.example.game.*
+import com.xballserver.remoteserver.game.Game
+import com.xballserver.remoteserver.game.GameId
+import com.xballserver.remoteserver.game.GameStatus
 import com.xballserver.remoteserver.routing.APIMove
-import com.xballserver.remoteserver.routing.Connection
 import com.xballserver.remoteserver.routing.createGameJSONString
-import com.xballserver.remoteserver.routing.createPrepareGameJSONString
-import io.ktor.websocket.*
 import kotlinx.coroutines.*
 import java.util.Collections
 
-class GamesManager(val connections: Set<Connection>) {
+class GamesManager(val connectionManager: ConnectionManager) {
     private var spareGameId: GameId = 0
     val games: MutableSet<Game> = Collections.synchronizedSet(LinkedHashSet())
     private val updateTime = 5L
@@ -26,60 +25,37 @@ class GamesManager(val connections: Set<Connection>) {
         val game = gameById(gameId)
         game?.makeMove(move, actorId)
     }
-    suspend fun startGameFromLobby(lobby: Lobby)
-    {
+
+    fun createGameFromLobby(lobby: Lobby): Game? {
         val userIds = lobby.members.toList()
-        if (userIds.map { getGameForUser(it) }.any { it != null }) return
-
-        val userConnections = userIds.map {id ->  connections.firstOrNull { con -> con.userId == id } }
-        if (!userConnections.map {isActiveConnection(it)}.all { it }) {
-            return
-        }
-
-        val game: Game
-        when (lobby.nMembers) {
+        val game = when (lobby.maxCapacity) {
             1 -> {
-                game = Game(spareGameId++, userIds[0], userIds[0], lobby.gameProperties, updateTime)
-                val firstUserMessage = createPrepareGameJSONString(game, Side.RIGHT)
-                userConnections[0]!!.session.send(firstUserMessage)
+                Game(spareGameId++, userIds[0], userIds[0], lobby.gameProperties, updateTime)
             }
             2 -> {
-                game = Game(spareGameId++, userIds[0], userIds[1], lobby.gameProperties, updateTime)
-                val firstUserMessage = createPrepareGameJSONString(game, Side.LEFT)
-                val secondUserMessage = createPrepareGameJSONString(game, Side.RIGHT)
-                userConnections[0]!!.session.send(firstUserMessage)
-                userConnections[1]!!.session.send(secondUserMessage)
+                Game(spareGameId++, userIds[0], userIds[1], lobby.gameProperties, updateTime)
             }
             else -> {
-                return
+                null
             }
-        }
-
+        } ?: return null
         games.add(game)
+        return game
+    }
+    fun startGame(game: Game) {
         game.toInitialState()
         val gameJob = gameCoroutineScope.launch { runGame(game) }
         runningGames.add(Pair(game.gameId, gameJob))
     }
 
     suspend fun runGame(game: Game) {
-        var firstPlayerConnection = connections.firstOrNull { (it.userId == game.user1Id) and it.session.isActive}
-        var secondPlayerConnection = connections.firstOrNull { (it.userId == game.user2Id) and it.session.isActive }
         while (true) {
             delay(updateTime)
             game.nextState()
             val message = createGameJSONString(game)
 
-            if (isActiveConnection(firstPlayerConnection)) {
-                firstPlayerConnection!!.session.send(message)
-            } else {
-                firstPlayerConnection = connections.firstOrNull { (it.userId == game.user1Id) and it.session.isActive}
-            }
-
-            if (isActiveConnection(secondPlayerConnection)) {
-                secondPlayerConnection!!.session.send(message)
-            } else {
-                secondPlayerConnection = connections.firstOrNull { (it.userId == game.user2Id) and it.session.isActive}
-            }
+            connectionManager.sendMessage(game.user1Id, message)
+            connectionManager.sendMessage(game.user2Id, message)
 
             if (game.getStatus() == GameStatus.ENDED) {
                 stopGame(game.gameId)
@@ -97,9 +73,7 @@ class GamesManager(val connections: Set<Connection>) {
         games.forEach { stopGame(it.gameId) }
     }
 
-    fun isActiveConnection(connection: Connection?): Boolean {
-        return (connection != null) && (connection.session.isActive)
-    }
+
 
     fun clean() {
 
