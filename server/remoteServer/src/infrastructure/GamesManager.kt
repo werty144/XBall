@@ -4,6 +4,7 @@ import com.xballserver.remoteserver.game.Game
 import com.xballserver.remoteserver.game.GameId
 import com.xballserver.remoteserver.game.GameStatus
 import com.xballserver.remoteserver.routing.APIMove
+import com.xballserver.remoteserver.routing.createEndGameJSONString
 import com.xballserver.remoteserver.routing.createGameJSONString
 import kotlinx.coroutines.*
 import java.util.Collections
@@ -58,19 +59,28 @@ class GamesManager(val connectionManager: ConnectionManager) {
             connectionManager.sendMessage(game.user2Id, message)
 
             if (game.getStatus() == GameStatus.ENDED) {
-                stopGame(game.gameId)
+                endGame(game.gameId)
                 return
             }
         }
     }
 
-    fun stopGame(gameId: GameId) {
+    suspend fun endGame(gameId: GameId) {
+        val game = games.find { it.gameId == gameId } ?: return
+
         runningGames.find { it.first == gameId }?.second?.cancel()
+        runningGames.removeIf { it.first == gameId }
+
+        val message = createEndGameJSONString()
+
+        connectionManager.sendMessage(game.user1Id, message)
+        connectionManager.sendMessage(game.user2Id, message)
+
         games.removeIf { it.gameId == gameId }
     }
 
-    fun stopAll() {
-        games.forEach { stopGame(it.gameId) }
+    suspend fun stopAll() {
+        games.forEach { endGame(it.gameId) }
     }
 
 

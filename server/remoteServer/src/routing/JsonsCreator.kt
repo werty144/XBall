@@ -97,10 +97,16 @@ fun createCancelGameJSONString(): String {
 
 fun createStartGameJSONString(): String {
     return Json.encodeToString(
-        (
-            mapOf(
-                "path" to Json.encodeToJsonElement("startGame")
-            )
+        mapOf(
+            "path" to Json.encodeToJsonElement("startGame")
+        )
+    )
+}
+
+fun createEndGameJSONString(): String {
+    return Json.encodeToString(
+        mapOf(
+            "path" to Json.encodeToJsonElement("endGame")
         )
     )
 }

@@ -183,7 +183,7 @@ data class GameProperties(
     val targetZ = 4.0
     val targetRadius = .4
     val flyHeight = targetZ
-    val winScore = 5
+    val winScore = 1
     val grabCoolDown = 500
     @kotlinx.serialization.Transient
     val ballBoundaries = run {

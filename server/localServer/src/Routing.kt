@@ -25,7 +25,6 @@ fun Application.configureRouting(gamesManager: GamesManager,
                 if (frame is Frame.Text) {
                     val message = frame.readText()
                     val request = tryJsonParse(APIRequestUser.serializer(), message) ?: continue
-                    logToFile("Request: $request")
                     val userID = request.userID.toULong()
                     apiHandler.handle(request.path, userID, request.body)
                 } else {

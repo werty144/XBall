@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Controller : MonoBehaviour
+public class GameUIController : MonoBehaviour
 {
+    [SerializeField] public GameObject menuButton;
     public void menuButtonRec()
     {
         SceneManager.LoadScene("MenuScene");
@@ -13,5 +14,10 @@ public class Controller : MonoBehaviour
     public void surrenderButtonRec()
     {
         Debug.Log("I surrender!");
+    }
+
+    public void onGameEnd()
+    {
+        menuButton.SetActive(true);
     }
 }

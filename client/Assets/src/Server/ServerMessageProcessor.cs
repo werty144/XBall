@@ -75,6 +75,9 @@ public class ServerMessageProcessor
                 case "cancelGame":
                     GameStarter.cancelGame();
                     break;
+                case "endGame":
+                    GameObject.Find("UIController").GetComponent<GameUIController>().onGameEnd();
+                    break;
                 default:
                     break;
             }
