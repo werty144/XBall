@@ -70,7 +70,7 @@ public class ServerMessageProcessor
                     UnityMainThreadDispatcher.Instance().Enqueue(() => GameStarter.prepareGame(body.game.state, body.side));
                     break;
                 case "startGame":
-                    // GameStarter.startGame();
+                    GameStarter.startGame();
                     break;
                 case "cancelGame":
                     GameStarter.cancelGame();
