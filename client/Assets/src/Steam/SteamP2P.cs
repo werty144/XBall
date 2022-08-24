@@ -40,10 +40,8 @@ public class SteamP2P : MonoBehaviour
 
     public static Queue<string> receiveMessages(int nMaxMessages)
     {
-        
         IntPtr[] messages = new IntPtr[nMaxMessages];
         int nMessages = SteamNetworkingMessages.ReceiveMessagesOnChannel(channelToUse, messages, nMaxMessages);
-        PerformanceTracker.P2PReceived.Add(nMessages);
         
         Queue<string> messageQueue = new Queue<string>();
         for (int i = 0; i < nMessages; i++)
@@ -58,7 +56,6 @@ public class SteamP2P : MonoBehaviour
 
     public static void sendMessage(string msg, CSteamID steamID)
     {
-        PerformanceTracker.P2PSent += 1;
         SteamNetworkingIdentity identity = new SteamNetworkingIdentity();
         identity.SetSteamID(steamID);
         // need to end null symbol in order to parse

@@ -10,16 +10,12 @@ using log4net;
 public class P2PReceiver : MonoBehaviour
 {
     public static bool isHost;
-    private static bool receivingMessages = false;
     public static readonly ILog Log = LogManager.GetLogger(typeof(P2PReceiver));
 
     void Update()
     {
-        if (receivingMessages)
-        {
-            Queue<string> messageQueue = SteamP2P.receiveMessages(8);
-            receiveMessages(messageQueue);
-        }
+        Queue<string> messageQueue = SteamP2P.receiveMessages(8);
+        receiveMessages(messageQueue);
     }
 
     public static void receiveMessages(Queue<string> messages)
@@ -54,15 +50,5 @@ public class P2PReceiver : MonoBehaviour
     private static void processMessagesClient(Queue<string> messages)
     {
         ServerMessageProcessor.processServerMessages(messages);
-    }
-
-    public static void startReceivingMessages()
-    {
-        receivingMessages = true;
-    }
-
-    public static void stopReceivingMessages()
-    {
-        receivingMessages = false;
     }
 }

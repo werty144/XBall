@@ -49,6 +49,29 @@ public class LobbyManager : MonoBehaviour
     {
         inLobby = true;
         setReadyFalse();
+        if (IAmLobbyOwner())
+        {
+            prepareToBeHost();
+        } else
+        {
+            prepareToBeClient();
+        }
+    }
+
+    public static void prepareToBeHost()
+    {
+        P2PReceiver.isHost = true;
+        RequestCreator.isHost = true;
+        ServerMessageProcessor.isHost = true;
+    }
+
+    public static void prepareToBeClient()
+    {
+        P2PReceiver.isHost = false;
+        RequestCreator.isHost = false;
+        ServerMessageProcessor.isHost = false;
+
+        SteamP2P.sendInitialMessage(getLobbyOwner());
     }
 
     public static void setMetaData(LobbyMetaData metaData)
