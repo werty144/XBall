@@ -215,6 +215,7 @@ GameObject:
   - component: {fileID: 60330573}
   - component: {fileID: 60330574}
   - component: {fileID: 60330575}
+  - component: {fileID: 60330576}
   m_Layer: 0
   m_Name: Steam
   m_TagString: Untagged
@@ -282,6 +283,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d1f48bc8a46f350588c53c37e547a50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &60330576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60330570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7f12ab921d9ebba4906e273aa09e8e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &90793879
