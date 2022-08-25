@@ -38,7 +38,7 @@ public class FriendBarController : MonoBehaviour
     {
         var image = this.gameObject.transform.Find("Avatar").GetComponent<RawImage>();
         image.texture = avatar;
-        if (image != null)
+        if (avatar != null)
         {
             avatarExists = true;
         }
