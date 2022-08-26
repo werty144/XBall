@@ -42,6 +42,7 @@ public class SteamP2P : MonoBehaviour
     {
         IntPtr[] messages = new IntPtr[nMaxMessages];
         int nMessages = SteamNetworkingMessages.ReceiveMessagesOnChannel(channelToUse, messages, nMaxMessages);
+        PerformanceTracker.P2PReceived.Add(nMessages);
         
         Queue<string> messageQueue = new Queue<string>();
         for (int i = 0; i < nMessages; i++)

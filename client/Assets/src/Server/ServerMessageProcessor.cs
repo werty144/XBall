@@ -21,6 +21,7 @@ public class ServerMessageProcessor
         string lastGameMessage = null;
         foreach (string messageWithAddresse in messages)
         {
+            PerformanceTracker.MessagesFromServer += 1;
             string[] splitted = messageWithAddresse.Split('\n');
             var addressee = Convert.ToUInt64(splitted[0]);
             string message = splitted[1]; 
