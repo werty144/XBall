@@ -9,6 +9,7 @@ import kotlin.collections.LinkedHashSet
 
 open class ConnectionManager {
     val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
+    var messagesSent = 0
 
     fun addConnection(connection: Connection) {
         connections.add(connection)
@@ -28,11 +29,18 @@ open class ConnectionManager {
     fun clean() {
         connections.removeIf { !isActiveConnection(it) }
     }
+
+    fun getAndNullifyMessagesSent(): Int {
+        val res = messagesSent
+        messagesSent = 0
+        return res
+    }
 }
 
 class LocalConnectionManager: ConnectionManager() {
     override suspend fun sendMessage(userId: UserId, message: String) {
         val connectionToHost = connections.find { it.userId == 0UL } ?: return
+        messagesSent += 1
         connectionToHost.session.send("${userId}\n" + message)
     }
 }

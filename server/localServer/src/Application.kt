@@ -8,11 +8,8 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.websocket.*
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.*
+import java.io.FileOutputStream
 
 
 var server: NettyApplicationEngine? = null
@@ -46,6 +43,13 @@ fun Application.module(testing: Boolean = false) {
     val gamesManager = GamesManager(connectionManager)
     val lobbyManager = LobbyManager(gamesManager)
     val gameStartManager = GameStartManager(gamesManager, lobbyManager, connectionManager)
+
+//    val logger = Logger(lobbyManager, gamesManager, connectionManager)
+//    launch {
+//        withContext(Dispatchers.IO) {
+//            logger.logPeriodically(outputStream = FileOutputStream("/home/anton/coding/XBall/client/build/xball_ubuntu/xball_Data/StreamingAssets/serverLog.txt"))
+//        }
+//    }
 
     configureRouting(gamesManager, connectionManager, gameStartManager)
 }
