@@ -12,7 +12,7 @@ import java.util.Collections
 class GamesManager(val connectionManager: ConnectionManager) {
     private var spareGameId: GameId = 0
     val games: MutableSet<Game> = Collections.synchronizedSet(LinkedHashSet())
-    private val updateTime = 5L
+    private val updateTime = 17L
     private val gameCoroutineScope: CoroutineScope = CoroutineScope(CoroutineName("Game scope"))
     private val runningGames: MutableSet<Pair<GameId, Job>> = Collections.synchronizedSet(LinkedHashSet())
 
