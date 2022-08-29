@@ -1,6 +1,10 @@
 package com.xballserver.remoteserver.infrastructure
 
 import com.xballserver.remoteserver.game.GameProperties
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.sql.Timestamp
 import java.util.*
 import kotlin.collections.LinkedHashSet
@@ -10,6 +14,16 @@ typealias UserId = ULong
 
 class LobbyManager(val gamesManager: GamesManager) {
     val lobbies: MutableSet<Lobby> = Collections.synchronizedSet(LinkedHashSet())
+    private val lobbyCleaningScope: CoroutineScope = CoroutineScope(CoroutineName("Lobby cleaner"))
+
+    init {
+        lobbyCleaningScope.launch {
+            while (true) {
+                delay(1000L)
+                clean()
+            }
+        }
+    }
 
     fun createLobby(lobbyID: LobbyID, nMembers: Int, gameProperties: GameProperties) {
         val newLobby = Lobby(lobbyID, nMembers, gameProperties)
@@ -28,22 +42,6 @@ class LobbyManager(val gamesManager: GamesManager) {
     fun exists(lobbyID: LobbyID): Boolean {
         return lobbies.any { it.id == lobbyID }
     }
-
-//    suspend fun lobbyReady(lobbyID: LobbyID, userId: UserId, nMembers: Int, gameProperties: GameProperties) {
-//        if (!lobbies.any { it.id == lobbyID }) {
-//            val newLobby = Lobby(lobbyID, nMembers, gameProperties)
-//            lobbies.add(newLobby)
-//        }
-//
-//        val lobby = lobbies.find { it.id == lobbyID }!!
-//        lobby.members.add(userId)
-//        if (lobby.members.size == nMembers) {
-//            coroutineScope {
-//                launch { gamesManager.startGameFromLobby(lobby) }
-//            }
-//            lobbies.remove(lobby)
-//        }
-//    }
 
     fun allReady(lobbyID: LobbyID): Boolean {
         val lobby = lobbies.find { it.id == lobbyID } ?: return false
