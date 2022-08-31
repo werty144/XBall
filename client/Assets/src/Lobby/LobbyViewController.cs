@@ -1,4 +1,5 @@
-using System.Collections;
+using System;
+using System.Linq;
 using System.Collections.Generic;
 
 
@@ -11,21 +12,25 @@ using static LobbyManager;
 
 public class LobbyViewController : MonoBehaviour
 {
-    [SerializeField] private GameObject memberBarPrefab;
-    // In the future can use script on prefab if needed
+    [SerializeField] private GameObject MyInLobbyBarPrefab;
+    [SerializeField] private GameObject OpponentsInLobbyBarPrefab;
+    [SerializeField] private GameObject gameParamsSwitchers;
+    [SerializeField] private GameObject gameParamsJustInfo;
+    [SerializeField] private GameObject ReadyButton;
+    [SerializeField] private GameObject ReadyLabelImage;
+    [SerializeField] private GameObject ReadyStatus;
+    [SerializeField] private GameObject playerNumberSwitch;
+    [SerializeField] private GameObject speedSwitch;
+
     private Color32 green = new Color32(72, 236, 70, 225);
     private Color32 red = new Color32(224, 0, 26, 225);
-    private GameObject infoText;
-    private GameObject content;
+    private Color32 white = new Color32(255, 255, 255, 225);
     private int playersNumber = 3;
     private string speed = "FAST";
 
 
     void Start()
     {
-        infoText = GameObject.Find("InfoText");
-        content = GameObject.Find("Scroll View/Viewport/Content");
-
         var lobbyData = LobbyManager.getLobbyData();
         if (lobbyData != null)
         {
@@ -41,24 +46,21 @@ public class LobbyViewController : MonoBehaviour
         return metaData;
     }
 
-    public void OnLobbyCreate()
-    {
-        LobbyManager.createLobby(getMetaData());
-    }
-
-    public void OnInvite()
-    {
-        LobbyManager.inviteToLobby();
-    }
-
     public void processPlayerNumberSelection(int newOption)
     {
-        if (newOption == 0)
+        switch (newOption)
         {
-            playersNumber = 3;
-        } else 
-        {
-            playersNumber = newOption;
+            case 0:
+                playersNumber = 3;
+                break;
+            case 1:
+                playersNumber = 2;
+                break;
+            case 2:
+                playersNumber = 1;
+                break;
+            default:
+                break;
         }
         LobbyManager.setMetaData(getMetaData());
     }
@@ -84,23 +86,83 @@ public class LobbyViewController : MonoBehaviour
 
     public void OnLobbyUpdate(LobbyData lobbyData)
     {
-        clean();
+        manageOpponent(lobbyData);
+        manageGameParams(lobbyData);
+        manageProfiles(lobbyData);
+        manageReady(lobbyData);
+    }
 
-        infoText.GetComponent<Text>().text = string.Format("Speed: {0}\nPlayers number: {1}", lobbyData.metaData.speed, lobbyData.metaData.playersNumber);
-
-        foreach (var member in lobbyData.membersData)
+    ulong? getOpponentID(LobbyData lobbyData)
+    {
+        ulong myID = (ulong)SteamAuth.GetSteamID();
+        ulong? opponentID = null;
+        foreach (ulong id in lobbyData.membersData.Select( m => m.ID))
         {
-            var memberBar = Instantiate(memberBarPrefab);
-            memberBar.transform.Find("Name").GetComponent<Text>().text = member.name;
-            if (member.isReady)
+            if (id != myID)
             {
-                memberBar.transform.Find("ReadyPanel").GetComponent<Image>().color = green;
+                opponentID = id;
+            }
+        }
+        return opponentID;
+    }
+
+    void manageOpponent(LobbyData lobbyData)
+    {
+        ulong? opponentID = getOpponentID(lobbyData);
+        OpponentsInLobbyBarPrefab.SetActive(opponentID != null);
+        ReadyStatus.SetActive(opponentID != null);
+    }
+
+    void manageGameParams(LobbyData lobbyData)
+    {
+        bool iAmOwner = LobbyManager.IAmLobbyOwner();
+        gameParamsSwitchers.SetActive(!iAmOwner);
+        gameParamsSwitchers.SetActive(iAmOwner);
+
+        setDropdownValue(playerNumberSwitch, lobbyData.metaData.playersNumber.ToString());
+        setDropdownValue(speedSwitch, lobbyData.metaData.speed);
+    }
+
+    void setDropdownValue(GameObject switch_, string newValue)
+    {
+        var dropDown = switch_.GetComponent<Dropdown>();
+        int desiredIndex = dropDown.options.FindIndex(option => option.text.ToLower() == newValue.ToLower());
+        if (dropDown.value != desiredIndex)
+        {
+            dropDown.value = desiredIndex;
+        }
+    }
+
+    void manageProfiles(LobbyData lobbyData)
+    {
+        ulong myID = (ulong)SteamAuth.GetSteamID();
+        MyInLobbyBarPrefab.GetComponent<PlayerLobbyBarController>().UserID = myID;
+
+        ulong? opponentID = getOpponentID(lobbyData);
+
+        OpponentsInLobbyBarPrefab.GetComponent<PlayerLobbyBarController>().UserID = opponentID;
+    }
+
+    void manageReady(LobbyData lobbyData)
+    {
+        ulong myID = (ulong)SteamAuth.GetSteamID();
+        foreach (LobbyMemberData md in lobbyData.membersData)
+        {
+            GameObject backGround;
+            if (md.ID == myID)
+            {
+                 backGround = ReadyButton;
+            } else
+            {
+                backGround = ReadyLabelImage;
+            }
+            if (md.isReady)
+            {
+                backGround.GetComponent<Image>().color = green;
             } else 
             {
-                memberBar.transform.Find("ReadyPanel").GetComponent<Image>().color = red;
+                backGround.GetComponent<Image>().color = white;
             }
-
-            memberBar.transform.SetParent(content.transform);
         }
     }
 
@@ -114,13 +176,13 @@ public class LobbyViewController : MonoBehaviour
         LobbyManager.lobbyChangeReady();
     }
 
-    public void clean()
+    public void enable()
     {
-        infoText.GetComponent<Text>().text = "Info:";
+        this.gameObject.SetActive(true);
+    }
 
-        foreach (Transform child in content.transform)
-        {
-            Destroy(child.gameObject);
-        }
+    public void disable()
+    {
+        this.gameObject.SetActive(false);
     }
 }

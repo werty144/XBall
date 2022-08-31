@@ -42,7 +42,10 @@ public class MainMenu : MonoBehaviour
 
     public void test()
     {
-        GameObject.Find("Global/ManagerOfScenes/Canvas").SetActive(true);
+        LobbyMetaData md = new LobbyMetaData();
+        md.playersNumber = 3;
+        md.speed = "FAST";
+        LobbyManager.createLobby(md);
     }
 
     public void activateOverlayBlock(string message="Blocked")

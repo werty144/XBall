@@ -16,7 +16,11 @@ public class LobbyManager : MonoBehaviour
 
     void Start()
     {
-        lobbyViewController = GameObject.Find("Lobby").GetComponent<LobbyViewController>();
+        lobbyViewController = this.gameObject.GetComponent<LobbyViewController>();
+        if (!inLobby)
+        {
+            lobbyViewController.disable();
+        }
     }
 
     public static async void createLobby(LobbyMetaData metaData)
@@ -43,6 +47,7 @@ public class LobbyManager : MonoBehaviour
         SteamLobby.lobbyCreated = false;
         
         setMetaData(metaData);
+        lobbyViewController.enable();
     }
 
     public static void enterLobby()
@@ -131,10 +136,7 @@ public class LobbyManager : MonoBehaviour
     {
         inLobby = false;
         SteamLobby.leaveLobby();
-        if (lobbyViewController != null)
-        {
-            lobbyViewController.clean();
-        }
+        lobbyViewController.disable();
     }
 
     public static void lobbyChangeReady()
