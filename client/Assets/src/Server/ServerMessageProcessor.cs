@@ -56,7 +56,8 @@ public class ServerMessageProcessor
             {
                 case "serverReady":
                     var readyMessage = MessagePackSerializer.Deserialize<ApiServerReady>(bin);
-                    Log.Info(string.Format("Server started at port: {0}", readyMessage.port));
+                    var processID = ServerManager.serverProcessID();
+                    Log.Info($"Server started at port: {readyMessage.port}; Process ID: {processID}");
                     ServerManager.OnServerReady(readyMessage.port);
                     break;
                 case "game":

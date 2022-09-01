@@ -21,6 +21,8 @@ public class LobbyViewController : MonoBehaviour
     [SerializeField] private GameObject ReadyStatus;
     [SerializeField] private GameObject playerNumberSwitch;
     [SerializeField] private GameObject speedSwitch;
+    [SerializeField] private GameObject JustInfoPlayersNumberText;
+    [SerializeField] private GameObject JustInfoSpeedText;
 
     private Color32 green = new Color32(72, 236, 70, 225);
     private Color32 red = new Color32(224, 0, 26, 225);
@@ -40,9 +42,7 @@ public class LobbyViewController : MonoBehaviour
 
     LobbyMetaData getMetaData()
     {
-        LobbyMetaData metaData = new LobbyMetaData();
-        metaData.speed = speed;
-        metaData.playersNumber = playersNumber;
+        LobbyMetaData metaData = new LobbyMetaData(speed, playersNumber);
         return metaData;
     }
 
@@ -116,11 +116,14 @@ public class LobbyViewController : MonoBehaviour
     void manageGameParams(LobbyData lobbyData)
     {
         bool iAmOwner = LobbyManager.IAmLobbyOwner();
-        gameParamsSwitchers.SetActive(!iAmOwner);
+        gameParamsJustInfo.SetActive(!iAmOwner);
         gameParamsSwitchers.SetActive(iAmOwner);
 
         setDropdownValue(playerNumberSwitch, lobbyData.metaData.playersNumber.ToString());
         setDropdownValue(speedSwitch, lobbyData.metaData.speed);
+
+        JustInfoPlayersNumberText.GetComponent<Text>().text = $"Players number: {lobbyData.metaData.playersNumber}";
+        JustInfoSpeedText.GetComponent<Text>().text = $"Speed: {lobbyData.metaData.speed}";
     }
 
     void setDropdownValue(GameObject switch_, string newValue)

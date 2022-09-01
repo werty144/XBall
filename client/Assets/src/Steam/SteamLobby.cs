@@ -35,7 +35,7 @@ public class SteamLobby : MonoBehaviour
         if (pCallback.m_eResult == EResult.k_EResultOK)
         {
             SteamMatchmaking.SetLobbyJoinable(lobbyID, true);
-            lobbyCreated = true;
+            LobbyManager.OnLobbyCreated();
         }
     }
 
@@ -46,11 +46,11 @@ public class SteamLobby : MonoBehaviour
         LobbyManager.enterLobby();
     }
     
-    public static void createLobby()
+    public static void createLobby(int membersN)
     {
         if (SteamManager.Initialized)
         {
-            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 2);
+            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, membersN);
         }
     }
 
@@ -90,7 +90,11 @@ public class SteamLobby : MonoBehaviour
 
     private void OnLobbyUpdate()
     {
-        LobbyManager.OnLobbyUpdate(getLobbyData());
+        var data = getLobbyData();
+        if (data != null)
+        {
+            LobbyManager.OnLobbyUpdate(data);
+        }
     }
 
     public static LobbyData getLobbyData()
@@ -98,6 +102,10 @@ public class SteamLobby : MonoBehaviour
         LobbyData lobbyData = new LobbyData();
         lobbyData.ID = getLobbyID();
         lobbyData.metaData = getLobbyMetaData();
+        if (lobbyData.metaData == null)
+        {
+            return null;
+        }
         lobbyData.membersData = getLobbyMembersData();
         return lobbyData;
     }
@@ -124,17 +132,16 @@ public class SteamLobby : MonoBehaviour
 
     private static LobbyMetaData getLobbyMetaData()
     {
-        LobbyMetaData metaData = new LobbyMetaData();
-        metaData.speed = SteamMatchmaking.GetLobbyData(lobbyID, "speed");
-        var playersNumber = SteamMatchmaking.GetLobbyData(lobbyID, "playersNumber");
-        if (playersNumber == "")
+        string speed = SteamMatchmaking.GetLobbyData(lobbyID, "speed");
+        int playersNumber;
+        try 
         {
-            metaData.playersNumber = -1;
-        } else
+            playersNumber = Int32.Parse(SteamMatchmaking.GetLobbyData(lobbyID, "playersNumber"));
+        } catch (FormatException)
         {
-            metaData.playersNumber = Int32.Parse(playersNumber);
+            return null;
         }
-        
+        LobbyMetaData metaData = new LobbyMetaData(speed, playersNumber);
         return metaData;
     }
 

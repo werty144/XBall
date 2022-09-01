@@ -9,7 +9,9 @@ using log4net;
 public class LobbyManager : MonoBehaviour
 {
     private static bool inLobby = false;
+    private static bool iAmOwner = false;
     private static bool ready = false;
+    private static ulong? inviteDemand = null;
     private static LobbyViewController lobbyViewController;
     public static readonly ILog Log = LogManager.GetLogger(typeof(LobbyManager));
 
@@ -23,39 +25,37 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
-    public static async void createLobby(LobbyMetaData metaData)
+    public static void createLobby(int membersN)
     {
         if (inLobby)
         {
             return;
         }
         
-        SteamLobby.createLobby();
+        SteamLobby.createLobby(membersN);
+    }
 
-        int timeSpent = 0;
-        while (!SteamLobby.lobbyCreated)
-        {
-            await Task.Delay(25);
-            timeSpent = timeSpent + 25;
-
-            if (timeSpent > 5000)
-            {
-                Log.Error("Can't create lobby");
-                return;
-            }
-        }
-        SteamLobby.lobbyCreated = false;
-        
-        setMetaData(metaData);
-        lobbyViewController.enable();
+    public static void OnLobbyCreated()
+    {
+        iAmOwner = true;
     }
 
     public static void enterLobby()
     {
         inLobby = true;
+
+        if (inviteDemand != null)
+        {
+            inviteToLobby((ulong)inviteDemand);
+            inviteDemand = null;
+        }
+
         setReadyFalse();
+
         if (IAmLobbyOwner())
         {
+            LobbyMetaData metaData = new LobbyMetaData("FAST", 3);
+            setMetaData(metaData);
             prepareToBeHost();
         } else
         {
@@ -87,17 +87,6 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
-    public static void inviteToLobby()
-    {
-        if (inLobby)
-        {
-            SteamLobby.inviteToLobby();
-        } else
-        {
-            Log.Info("You are not in lobby");
-        }
-    }
-
     public static void inviteToLobby(ulong userID)
     {
         if (inLobby)
@@ -105,7 +94,8 @@ public class LobbyManager : MonoBehaviour
             SteamLobby.inviteToLobby(userID);
         } else
         {
-            Log.Info("You are not in lobby");
+            inviteDemand = userID;
+            createLobby(2);
         }
     }
 
@@ -124,6 +114,7 @@ public class LobbyManager : MonoBehaviour
         if (lobbyViewController != null) 
         {
             lobbyViewController.OnLobbyUpdate(lobbyData);
+            lobbyViewController.enable();
         }
 
         if (SteamLobby.allInAndReady())
@@ -135,6 +126,7 @@ public class LobbyManager : MonoBehaviour
     public static void leaveLobby()
     {
         inLobby = false;
+        iAmOwner = false;
         SteamLobby.leaveLobby();
         lobbyViewController.disable();
     }
@@ -159,7 +151,7 @@ public class LobbyManager : MonoBehaviour
 
     public static bool IAmLobbyOwner()
     {
-        return inLobby && (SteamLobby.IAmLobbyOwner());
+        return inLobby && iAmOwner;
     }
 
     public static ulong getLobbyOwner()
@@ -190,6 +182,12 @@ public class LobbyMetaData
 {
     public string speed;
     public int playersNumber;
+
+    public LobbyMetaData(string speed, int playersNumber)
+    {
+        this.speed = speed;
+        this.playersNumber = playersNumber;
+    }
 }
 
 public class LobbyData

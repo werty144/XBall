@@ -39,7 +39,7 @@ public class ServerManager : MonoBehaviour
     {
         serverProcess = new Process();
         serverProcess.StartInfo.FileName = "java";
-        serverProcess.StartInfo.Arguments = "-jar /home/anton/coding/XBall/server/localServer/build/libs/localServer-0.0.1-all.jar";
+        serverProcess.StartInfo.Arguments = $"-jar {Application.streamingAssetsPath}/localServer-0.0.1-all.jar";
         serverProcess.StartInfo.UseShellExecute = false;
         serverProcess.StartInfo.RedirectStandardOutput = true;
         serverProcess.EnableRaisingEvents = true;
@@ -65,6 +65,11 @@ public class ServerManager : MonoBehaviour
             }
         }
         return true;
+    }
+
+    public static int serverProcessID()
+    {
+        return serverProcess.Id;
     }
 
     private static void serverExited(object sender, System.EventArgs e)
@@ -118,7 +123,6 @@ public class ServerManager : MonoBehaviour
 
     async void OnApplicationQuit()
     {
-        print("Killing server");
         await killServer();
     }
 

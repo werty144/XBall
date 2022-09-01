@@ -86,8 +86,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreLayout: 0
-  m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinWidth: 32
+  m_MinHeight: 32
   m_PreferredWidth: 32
   m_PreferredHeight: 32
   m_FlexibleWidth: -1
@@ -292,7 +292,7 @@ MonoBehaviour:
   m_PreferredHeight: -1
   m_FlexibleWidth: 1
   m_FlexibleHeight: -1
-  m_LayoutPriority: 2
+  m_LayoutPriority: 1
 --- !u!1 &4828803453244709435
 GameObject:
   m_ObjectHideFlags: 0
@@ -519,7 +519,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreLayout: 0
-  m_MinWidth: -1
+  m_MinWidth: 30
   m_MinHeight: -1
   m_PreferredWidth: 30
   m_PreferredHeight: -1

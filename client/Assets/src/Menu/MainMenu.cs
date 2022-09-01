@@ -42,10 +42,7 @@ public class MainMenu : MonoBehaviour
 
     public void test()
     {
-        LobbyMetaData md = new LobbyMetaData();
-        md.playersNumber = 3;
-        md.speed = "FAST";
-        LobbyManager.createLobby(md);
+        LobbyManager.createLobby(1);
     }
 
     public void activateOverlayBlock(string message="Blocked")
